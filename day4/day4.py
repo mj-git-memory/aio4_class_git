@@ -11,3 +11,7 @@
 # git remote remove origin ????
 # git pull origin main 
 # git clone 주소 
+
+import random
+nums = [random.randint(1, 100) for i in range(10)]
+print(nums)

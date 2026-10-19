@@ -12,4 +12,4 @@ if __name__ == "__main__":
     planner = StudyPlanner("student")
     print(planner.plan("Python basics"))
 
-## 오류 수정 
+## 오타 수정 
