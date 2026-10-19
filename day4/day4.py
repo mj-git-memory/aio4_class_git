@@ -12,6 +12,16 @@
 # git pull origin main 
 # git clone 주소 
 
+
+# 1.로컬 pc의 작업 폴더 설정
+# 2.git 원격 repository 설정
+# 3.config를 통해 username / user email 정보 입력
+# 4.git init 
+# 5.branch를 main으로 변경
+# 6.repository 연결
+# 7.코드 커밋
+# 8.푸시 
+
 import random
 nums = [random.randint(1, 100) for i in range(10)]
 print(nums)

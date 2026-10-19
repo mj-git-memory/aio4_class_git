@@ -1,5 +1,6 @@
 # Git · GitHub · VS Code 초기 설정 및 Push 실습 가이드
 
+<<<<<<< Updated upstream
 > **실습 목표:** 로컬 PC에 작업 폴더를 만들고, VS Code에서 프로젝트를 열어 GitHub 원격 저장소에 최초 커밋을 업로드한다.
 >
 > **실습 환경:** Windows 10/11, Git, Visual Studio Code(VS Code), GitHub 계정
@@ -272,3 +273,4 @@ git stash pop
 ---
 
 **실습 완료 기준:** 로컬 작업 폴더에서 `git status`를 실행해 상태를 확인할 수 있고, GitHub 원격 저장소의 `main` 브랜치에 작성한 코드와 커밋이 정상적으로 나타난다.
+
