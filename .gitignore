@@ -1,6 +1,6 @@
 .vscode
 .env
-*.pdf
+# *.pdf
 .DS_Store
 .env.*
 !.env.example

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>숫자 맞추기 · 10번의 기회</title>
+  <style>
+    :root { color-scheme: light; font-family: "Malgun Gothic", system-ui, sans-serif; color: #203b33; background: #f5f5ed; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 48px 20px; }
+    main { max-width: 640px; margin: 0 auto; }
+    .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .15em; color: #57776a; }
+    h1 { font-size: clamp(30px, 7vw, 46px); letter-spacing: -.05em; margin: 16px 0; }
+    .intro { line-height: 1.8; color: #5a6d64; margin-bottom: 28px; }
+    .card { padding: 32px; background: #fff; border: 1px solid #dce3d8; border-radius: 24px; }
+    .counters { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 28px; }
+    .counter { font-size: 14px; color: #5a6d64; }
+    .counter strong { display: block; color: #203b33; font-size: 28px; margin-top: 4px; }
+    label { display: block; font-weight: 700; margin-bottom: 10px; }
+    .input-row { display: flex; gap: 10px; }
+    input { width: 100%; min-width: 0; border: 1px solid #a8b8ae; border-radius: 12px; padding: 14px; font: inherit; font-size: 20px; }
+    button { cursor: pointer; border: 0; border-radius: 12px; font: inherit; font-weight: 700; padding: 14px 20px; }
+    .submit { flex-shrink: 0; color: #fff; background: #24664e; }
+    .reset { background: #eaf0e8; color: #24563f; width: 100%; margin-top: 20px; }
+    input:focus-visible, button:focus-visible { outline: 3px solid #a3c4aa; outline-offset: 3px; }
+    button:disabled, input:disabled { opacity: .55; cursor: default; }
+    .help { font-size: 13px; color: #687a6e; margin: 10px 0 0; }
+    .error { color: #aa3531; min-height: 20px; font-size: 14px; margin: 10px 0; }
+    .status { padding: 18px; border-radius: 12px; background: #f1f4ef; line-height: 1.6; }
+    .status[data-state="won"] { background: #e0f3e4; color: #1a5f38; }
+    .status[data-state="lost"] { background: #fff0df; color: #7e4a14; }
+    h2 { font-size: 17px; margin: 28px 0 12px; }
+    ol { padding: 0; margin: 0; list-style: none; }
+    li { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #edf0e9; padding: 12px 0; font-size: 14px; }
+    .empty { color: #718075; font-size: 14px; }
+    footer { text-align: center; font-size: 12px; color: #718075; margin-top: 24px; line-height: 1.8; }
+    @media (max-width: 420px) { body { padding: 28px 14px; } .card { padding: 22px; } .input-row { flex-direction: column; } }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">작은 숫자 게임 / PYTHON 실습에서 시작</p>
+    <h1>숫자를 맞혀 보세요.</h1>
+    <p class="intro">1부터 100 사이에 정답이 숨어 있습니다.<br>크고 작음의 힌트를 따라, 10번 안에 찾아보세요.</p>
+    <section class="card" aria-label="숫자 맞추기 게임">
+      <div class="counters">
+        <div class="counter">시도한 횟수<strong><span id="attempts">0</span> / 10</strong></div>
+        <div class="counter">남은 기회<strong id="remaining">10</strong></div>
+      </div>
+      <form id="guess-form" novalidate>
+        <label for="guess">어떤 숫자일까요?</label>
+        <div class="input-row">
+          <input id="guess" name="guess" type="number" min="1" max="100" step="1" inputmode="numeric" autocomplete="off" placeholder="1~100" aria-describedby="help error" required>
+          <button id="submit" class="submit" type="submit">확인하기</button>
+        </div>
+        <p id="help" class="help">정수를 입력하고 Enter 또는 확인하기를 누르세요.</p>
+        <p id="error" class="error" role="alert"></p>
+      </form>
+      <div id="status" class="status" role="status" aria-live="polite" aria-atomic="true"></div>
+      <h2>지금까지의 시도</h2>
+      <p id="empty" class="empty">첫 번째 숫자를 입력해 보세요.</p>
+      <ol id="history" aria-label="입력한 숫자와 결과"></ol>
+      <button id="restart" class="reset" type="button">새 게임 시작</button>
+    </section>
+    <footer>정답을 맞히거나 10번 시도하면 게임이 끝납니다.<br>새 게임 시작을 누르면 새로운 정답으로 다시 도전합니다.</footer>
+    <noscript><p>이 게임을 실행하려면 브라우저의 JavaScript를 활성화해 주세요.</p></noscript>
+  </main>
+
+  <script>
+    // HTML은 화면과 입력 폼을, JavaScript는 기존 Python 게임의 동작을 담당합니다.
+    // 외부 라이브러리나 서버 없이 이 파일만 열면 실행됩니다.
+    const MAX_ATTEMPTS = 10;
+    const form = document.getElementById('guess-form');
+    const input = document.getElementById('guess');
+    const submitButton = document.getElementById('submit');
+    const attemptsLabel = document.getElementById('attempts');
+    const remainingLabel = document.getElementById('remaining');
+    const error = document.getElementById('error');
+    const status = document.getElementById('status');
+    const history = document.getElementById('history');
+    const empty = document.getElementById('empty');
+    let answer;
+    let attempts;
+    let finished;
+
+    function startNewGame() {
+      // Python의 random.randint(1, 100)에 해당합니다.
+      answer = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      finished = false;
+      attemptsLabel.textContent = '0';
+      remainingLabel.textContent = String(MAX_ATTEMPTS);
+      input.value = '';
+      input.disabled = false;
+      input.removeAttribute('aria-invalid');
+      submitButton.disabled = false;
+      error.textContent = '';
+      status.textContent = '준비됐어요. 첫 번째 숫자를 입력해 주세요.';
+      status.dataset.state = 'playing';
+      history.replaceChildren();
+      empty.hidden = false;
+      input.focus();
+    }
+
+    function finishGame(message, state) {
+      finished = true;
+      status.textContent = message;
+      status.dataset.state = state;
+      input.disabled = true;
+      submitButton.disabled = true;
+      document.getElementById('restart').focus();
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (finished) return;
+
+      const rawValue = input.value.trim();
+      const guess = Number(rawValue);
+      if (rawValue === '' || !Number.isInteger(guess) || guess < 1 || guess > 100) {
+        error.textContent = '1부터 100 사이의 정수를 입력해 주세요. 기회는 줄어들지 않습니다.';
+        input.setAttribute('aria-invalid', 'true');
+        input.focus();
+        return;
+      }
+
+      error.textContent = '';
+      input.removeAttribute('aria-invalid');
+      attempts += 1;
+      attemptsLabel.textContent = String(attempts);
+      remainingLabel.textContent = String(MAX_ATTEMPTS - attempts);
+
+      let hint;
+      if (guess > answer) {
+        hint = '정답보다 커요. 더 작은 숫자를 입력하세요.';
+      } else if (guess < answer) {
+        hint = '정답보다 작아요. 더 큰 숫자를 입력하세요.';
+      } else {
+        hint = '정답이에요!';
+      }
+
+      const row = document.createElement('li');
+      const number = document.createElement('strong');
+      const result = document.createElement('span');
+      number.textContent = `${attempts}회 · ${guess}`;
+      result.textContent = hint;
+      row.append(number, result);
+      history.append(row);
+      empty.hidden = true;
+
+      // 마지막 기회에 맞혔을 때도 성공으로 처리하기 위해 정답을 먼저 확인합니다.
+      if (guess === answer) {
+        finishGame(`정답은 ${answer}! ${attempts}번 만에 맞혔어요.`, 'won');
+      } else if (attempts === MAX_ATTEMPTS) {
+        finishGame(`10번의 기회를 모두 사용했어요. 정답은 ${answer}입니다. 새 게임에 도전해 보세요.`, 'lost');
+      } else {
+        status.textContent = hint;
+        input.value = '';
+        input.focus();
+      }
+    });
+
+    document.getElementById('restart').addEventListener('click', startNewGame);
+    startNewGame();
+  </script>
+</body>
+</html>

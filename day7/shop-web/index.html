@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="쇼핑몰의 재고·배송·리뷰 API를 실제로 호출하며 배우는 Python 동기·비동기 실험실">
+  <title>장바구니 밖의 Python — 동기·비동기 실험실</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header><a class="brand" href="/">outside<span>장바구니 밖의 Python</span></a><nav aria-label="주 메뉴"><a href="#lab">실험하기</a><a href="#learn">개념 노트</a><a href="/docs" target="_blank" rel="noopener">API 문서 ↗</a></nav></header>
+<main>
+  <section class="intro"><p class="eyebrow">DAY 07 / PYTHON ASYNC LAB</p><h1>같은 상품 페이지.<br>기다리는 방식은 다르게.</h1><p>재고, 배송, 리뷰. 우리가 매일 여는 화면 뒤에는 여러 요청이 있습니다.<br>세 요청을 직접 보내고, 동기와 비동기의 차이를 측정해 보세요.</p><div class="intro-tags"><span>FastAPI</span><span>asyncio</span><span>HTTPX</span><span class="live">● 실제 로컬 HTTP 측정</span></div></section>
+
+  <section id="lab" class="lab" aria-labelledby="lab-title">
+    <div class="section-heading"><div><p class="eyebrow">01 / 상품 상세 페이지 실험</p><h2 id="lab-title">정보를 어떻게 불러올까요?</h2></div><span class="badge">단일 worker 기준</span></div>
+    <div class="workspace">
+      <div class="product-column">
+        <div class="product-art"><span class="art-label">EVERYDAY OBJECTS / 001</span><svg viewBox="0 0 400 320" role="img" aria-label="크림색 데일리 캔버스 가방 일러스트"><ellipse cx="202" cy="280" rx="118" ry="15" fill="#c9c8ba" opacity=".4"/><path d="M145 130V93c0-77 112-77 112 0v37" fill="none" stroke="#968c72" stroke-width="18"/><path d="M147 130V93c0-73 108-73 108 0v37" fill="none" stroke="#dfd7bd" stroke-width="11"/><path d="M107 117h188l23 150q-112 28-234 0z" fill="#e9e1c9" stroke="#b9ad90" stroke-width="2"/><path d="M115 126l-15 132m186-132l16 132" fill="none" stroke="#c6bba0" stroke-dasharray="4 4"/><path d="M126 135h151v120H126z" fill="#e3d9bd" opacity=".5"/><path d="M158 175h86v50h-86z" fill="#f8f5e9"/><text x="201" y="205" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#385447">outside</text></svg><span class="art-caption">일상의 가벼움을 담다.</span></div>
+        <div class="product-info"><p class="eyebrow">OUTSIDE / CANVAS COLLECTION</p><h3>에브리데이 캔버스 백</h3><p class="price">32,000<span>원</span><small>실험용 가상 상품</small></p></div>
+        <div class="service-cards" id="service-cards"><div><span>01 재고</span><strong>정보를 불러와 주세요</strong></div><div><span>02 배송</span><strong>정보를 불러와 주세요</strong></div><div><span>03 리뷰</span><strong>정보를 불러와 주세요</strong></div></div>
+        <p class="footnote">결제 기능이 없는 학습용 화면입니다. 외부 쇼핑몰에 접속하지 않습니다.</p>
+      </div>
+      <div class="experiment">
+        <div class="control-heading"><h3>요청 방식 선택</h3><label for="scale">API 대기 배율 <select id="scale"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label></div>
+        <div id="modes" class="modes" role="group" aria-label="요청 실행 방식"></div>
+        <div class="mode-description"><strong id="mode-title"></strong><p id="mode-desc"></p></div>
+        <div class="run-row"><button class="primary" id="run">상품 정보 불러오기 <span>↗</span></button><button class="secondary" id="compare">6가지 모두 비교</button></div>
+        <div class="status" role="status" aria-live="polite" id="status">준비 완료 · 모드를 선택하고 실행해 보세요.</div>
+        <div class="code-panel"><div><span>PYTHON / 실행하는 핵심 코드</span><span id="code-mode"></span></div><pre><code id="code"></code></pre></div>
+        <div class="health-box"><div><strong>다른 요청은 괜찮을까요?</strong><p>실행 중 눌러 서버가 응답하는지 확인하세요.</p></div><button id="health">서버 응답 확인</button><output id="health-result" aria-live="polite">/api/health · 아직 측정하지 않음</output></div>
+      </div>
+    </div>
+    <div class="measurements">
+      <div class="section-heading"><div><p class="eyebrow">MEASURED, NOT ANIMATED</p><h3>서버에서 실제로 흐른 시간</h3></div><div class="elapsed"><strong id="elapsed">—</strong><span>초 / 전체 소요</span></div></div>
+      <p class="muted" id="timeline-note">실행이 끝나면 서버가 기록한 각 API의 시작·종료 시각을 표시합니다.</p>
+      <div class="timeline" id="timeline"><p class="empty">아직 측정한 요청이 없습니다.</p></div>
+      <div class="history-wrap"><table><caption>이번 페이지에서 측정한 비교 기록 · 새로고침하면 초기화</caption><thead><tr><th>방식</th><th>대기 배율</th><th>예상 시간</th><th>실제 시간</th><th>대기 중 다른 요청</th></tr></thead><tbody id="history"><tr><td colspan="5" class="empty">실행 결과가 여기에 쌓입니다.</td></tr></tbody></table></div>
+    </div>
+  </section>
+
+  <section id="learn" class="learning"><p class="eyebrow">02 / 질문에서 출발하는 개념 노트</p><h2>코드가 움직이는 이유까지.</h2><p class="muted">수업에서 헷갈리기 쉬운 개념과, 직접 겪었던 오류를 함께 정리했습니다.</p><div id="lesson-tabs" class="lesson-tabs" role="tablist" aria-label="학습 주제"></div><article id="lesson" class="lesson" role="tabpanel" tabindex="0"></article></section>
+  <section class="run-guide"><div><p class="eyebrow">03 / 내 코드로 이어가기</p><h2>터미널 한 개로 시작하세요.</h2><p>FastAPI가 화면과 API를 함께 제공합니다.<br>프로젝트 루트 <code>AIO_4_class</code>에서 실행하세요.</p><p class="footnote">현재 환경에 fastapi · uvicorn · httpx가 필요합니다.<br>이벤트 루프 비교를 위해 worker는 하나를 사용하세요.</p></div><div><pre>python -m uvicorn day7.shop_lab:app --port 8010</pre><p><a href="http://127.0.0.1:8010">http://127.0.0.1:8010 ↗</a></p><p>종료는 <kbd>Ctrl</kbd> + <kbd>C</kbd>. 코드 수정 시 자동 재시작하려면 <code>--reload</code>를 추가하세요.</p></div></section>
+  <footer><span class="brand">outside<span>PYTHON LAB</span></span><p>비동기는 기다림을 없애지 않습니다. 기다리는 시간을 함께 씁니다.</p></footer>
+</main><script src="/static/app.js" defer></script>
+</body></html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>두 숫자 계산기</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><span class="badge">가볍게, 정확하게</span><h1>두 숫자 계산기<span>.</span></h1>
+    <p>숫자 두 개를 넣으면 네 가지 결과가 한 번에 나와요.</p></header>
+    <section class="panel" aria-label="숫자 입력">
+      <form id="calculator">
+        <div class="inputs">
+          <label for="a">첫 번째 숫자<input id="a" name="a" type="text" inputmode="decimal" placeholder="예: 12.5" required maxlength="50" autocomplete="off"></label>
+          <label for="b">두 번째 숫자<input id="b" name="b" type="text" inputmode="decimal" placeholder="예: 4" required maxlength="50" autocomplete="off"></label>
+        </div>
+        <p class="hint">음수와 소수도 가능해요. 소수점은 최대 10자리, 전체 숫자는 최대 30자리예요.</p>
+        <div class="actions"><button type="submit" id="submit">계산하기 <span aria-hidden="true">↗</span></button><button type="reset" class="secondary">초기화</button></div>
+        <p id="error" role="alert" hidden></p>
+      </form>
+    </section>
+    <section class="results" aria-labelledby="result-title" aria-live="polite" aria-atomic="true">
+      <div class="section-title"><h2 id="result-title">계산 결과</h2><span id="status">입력을 기다리고 있어요</span></div>
+      <div class="grid">
+        <article><div class="card-title"><span class="symbol">+</span><h3>더하기</h3></div><p class="expression" id="addition-expression">첫 번째 숫자 + 두 번째 숫자</p><output id="addition">—</output></article>
+        <article><div class="card-title"><span class="symbol">−</span><h3>빼기</h3></div><p class="expression" id="subtraction-expression">첫 번째 숫자 − 두 번째 숫자</p><output id="subtraction">—</output></article>
+        <article><div class="card-title"><span class="symbol">×</span><h3>곱하기</h3></div><p class="expression" id="multiplication-expression">첫 번째 숫자 × 두 번째 숫자</p><output id="multiplication">—</output></article>
+        <article><div class="card-title"><span class="symbol">÷</span><h3>나누기</h3></div><p class="expression" id="division-expression">첫 번째 숫자 ÷ 두 번째 숫자</p><output id="division">—</output></article>
+      </div>
+      <p class="footnote">나눗셈 결과는 소수점 아래 10자리까지 반올림해요.</p>
+    </section>
+    <footer>작은 계산도, 차근차근.</footer>
+  </main>
+</body>
+</html>
