@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="잠시 들른 오늘, 작은 인사 하나 남겨 주세요.">
+  <title>작은 방명록 · UI 파일럿</title>
+  <style>
+/* design.md의 aubergine + cream/lavender, 참고 이미지의 살구색 종이 배경. */
+:root {
+  color-scheme: light;
+  --primary: #4a154b;
+  --primary-press: #611f69;
+  --canvas: #fff;
+  --cream: #f4ede4;
+  --lavender: #f9f0ff;
+  --ink: #1d1d1d;
+  --mute: #696969;
+  --hairline: #e6e6e6;
+  --link: #1264a3;
+  font-family: "Inter", "Lato", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  color: var(--ink);
+  background: #f5f3f0;
+}
+* { box-sizing: border-box; }
+html { min-width: 280px; }
+body { margin: 0; min-height: 100vh; position: relative; isolation: isolate; }
+/* 추가 이미지 다운로드 없이 CSS로 부드러운 파스텔·종이 질감을 표현한다. */
+body::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 24px 24px auto;
+  height: 740px;
+  background:
+    repeating-linear-gradient(8deg, #ffffff08 0 1px, transparent 1px 4px),
+    radial-gradient(ellipse at 12% 8%, #edd4c6 0, transparent 60%),
+    radial-gradient(ellipse at 90% 20%, #e4d7df 0, transparent 55%),
+    radial-gradient(ellipse at 65% 100%, #d9b3a6 0, transparent 65%),
+    #dfbeb2;
+}
+main { max-width: 1060px; margin: auto; padding: 80px 40px 40px; display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); align-items: start; gap: 32px; }
+.intro { grid-column: 1 / -1; text-align: center; padding: 0 0 24px; }
+.intro-script { display: inline-block; color: var(--primary); font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 24px; padding: 0 12px 8px; border-bottom: 1px solid #4a154b42; }
+h1 { color: var(--primary); font-size: clamp(36px, 5vw, 54px); font-weight: 700; line-height: 1.2; letter-spacing: -.768px; margin: 20px 0 16px; }
+.intro p { color: #574c50; font-size: 17px; line-height: 1.55; margin: 0; }
+h2 { font-size: 24px; font-weight: 700; line-height: 1.33; letter-spacing: -.1px; margin: 0; }
+.write, #entries { background: var(--canvas); border: 1px solid #e9e0db; border-radius: 16px; padding: 32px; box-shadow: 0 12px 36px #5537460d; }
+.hint { color: var(--mute); font-size: 14px; line-height: 1.55; margin: 10px 0 24px; }
+label { display: block; font-size: 14px; font-weight: 600; margin: 24px 0 8px; }
+label span { color: var(--mute); font-size: 12px; font-weight: 400; margin-left: 6px; }
+input, textarea { width: 100%; font: inherit; font-size: 16px; line-height: 1.55; border: 1px solid #ddd8d7; background: var(--canvas); color: var(--ink); padding: 10px 12px; border-radius: 4px; }
+input { min-height: 46px; }
+textarea { resize: vertical; min-height: 150px; }
+input::placeholder, textarea::placeholder { color: var(--mute); }
+input:focus, textarea:focus { border-color: var(--primary); }
+:focus-visible { outline: 3px solid #611f6952; outline-offset: 3px; }
+.form-bottom { display: flex; flex-direction: column; align-items: stretch; gap: 16px; margin-top: 24px; }
+.form-bottom > span { color: var(--mute); font-size: 12px; line-height: 1.55; }
+button { font: inherit; font-size: 16px; font-weight: 700; min-height: 50px; border: 1px solid var(--primary); border-radius: 90px; background: var(--primary); color: var(--canvas); padding: 14px 28px; cursor: pointer; }
+button:hover, button:active { background: var(--primary-press); }
+#entries { scroll-margin-top: 24px; }
+.list-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-bottom: 24px; border-bottom: 1px solid var(--hairline); }
+.list-title > span, time { font-size: 12px; color: var(--mute); }
+h2 span { display: inline-block; font-size: 12px; font-weight: 600; margin-left: 4px; padding: 4px 10px; background: var(--lavender); color: var(--primary); border-radius: 90px; vertical-align: middle; }
+.entry { padding: 24px 0; border-bottom: 1px solid var(--hairline); }
+.entry header { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+h3 { font-size: 16px; font-weight: 700; line-height: 1.5; margin: 0; overflow-wrap: anywhere; }
+.entry p { color: #494449; font-size: 16px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; margin: 12px 0; }
+a { color: var(--link); text-underline-offset: 4px; }
+.edit-link { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; font-size: 13px; font-weight: 600; padding: 10px 30px; background: var(--lavender); color: var(--primary); border-radius: 90px; text-decoration: none; }
+.empty { text-align: center; color: var(--mute); font-size: 15px; line-height: 1.7; margin: 0; padding: 48px 0; }
+nav { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 24px; font-size: 13px; }
+nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 10px 24px; background: var(--lavender); border-radius: 90px; text-decoration: none; }
+.notice { grid-column: 1 / -1; padding: 16px 24px; border: 1px solid #d7e7de; border-radius: 12px; background: #f1f8f5; color: #006448; font-size: 14px; line-height: 1.55; margin: 0; }
+.error { border-color: #e8cabd; background: #fff5ef; color: #a13212; }
+footer { grid-column: 1 / -1; margin-top: 24px; background: var(--primary); color: #d9bdde; text-align: center; border-radius: 16px; font-size: 13px; line-height: 1.55; padding: 32px 24px; }
+.footer-script { color: white; font-family: Georgia, "Times New Roman", serif; font-size: 22px; font-style: italic; }
+footer p { margin: 12px 0 0; }
+.pilot-banner { grid-column: 1 / -1; padding: 12px 20px; background: var(--cream); border: 1px solid #ded0c7; border-radius: 12px; color: #5c494b; font-size: 13px; line-height: 1.55; text-align: center; }
+@media (max-width: 850px) {
+  main { max-width: 680px; padding: 64px 24px 24px; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .intro { padding-bottom: 16px; }
+  body::before { inset: 16px 16px auto; height: 850px; }
+}
+@media (max-width: 480px) {
+  main { padding: 48px 24px 24px; gap: 20px; }
+  body::before { inset: 10px 10px auto; height: 760px; }
+  h1 { font-size: 36px; }
+  h2 { font-size: 21px; }
+  .intro p { font-size: 15px; }
+  .write, #entries { padding: 24px 20px; }
+  label span { display: block; margin: 4px 0 0; }
+  .footer-script { font-size: 19px; }
+}
+
+</style>
+</head>
+<body>
+  <main>
+    <aside class="pilot-banner">UI 파일럿 · 아래 글은 예시입니다. 입력·버튼은 실제 DB에 저장되지 않습니다.</aside>
+    <header class="intro">
+      <span class="intro-script" aria-hidden="true">Guest Book.</span>
+      <h1>작은 방명록</h1>
+      <p>잠시 들른 오늘, 작은 인사 하나 남겨 주세요.</p>
+    </header>
+    
+    <section class="write" aria-labelledby="write-title">
+      <h2 id="write-title">안부 남기기</h2>
+      <p class="hint">남겨 주신 이름과 이야기는 모두에게 공개됩니다.</p>
+      <div class="pilot-form">
+        <label for="name">이름 <span>최대 20자</span></label>
+        <input id="name" name="name" value="" placeholder="어떤 이름으로 남길까요?" required maxlength="20" autocomplete="nickname">
+        <label for="message">이야기 <span>최대 500자</span></label>
+        <textarea id="message" name="message" placeholder="반가운 인사도, 오늘의 작은 발견도 좋아요." required maxlength="500" rows="5"></textarea>
+        <label for="password">수정용 비밀번호 <span>숫자 4자리 · 수정할 때 필요해요</span></label>
+        <input id="password" type="password" name="password" required minlength="4" maxlength="4" pattern="[0-9]{4}" inputmode="numeric" autocomplete="new-password" aria-describedby="password-help">
+        <p id="password-help" class="hint">수정할 때 다시 입력해요. 잊어버리면 글을 수정할 수 없습니다.</p>
+        <div class="form-bottom"><span>따뜻한 말 한마디를 기다려요. </span><button type="button">방명록 남기기 ↗</button></div>
+      </div>
+    </section>
+    <section id="entries" aria-labelledby="entries-title">
+      <div class="list-title"><h2 id="entries-title">남겨진 이야기 <span>3</span></h2><span>최신순</span></div>
+      <article class="entry"><header><h3>서연</h3><time datetime="2026-10-23T14:20+09:00">2026.10.23 · 14:20 KST</time></header><p>오늘도 작은 걸음을 남기고 갑니다.
+이 공간에 좋은 이야기들이 가득 쌓이길 바라요.</p><a class="edit-link" href="#write-title">수정</a></article><article class="entry"><header><h3>지우</h3><time datetime="2026-10-23T13:45+09:00">2026.10.23 · 13:45 KST</time></header><p>잠깐 들렀는데 마음이 편안해지네요. 반갑습니다!</p><a class="edit-link" href="#write-title">수정</a></article><article class="entry"><header><h3>민서</h3><time datetime="2026-10-23T11:10+09:00">2026.10.23 · 11:10 KST</time></header><p>새로운 시작을 응원해요. 다음에 또 인사하러 올게요.</p><a class="edit-link" href="#write-title">수정</a></article>
+      <nav aria-label="방명록 페이지"><span aria-current="page">1 / 1</span></nav>
+    </section>
+    <footer><span class="footer-script" aria-hidden="true">A little hello, a lasting memory.</span><p>작은 인사가 모여, 오래 기억될 공간.</p></footer>
+  </main>
+</body>
+</html>

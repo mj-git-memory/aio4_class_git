@@ -4,6 +4,8 @@
 
 사용자가 선택한 Render Free에 현재 FastAPI 방명록을 배포하는 절차입니다. Render의 공개 공식 문서와 문서 내 대시보드 안내를 확인했습니다. 로그인된 사용자 대시보드나 실제 배포 서비스는 확인하지 않았습니다. 계정별 화면 배치는 달라질 수 있으므로 아래 필드 이름을 기준으로 설정하세요.
 
+> **이미 study/day8으로 배포한 서비스를 main으로 바꾸려면:** 아래 [8-1. 기존 서비스의 배포 브랜치 변경](#8-1-기존-서비스의-배포-브랜치를-studyday8에서-main으로-변경)을 먼저 진행하세요. 바꿀 항목은 Branch이고, Root Directory는 `day1-day8`을 유지합니다.
+
 ## 1. 배포할 구성
 
 | 항목 | 현재 프로젝트 기준 |
@@ -152,11 +154,41 @@ Render의 기본 Python은 서비스 생성일에 따라 달라집니다. 기존
 
 2026-10-23 로컬 작업 브랜치는 `main`입니다. 이번 수정은 숫자 4자리 비밀번호와 `design.md` 기반 화면 변경입니다. 이전에 만든 **동일한 Render 서비스**를 갱신하면 됩니다.
 
-### 8-1. Render의 연결 브랜치를 main으로 맞추기
+### 8-1. 기존 서비스의 배포 브랜치를 study/day8에서 main으로 변경
 
-Render의 해당 서비스 **Settings > Build & Deploy**에서 Branch를 `main`으로 확인·변경합니다. 예전 작업 브랜치로 남아 있으면 main에 올린 수정이 반영되지 않습니다. Root Directory는 `day1-day8`, 기존 Build/Start 명령과 환경변수는 그대로 유지합니다. Auto-Deploy는 **On Commit**으로 설정합니다. [공식 자동 배포 안내](https://render.com/docs/deploys)
+`study/day8`과 `main`은 **Git 브랜치 이름**입니다. 앱이 있는 폴더 경로 `day1-day8`과는 별개의 설정입니다. 기존 서비스를 수정하므로 새 서비스를 만들거나 사이트 URL을 바꿀 필요는 없습니다.
+
+1. GitHub의 `mj-git-memory/aio4_class_git` 저장소에서 **main** 브랜치를 선택해 최신 `day1-day8/main.py`, `passwords.py`, `templates/index.html`, `static/style.css`가 올라갔는지 확인합니다. 로컬 main만 수정했다면 먼저 Commit·Push해야 합니다. 이미 GitHub main에 반영했다면 중복 커밋하지 않습니다.
+2. [Render Dashboard](https://dashboard.render.com/)에서 **기존 방명록 Web Service**를 엽니다.
+3. 서비스의 **Settings > Build & Deploy**로 이동합니다.
+4. **Branch** 항목 옆 **Edit**를 누릅니다.
+5. `study/day8` 대신 **main**을 선택하고 저장 버튼(예: **Save Changes**)을 누릅니다. 저장과 재배포 옵션이 함께 표시되면 main으로 저장해 재배포합니다.
+6. **Root Directory는 `day1-day8`을 유지**합니다. 여기에 `main`을 입력하지 않습니다.
+7. **Auto-Deploy**를 **On Commit**으로 설정합니다.
+8. 새 배포가 시작됐으면 진행 상태를 확인합니다. 시작하지 않았다면 **Deploys > Manual Deploy > Deploy latest commit**을 선택합니다. 최신 main 코드를 가져오는 단계입니다. **Restart service**는 현재 배포 커밋을 재실행하는 옵션이므로 대체하지 못합니다.
+9. 배포 성공 후 배포 상세의 커밋 ID·메시지를 GitHub main의 최신 커밋과 비교합니다. 기존 URL에서 새 디자인과 4자리 비밀번호 기능을 확인합니다.
+
+확인할 최종 설정:
+
+| 항목 | 값 |
+| --- | --- |
+| Repository | `mj-git-memory/aio4_class_git` |
+| Branch | **main** |
+| Root Directory | **day1-day8** |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1` |
+| Auto-Deploy | **On Commit** |
+| Instance Type / Compute plan | **Free** |
+
+기존 `PYTHON_VERSION=3.13.5`와 `/health` 설정도 유지합니다. Branch 선택 목록에 main이 없으면 GitHub 저장소 선택과 접근 권한, main의 원격 업로드 여부를 확인하세요. 설정을 저장했는데 옛 화면이 보이면 배포된 커밋 ID를 먼저 확인한 후 `Command + Shift + R`로 새로고침합니다.
+
+공식 근거: [연결 브랜치와 Web Service 설정](https://render.com/docs/web-services), [자동·수동 배포 옵션](https://render.com/docs/deploys), [Root Directory 규칙](https://render.com/docs/monorepo-support).
+
+**Free 환경의 기존 SQLite 글은 이번 재배포에서도 초기화될 수 있습니다.** 이후 수정은 main에 Commit·Push하면 같은 서비스가 자동 재배포됩니다. 아래 8-2·8-3은 다음 수정 시 사용할 절차이며, 이미 GitHub main에 최신 코드를 올렸다면 이번에는 8-4의 배포 확인으로 넘어갑니다.
 
 ### 8-2. 로컬 테스트와 변경 확인
+
+**먼저 화면만 확인하려면:** Finder에서 `day1-day8/pilot.html`을 Chrome 또는 Safari로 엽니다. 살구빛 종이 배경·자주색 버튼·두 열의 폼과 예시 목록을 확인할 수 있습니다. 이 파일은 DB와 연결되지 않으며 저장·수정 버튼의 실제 동작은 하지 않습니다. 템플릿이나 CSS를 바꿨다면 프로젝트 루트에서 `.venv/bin/python day1-day8/build_pilot.py`로 파일럿을 다시 생성합니다. 검토 중에는 Push하지 않습니다.
 
 프로젝트 루트에서 실행합니다.
 
@@ -191,7 +223,7 @@ Auto-Deploy가 On Commit이면 Push 후 자동 빌드됩니다. 자동으로 시
 
 배포 성공 후 기존 URL을 다시 열고 다음을 확인합니다.
 
-1. 흰 배경·검정 버튼·둥근 입력창과 가운데 제목이 보이는지.
+1. 살구빛 파스텔 배경·자주색 pill 버튼·흰 종이 카드와 가운데 제목이 파일럿과 같은지.
 2. 새 글에 `0123` 같은 숫자 4자리로 작성·수정할 수 있는지.
 3. 새 글 작성 시 3자리·5자리·문자가 거절되는지.
 4. `/health`가 정상인지. 바뀐 CSS가 보이지 않으면 Mac Chrome에서 `Command + Shift + R`로 새로고침합니다.

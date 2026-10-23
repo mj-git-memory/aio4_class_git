@@ -55,7 +55,23 @@ python -m pip install -r requirements.txt
 
 ## 화면 디자인
 
-`design.md`의 흰 배경, 검정 기본 버튼, 둥근 입력창과 버튼, 12px 반경의 폼, 회색 구분선, 중앙 제목, 720px 단일 열과 넉넉한 여백을 적용했습니다. 여러 줄 입력은 읽기 쉽도록 12px 반경을 사용합니다. 시스템 폰트만 사용하며 그림자·그라데이션·외부 폰트·JavaScript는 추가하지 않았습니다. 작은 화면에서는 제목과 여백을 줄이고 버튼을 세로로 배치합니다.
+교체된 `design.md`의 자주색(`#4a154b`) 기본 버튼, 크림·라벤더 색감, 넉넉한 pill 버튼, 16px 카드와 4px 입력창을 적용했습니다. 첨부된 참고 이미지처럼 살구빛 배경 위에 흰 종이를 얹은 느낌을 CSS의 파스텔 그라데이션·미세한 선과 옅은 그림자로 표현합니다. 데스크톱에서는 입력과 목록을 두 열로, 850px 이하에서는 한 열로 배치합니다. 폰트는 기기에 있는 Inter/Lato와 운영체제 폰트를 사용하며 외부 폰트 다운로드·이미지 파일·JavaScript는 추가하지 않았습니다.
+
+## 배포 전 UI 파일럿 보기
+
+**`pilot.html`은 서버 없이 브라우저에서 열 수 있는 화면 확인용 파일입니다.** 실제 템플릿과 CSS를 포함하며, 예시 글 3개만 보여 줍니다. 입력창에는 입력할 수 있지만 작성 버튼은 저장하지 않고 수정 링크는 입력창으로 이동만 합니다. 실제 방명록 DB를 읽거나 변경하지 않습니다.
+
+1. VS Code에서 `pilot.html`을 우클릭하고 **Finder에서 보기 / Reveal in Finder**를 선택합니다.
+2. Finder에서 `pilot.html`을 더블클릭하거나 **다음으로 열기 > Chrome 또는 Safari**를 선택합니다.
+3. 배경·입력창·목록 배치를 보고, 브라우저 창을 좁혀 모바일 너비도 확인합니다.
+
+HTML이나 CSS를 다시 수정했다면 프로젝트 루트에서 다음을 실행하고 파일럿 탭을 새로고침합니다. Python 표준 라이브러리만 사용합니다.
+
+```sh
+.venv/bin/python day1-day8/build_pilot.py
+```
+
+파일럿은 생성 시점의 화면 사본입니다. 새 CSS가 자동 반영되는 파일은 아니므로 디자인을 수정한 뒤에는 위 명령을 다시 실행합니다. 실제 작성·비밀번호·수정 기능은 위 **실행** 절차로 로컬 서버를 켜서 확인합니다. 화면 확인이 끝나기 전에는 Commit·Push하지 않으면 Render 자동 배포를 시작하지 않습니다.
 
 ## 파일
 
@@ -69,12 +85,16 @@ python -m pip install -r requirements.txt
 | `test_guestbook.py` | 저장, 경계값, 공격 문자열, 페이지 이동 검증 |
 | `ANALYSIS.md` | day1~day8 학습 내용과 구현 연결 |
 | `design.md` | 화면 디자인 참고 지침 |
+| [pilot.html](pilot.html) | 브라우저에서 직접 여는 독립형 UI 파일럿 |
+| `build_pilot.py` | 실제 템플릿·CSS와 예시 글로 파일럿 재생성 |
 | [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md) | 선택한 Render Free 배포 절차, 설정값, 오류 해결 |
 | `DEPLOYMENT.md` | 서비스 선택 전의 무료 호스팅 비교 기록 |
 
 ## Render 배포
 
 [Render 전용 배포 가이드](RENDER_DEPLOYMENT.md)를 따라 진행합니다. 현재 저장소 기준 Root Directory는 `day1-day8`, Branch는 수정 내용을 올릴 `main`, 환경변수는 `PYTHON_VERSION=3.13.5`입니다. 수정 후 재배포는 가이드의 **수정 버전 다시 배포하기**를 참고하세요. **Render Free에서는 재시작·재배포·절전 시 SQLite 글이 사라집니다.**
+
+기존 서비스가 `study/day8`으로 연결돼 있다면 Render의 **Settings > Build & Deploy > Branch > Edit**에서 `main`으로 저장합니다. **Root Directory는 `day1-day8`을 유지**하고, 배포가 시작하지 않으면 **Manual Deploy > Deploy latest commit**을 선택합니다. 상세 절차는 배포 가이드의 **8-1**에 있습니다.
 
 ## 테이블
 
