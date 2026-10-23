@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="잠시 들른 오늘, 작은 인사 하나 남겨 주세요.">
+  <title>작은 방명록</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main>
+    <header class="intro">
+      <span class="eyebrow">A LITTLE HELLO</span>
+      <h1>작은 방명록<span aria-hidden="true">.</span></h1>
+      <p>잠시 들른 오늘, 작은 인사 하나 남겨 주세요.</p>
+    </header>
+    $notice
+    <section class="write" aria-labelledby="write-title">
+      <h2 id="write-title">안부 남기기</h2>
+      <p class="hint">남겨 주신 이름과 이야기는 모두에게 공개됩니다.</p>
+      <form action="/entries" method="post" accept-charset="UTF-8">
+        <label for="name">이름 <span>최대 20자</span></label>
+        <input id="name" name="name" value="$name" placeholder="어떤 이름으로 남길까요?" required maxlength="20" autocomplete="nickname">
+        <label for="message">이야기 <span>최대 500자</span></label>
+        <textarea id="message" name="message" placeholder="반가운 인사도, 오늘의 작은 발견도 좋아요." required maxlength="500" rows="5">$message</textarea>
+        <div class="form-bottom"><span>따뜻한 말 한마디를 기다려요.</span><button type="submit">방명록 남기기 ↗</button></div>
+      </form>
+    </section>
+    <section id="entries" aria-labelledby="entries-title">
+      <div class="list-title"><h2 id="entries-title">남겨진 이야기 <span>$total</span></h2><span>최신순</span></div>
+      $entries
+      <nav aria-label="방명록 페이지">$pagination</nav>
+    </section>
+    <footer>작은 인사가 모여, 오래 기억될 공간.</footer>
+  </main>
+</body>
+</html>
