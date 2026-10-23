@@ -10,20 +10,22 @@
 <body>
   <main>
     <header class="intro">
-      <span class="eyebrow">A LITTLE HELLO</span>
-      <h1>작은 방명록<span aria-hidden="true">.</span></h1>
+      <h1>작은 방명록</h1>
       <p>잠시 들른 오늘, 작은 인사 하나 남겨 주세요.</p>
     </header>
     $notice
     <section class="write" aria-labelledby="write-title">
-      <h2 id="write-title">안부 남기기</h2>
+      <h2 id="write-title">$form_title</h2>
       <p class="hint">남겨 주신 이름과 이야기는 모두에게 공개됩니다.</p>
-      <form action="/entries" method="post" accept-charset="UTF-8">
+      <form action="$form_action" method="post" accept-charset="UTF-8">
         <label for="name">이름 <span>최대 20자</span></label>
         <input id="name" name="name" value="$name" placeholder="어떤 이름으로 남길까요?" required maxlength="20" autocomplete="nickname">
         <label for="message">이야기 <span>최대 500자</span></label>
         <textarea id="message" name="message" placeholder="반가운 인사도, 오늘의 작은 발견도 좋아요." required maxlength="500" rows="5">$message</textarea>
-        <div class="form-bottom"><span>따뜻한 말 한마디를 기다려요.</span><button type="submit">방명록 남기기 ↗</button></div>
+        <label for="password">수정용 비밀번호 <span>$password_hint</span></label>
+        <input id="password" type="password" name="password" required $password_attributes autocomplete="$password_autocomplete" aria-describedby="password-help">
+        <p id="password-help" class="hint">수정할 때 다시 입력해요. 잊어버리면 글을 수정할 수 없습니다.</p>
+        <div class="form-bottom"><span>따뜻한 말 한마디를 기다려요. $cancel_link</span><button type="submit">$submit_label</button></div>
       </form>
     </section>
     <section id="entries" aria-labelledby="entries-title">

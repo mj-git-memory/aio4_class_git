@@ -1,6 +1,6 @@
 # 작은 방명록
 
-`codex.md`를 바탕으로 만든 HTML 중심의 Python 방명록입니다. 이름과 이야기를 남기고 최신순으로 읽을 수 있습니다. 수업의 FastAPI, Pydantic, Uvicorn을 유지하며 DB는 Python 내장 `sqlite3`를 사용합니다. JavaScript, 프런트엔드 프레임워크, 외부 DB, 템플릿 패키지는 사용하지 않습니다.
+`codex.md`를 바탕으로 만든 HTML 중심의 Python 방명록입니다. 이름·이야기·수정용 비밀번호를 입력해 글을 남기고, 같은 비밀번호로 수정할 수 있습니다. 수업의 FastAPI, Pydantic, Uvicorn을 유지하며 DB는 Python 내장 `sqlite3`를 사용합니다. JavaScript, 프런트엔드 프레임워크, 외부 DB, 템플릿 패키지는 사용하지 않습니다.
 
 ## 실행
 
@@ -34,12 +34,28 @@ python -m pip install -r requirements.txt
 ## 사용과 저장
 
 - 이름 1~20자, 이야기 1~500자이며 앞뒤 공백을 제거합니다. 공백만 있는 글은 거절합니다.
+- 새 글의 수정용 비밀번호는 **숫자 4자리**입니다. `0123`처럼 앞의 0도 그대로 저장·비교합니다. 문자·전각 숫자·공백은 허용하지 않습니다.
+- 이전 버전에서 8~128자로 작성한 글은 원래 비밀번호로 계속 수정할 수 있습니다. 새 글 작성에만 숫자 4자리 규칙을 적용합니다.
+- 각 글의 **수정** 링크를 누르고 이름·내용을 고친 다음, 작성할 때 정한 비밀번호를 입력해 저장합니다. 비밀번호가 틀리면 저장되지 않습니다. 작성 시각과 목록 순서는 유지됩니다.
+- 비밀번호를 아는 사람이 해당 글을 수정할 수 있습니다. 비밀번호 변경·찾기·재설정 기능은 없으므로 별도로 기억해 두세요.
 - 글은 최신 등록순이며 한 화면에 10개씩 표시합니다. 작성 시각은 한국 시간(KST)입니다.
 - 저장 후 조회 페이지로 이동하므로 일반적인 새로고침으로 글이 다시 등록되지 않습니다.
 - 최초 서버 시작 시 `data/guestbook.db`가 자동 생성됩니다. 로컬에서는 서버를 재시작해도 파일이 유지됩니다.
 - DB 위치는 `GUESTBOOK_DB` 환경변수로 변경할 수 있습니다. 경로를 지정하지 않으면 이 프로젝트 폴더 아래에 저장됩니다.
 - 저장 공간을 제한하기 위해 최대 1,000개까지 저장하며, 가득 차면 기존 글을 보존하고 새 작성을 거절합니다. 이는 무료 호스팅의 용량을 보장하는 수치가 아니라 앱 자체의 제한입니다.
-- 익명 작성형이며 이름은 본인 인증을 거치지 않습니다. 공개 글에 개인정보를 적지 마세요. 수정·삭제·회원·첨부파일 기능은 포함하지 않습니다.
+- 익명 작성형이며 이름은 본인 인증을 거치지 않습니다. 공개 글에 개인정보를 적지 마세요. 삭제·회원·첨부파일 기능은 포함하지 않습니다.
+
+## 기존 DB와 비밀번호
+
+서버 시작 시 기존 `entries` 테이블에 `password_hash` 열이 없으면 자동으로 추가합니다. 기존 글을 삭제하거나 다른 테이블을 만들지 않습니다. 이전에 비밀번호 없이 작성된 글은 조회만 가능하며 수정은 차단됩니다. 새 글부터 작성 시 정한 비밀번호로 수정할 수 있습니다. 기존 DB를 별도로 보관하려면 서버를 종료한 상태에서 `data/guestbook.db`를 복사해 두세요.
+
+비밀번호는 사용자가 승인한 Python 표준 라이브러리의 **PBKDF2-HMAC-SHA256(600,000회, 글마다 무작위 salt)**으로 저장합니다. 원문 비밀번호나 저장된 해시는 목록·수정 화면에 넣지 않습니다. 외부 패키지는 추가하지 않았습니다. [Python hashlib](https://docs.python.org/3/library/hashlib.html#hashlib.pbkdf2_hmac), [OWASP 비밀번호 저장 안내](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+
+4자리 숫자는 가능한 조합이 10,000개라 추측에 취약합니다. 이 앱은 소규모 학습용이며 비밀번호 대입 시도 횟수 제한은 포함하지 않습니다. 공개 배포에서는 Render가 제공하는 HTTPS 주소를 사용하세요.
+
+## 화면 디자인
+
+`design.md`의 흰 배경, 검정 기본 버튼, 둥근 입력창과 버튼, 12px 반경의 폼, 회색 구분선, 중앙 제목, 720px 단일 열과 넉넉한 여백을 적용했습니다. 여러 줄 입력은 읽기 쉽도록 12px 반경을 사용합니다. 시스템 폰트만 사용하며 그림자·그라데이션·외부 폰트·JavaScript는 추가하지 않았습니다. 작은 화면에서는 제목과 여백을 줄이고 버튼을 세로로 배치합니다.
 
 ## 파일
 
@@ -47,16 +63,18 @@ python -m pip install -r requirements.txt
 | --- | --- |
 | `main.py` | 라우팅, 폼 해석, Pydantic 검증, HTML 생성 |
 | `database.py` | SQLite 생성·저장·최신순 조회 |
+| `passwords.py` | 비밀번호 해시 생성과 일치 여부 확인 |
 | `templates/index.html` | 입력 폼과 목록 화면 |
 | `static/style.css` | 작은 화면에도 맞는 CSS |
 | `test_guestbook.py` | 저장, 경계값, 공격 문자열, 페이지 이동 검증 |
 | `ANALYSIS.md` | day1~day8 학습 내용과 구현 연결 |
+| `design.md` | 화면 디자인 참고 지침 |
 | [RENDER_DEPLOYMENT.md](RENDER_DEPLOYMENT.md) | 선택한 Render Free 배포 절차, 설정값, 오류 해결 |
 | `DEPLOYMENT.md` | 서비스 선택 전의 무료 호스팅 비교 기록 |
 
 ## Render 배포
 
-[Render 전용 배포 가이드](RENDER_DEPLOYMENT.md)를 따라 진행합니다. 현재 저장소 기준 Root Directory는 `day1-day8`, Branch는 소스를 올린 `study/day8`, 환경변수는 `PYTHON_VERSION=3.13.5`입니다. **Render Free에서는 재시작·재배포·절전 시 SQLite 글이 사라집니다.**
+[Render 전용 배포 가이드](RENDER_DEPLOYMENT.md)를 따라 진행합니다. 현재 저장소 기준 Root Directory는 `day1-day8`, Branch는 수정 내용을 올릴 `main`, 환경변수는 `PYTHON_VERSION=3.13.5`입니다. 수정 후 재배포는 가이드의 **수정 버전 다시 배포하기**를 참고하세요. **Render Free에서는 재시작·재배포·절전 시 SQLite 글이 사라집니다.**
 
 ## 테이블
 
@@ -68,6 +86,7 @@ python -m pip install -r requirements.txt
 | `name` | TEXT NOT NULL | 이름, 1~20자 |
 | `message` | TEXT NOT NULL | 이야기, 1~500자 |
 | `created_at` | TEXT NOT NULL | `+09:00`이 포함된 ISO 작성 시각 |
+| `password_hash` | TEXT NOT NULL | salt·반복 횟수·해시. 이전 글은 빈 문자열로 수정 차단 |
 
 ## 테스트
 

@@ -55,7 +55,7 @@ exit
 
 ```sh
 cd /Users/imijeong/Downloads/AIO_4_class/day1-day8
-scp -r main.py database.py requirements.txt templates static ACCOUNT@ssh-ACCOUNT.alwaysdata.net:/home/ACCOUNT/guestbook/
+scp -r main.py database.py passwords.py requirements.txt templates static ACCOUNT@ssh-ACCOUNT.alwaysdata.net:/home/ACCOUNT/guestbook/
 ```
 
 기존 글을 이전하는 절차는 포함하지 않습니다. 새 배포는 빈 DB로 시작합니다. 기존 글도 옮기려면 로컬 서버를 종료하고 별도로 백업·복사해야 합니다.

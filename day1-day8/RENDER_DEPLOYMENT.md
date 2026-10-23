@@ -10,7 +10,7 @@
 | --- | --- |
 | 로컬 저장소 | `/Users/imijeong/Downloads/AIO_4_class` |
 | GitHub 원격 | `https://github.com/mj-git-memory/aio4_class_git.git` |
-| 작성 시점 로컬 브랜치 | `study/day8` |
+| 작성 시점 로컬 브랜치 | `main` |
 | 앱 폴더 | `day1-day8` |
 | 앱 객체 | `main.py`의 `app` |
 | Python | 로컬에서 사용 중인 `3.13.5` |
@@ -46,7 +46,7 @@ git status --short
 git remote -v
 ```
 
-작성 시점에는 `study/day8` 브랜치였고 `day1-day8/`이 아직 추적되지 않은 상태였습니다. 다음 명령은 사용자가 실행하는 업로드 예시이며 이 가이드 작성 작업에서는 커밋·Push하지 않았습니다.
+현재 로컬 브랜치는 `main`이며, 방명록 폴더는 이미 추적 중이고 이번 수정분이 커밋되지 않은 상태입니다. 다음 명령은 사용자가 실행하는 업로드 예시이며 이 가이드 작성 작업에서는 커밋·Push하지 않았습니다.
 
 ```sh
 git add day1-day8
@@ -57,17 +57,18 @@ git diff --cached --name-only
 
 ```sh
 git commit -m "Add HTML guestbook and Render deployment guide"
-git push -u origin study/day8
+git push -u origin main
 ```
 
 현재 브랜치가 달라졌다면 Push 대상과 Render Branch를 그 브랜치로 맞추세요. 위 명령으로 브랜치를 변경하거나 main에 병합할 필요는 없습니다.
 
-GitHub에서 저장소를 열고 **study/day8** 브랜치를 선택한 뒤 다음 구조가 있는지 확인합니다.
+GitHub에서 저장소를 열고 **main** 브랜치를 선택한 뒤 다음 구조가 있는지 확인합니다.
 
 ```text
 day1-day8/
 ├── main.py
 ├── database.py
+├── passwords.py
 ├── requirements.txt
 ├── templates/
 │   └── index.html
@@ -93,7 +94,7 @@ day1-day8/
 | --- | --- | --- |
 | Name | `aio4-guestbook` | 예시 이름. 중복이면 고유한 이름 사용 |
 | Language | **Python 3** | Python 네이티브 실행 |
-| Branch | **study/day8** | 앞에서 소스를 올린 브랜치와 일치 |
+| Branch | **main** | 앞에서 소스를 올린 브랜치와 일치 |
 | Region | **Singapore** | 한국 이용자를 고려한 시작점. 실제 지연 측정 결과는 아님 |
 | Root Directory | **day1-day8** | 저장소 기준 상대 경로 |
 | Build Command | `pip install -r requirements.txt` | 기존 의존성 설치 |
@@ -138,13 +139,66 @@ Render의 기본 Python은 서비스 생성일에 따라 달라집니다. 기존
 {"status":"ok"}
 ```
 
-5. 기본 주소 `/`에서 이름과 내용을 작성합니다.
+5. 기본 주소 `/`에서 이름·내용·수정용 비밀번호(숫자 4자리)를 입력해 작성합니다.
 6. 목록에 글이 보이고 새로고침해도 중복 등록되지 않는지 확인합니다.
 7. 모바일에서도 폼과 목록을 확인합니다.
+8. 글의 **수정** 링크를 눌러 내용을 바꾸고, 작성할 때 정한 비밀번호로 저장합니다. 틀린 비밀번호로는 수정되지 않는지도 확인합니다.
+
+비밀번호 기능을 추가한 버전은 `passwords.py`까지 함께 Commit·Push해야 합니다. 추가 환경변수나 패키지는 필요하지 않습니다. 기존 DB가 남아 있으면 서버 시작 시 같은 테이블에 해시 열이 자동 추가되며, 비밀번호 없이 작성된 예전 글은 수정할 수 없습니다. Free 재배포에서는 기존 DB 자체가 소실될 수 있다는 조건은 동일합니다.
 
 현재 `/health`는 프로세스 응답만 검사합니다. DB 쓰기 성공까지 보장하지 않으므로 글 등록 확인도 필요합니다. Render의 HTTP 상태 검사는 지정 경로의 2xx·3xx 응답을 정상으로 판정합니다. [Health Check 공식 안내](https://render.com/docs/health-checks)
 
-## 8. 이후 코드 수정과 재배포
+## 8. 수정 버전 다시 배포하기 (현재 main 기준)
+
+2026-10-23 로컬 작업 브랜치는 `main`입니다. 이번 수정은 숫자 4자리 비밀번호와 `design.md` 기반 화면 변경입니다. 이전에 만든 **동일한 Render 서비스**를 갱신하면 됩니다.
+
+### 8-1. Render의 연결 브랜치를 main으로 맞추기
+
+Render의 해당 서비스 **Settings > Build & Deploy**에서 Branch를 `main`으로 확인·변경합니다. 예전 작업 브랜치로 남아 있으면 main에 올린 수정이 반영되지 않습니다. Root Directory는 `day1-day8`, 기존 Build/Start 명령과 환경변수는 그대로 유지합니다. Auto-Deploy는 **On Commit**으로 설정합니다. [공식 자동 배포 안내](https://render.com/docs/deploys)
+
+### 8-2. 로컬 테스트와 변경 확인
+
+프로젝트 루트에서 실행합니다.
+
+```sh
+cd /Users/imijeong/Downloads/AIO_4_class
+git branch --show-current
+.venv/bin/python -m pytest day1-day8/test_guestbook.py -q
+git status --short
+```
+
+현재 브랜치가 `main`이고 테스트가 통과했는지 확인합니다.
+
+### 8-3. 방명록 수정분만 Commit·Push
+
+```sh
+git add day1-day8
+git --no-pager diff --cached --name-status
+```
+
+목록에 의도한 파일만 있는지 확인합니다. 새 파일인 `passwords.py`, `design.md`도 포함되어야 합니다. DB·가상환경은 제외됩니다. 다른 작업이 이미 스테이징되어 있다면 함께 커밋하지 않도록 먼저 정리합니다.
+
+```sh
+git commit -m "Use four-digit guestbook passwords and refresh design"
+git push origin main
+```
+
+Push가 거절되면 강제 Push하지 말고 오류를 확인합니다. 위 명령은 실행 안내이며 이번 소스 수정 작업에서 대신 Commit·Push하지는 않았습니다.
+
+### 8-4. Render가 최신 커밋을 배포했는지 확인
+
+Auto-Deploy가 On Commit이면 Push 후 자동 빌드됩니다. 자동으로 시작하지 않거나 Off라면 기존 서비스의 **Deploys > Manual Deploy > Deploy latest commit**을 선택합니다. **Restart service는 현재 배포된 커밋을 다시 실행**하므로, 새 소스 배포에는 Deploy latest commit을 사용합니다. [공식 수동 배포 옵션](https://render.com/docs/deploys)
+
+배포 성공 후 기존 URL을 다시 열고 다음을 확인합니다.
+
+1. 흰 배경·검정 버튼·둥근 입력창과 가운데 제목이 보이는지.
+2. 새 글에 `0123` 같은 숫자 4자리로 작성·수정할 수 있는지.
+3. 새 글 작성 시 3자리·5자리·문자가 거절되는지.
+4. `/health`가 정상인지. 바뀐 CSS가 보이지 않으면 Mac Chrome에서 `Command + Shift + R`로 새로고침합니다.
+
+새 환경변수나 라이브러리 설치 설정은 필요하지 않습니다. **Render Free 재배포로 기존 글이 초기화될 수 있습니다.** 기존 DB가 유지되는 다른 환경에서는 이전 긴 비밀번호로 작성한 글도 원래 비밀번호로 수정할 수 있습니다.
+
+### 공통 재배포 동작
 
 연결된 브랜치에 수정 파일을 Commit·Push합니다. Auto-Deploy가 **On Commit**이면 자동 재배포됩니다. 직접 배포하려면 서비스의 **Deploys > Manual Deploy > Deploy latest commit**을 사용합니다. CI를 구성하지 않은 저장소에서는 **After CI Checks Pass**를 선택하지 않습니다. [자동·수동 배포](https://render.com/docs/deploys)
 
@@ -157,7 +211,7 @@ Render의 기본 Python은 서비스 생성일에 따라 달라집니다. 기존
 | 현상 / 로그 | 먼저 확인할 내용 |
 | --- | --- |
 | 저장소가 목록에 없음 | GitHub Render 앱의 저장소 접근 권한과 연결 계정 |
-| `study/day8` 브랜치가 없음 | 해당 브랜치를 GitHub로 Push했는지 |
+| `main` 브랜치가 없음 | 해당 브랜치를 GitHub로 Push했는지 |
 | `requirements.txt`를 찾을 수 없음 | Root Directory가 `day1-day8`인지, 파일이 선택 브랜치에 있는지 |
 | `Could not import module "main"` | Root Directory와 Start Command의 `main:app` |
 | `No module named database` | `database.py`가 `main.py`와 같은 폴더로 올라갔는지 |
