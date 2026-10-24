@@ -12,16 +12,15 @@ Oct 19, 2026 · @Mijeong Lee
 | --- | --- | --- |
 | 1 | VS Code 업데이트 오류 해결 | 앱을 응용 프로그램 폴더로 옮겨서 해결, 데스크탑 중복 앱 삭제 |
 | 2 | VS Code에 Codex 확장 설치 | 로그인 → 폴더 열기 → 사이드바 패널에서 사용 |
-| 3 | velog 마크다운 코드블록 여백 | 리스트 안에 2칸 들여쓰기로 넣기 |
-| 4 | Homebrew → Git 설치 | `brew install git` 완료 |
-| 5 | aio4\_class 저장소에 첫 push | askpass 오류, 작성자 미설정 → VS Code 재시작, `--amend` + 강제 push |
-| 6 | 나머지 파일 push, .DS\_Store 제거 | `.gitignore` 추가 + `git rm --cached` |
-| 7 | aio4\_class 삭제 → aio4\_class\_git 새로 만들기 | 로컬 `.git` 삭제 후 day4만 다시 push |
-| 8 | GitHub 웹에서 README 수정 → 로컬로 pull | 로컬 수정과 겹쳐 stash → 충돌 → 정리 후 push |
-| 9 | AIO\_4\_practice 폴더에 clone | 빈 폴더가 아니라서 실패 → `.gitignore` 옮기고 clone |
-| 10 | feature/login, feature/backend 브랜치 | 브랜치 생성 → push → GitHub PR로 main에 merge |
-| 11 | AIO\_4\_class에서 깃 내용 복습.md push | rejected (fetch first) → git pull --no-edit 후 push |
-| 12 | day4/main.py 로컬·GitHub 삭제 | git rm → commit → push |
+| 3 | Homebrew → Git 설치 | `brew install git` 완료 |
+| 4 | aio4\_class 저장소에 첫 push | askpass 오류, 작성자 미설정 → VS Code 재시작, `--amend` + 강제 push |
+| 5 | 나머지 파일 push, .DS\_Store 제거 | `.gitignore` 추가 + `git rm --cached` |
+| 6 | aio4\_class 삭제 → aio4\_class\_git 새로 만들기 | 로컬 `.git` 삭제 후 day4만 다시 push |
+| 7 | GitHub 웹에서 README 수정 → 로컬로 pull | 로컬 수정과 겹쳐 stash → 충돌 → 정리 후 push |
+| 8 | AIO\_4\_practice 폴더에 clone | 빈 폴더가 아니라서 실패 → `.gitignore` 옮기고 clone |
+| 9 | feature/login, feature/backend 브랜치 | 브랜치 생성 → push → GitHub PR로 main에 merge |
+| 10 | AIO\_4\_class에서 깃 내용 복습.md push | rejected (fetch first) → git pull --no-edit 후 push |
+| 11 | day4/main.py 로컬·GitHub 삭제 | git rm → commit → push |
 
 ## 1. 개발 환경 준비 Q&A
 
@@ -44,12 +43,6 @@ Oct 19, 2026 · @Mijeong Lee
 3. 실행 환경: 로컬(Work locally) 또는 클라우드(Run in the cloud)
 4. 권한 모드: **Chat**(읽기 전용) / **Agent**(수정 전 승인 요청, 기본값) / **Agent Full Access**(묻지 않고 실행)
 5. 패널에 자연어로 요청 → Agent 모드에선 diff 확인 후 승인
-
-### velog 코드블록 위아래 여백
-
-- 코드 줄 앞 공백은 그대로 출력돼서 들여쓰기처럼 보여.
-- ```` ``` ````가 맨 앞(0칸)에 있으면 리스트가 끝나서 여백이 겹쳐.
-- **해결:** 리스트 안에 넣기 = ```` ``` ````와 코드 줄 모두 **공백 2칸**만 들여쓰기. velog 자체 패딩은 CSS 고정이라 못 없애고, 한 줄 예시는 인라인 코드(`` `코드` ``)가 제일 깔끔해.
 
 ### Homebrew → Git 설치
 
@@ -136,7 +129,7 @@ origin       → GitHub 저장소 자체
 ### 3-1. 최초 1회: 사용자 정보 설정
 
 ```bash
-git config --global user.name "mj-git-memory"
+git config --global user.name "mjlee"
 git config --global user.email "GitHub에 등록한 이메일"
 git config --global init.defaultBranch main
 ```
@@ -255,6 +248,10 @@ git push
 | GitHub에서만 빼고 로컬 유지 | git rm --cached day4/main.py → commit → push |
 
 - GitHub 저장소를 지우고 새로 만들었으면, 로컬은 `set-url`로 주소만 바꾸면 기록 유지 / `rm -rf .git`이면 기록 없이 새 출발.
+- rm :	파일이나 폴더 삭제
+- -r :	폴더 안의 내용까지 모두 삭제
+- -f :	일반적인 확인 질문 없이 강제로 삭제
+- .git :	Git 이력과 설정을 저장하는 숨김 폴더
 
 ## 4. 명령어 사전
 
@@ -531,14 +528,6 @@ git config --global pull.rebase false  # pull 시 merge 방식으로 합치기
 
 | 오류 메시지 | 무슨 뜻이야? | 해결 |
 | --- | --- | --- |
-| `Cannot update while running on a read-only volume` | VS Code가 다운로드 폴더에서 실행돼 업데이트 파일을 못 덮어씀 | 응용 프로그램 폴더로 옮기고 재실행 |
-| `Press RETURN/ENTER to continue or any other key to abort` | (오류 아님) Homebrew 설치 진행 확인 | Enter |
-| `Do you want to proceed with the installation? [y/n]` | (오류 아님) git + 보조 라이브러리 설치 확인 | y + Enter |
-| `You can suppress this message by setting them explicitly...` | 이름·이메일 미설정이라 맥 계정 이름으로 임시 기록됨 | `git config --global user.name/email` 설정 후 `commit --amend --reset-author` |
-| `fatal: cannot exec '.../askpass.sh': No such file or directory` | 터미널이 지운 VS Code(데스크탑 쪽)에서 열려 GitHub 로그인 창을 못 띄움 | `Ctrl + C` → VS Code 완전 종료 후 재실행 → 다시 push |
-| `Username for 'https://github.com':` | 로그인 창 대신 터미널에서 계정을 물음. 비밀번호 로그인은 막혀 있음 | 입력하지 말고 `Ctrl + C`, VS Code 팝업으로 로그인 |
-| `zsh: command not found: remote` | 앞에 `git`을 빼먹음 | `git remote -v` |
-| `zsh: no such file or directory: https://...` | URL만 입력해서 터미널이 파일 실행으로 착각 | 앞에 `git clone` 등 명령어 붙이기 |
 | `Reinitialized existing Git repository` | (오류 아님) 이미 git 저장소라 다시 초기화만 함 | 그대로 둬도 됨 |
 | `nothing added to commit but untracked files present` | 담은(add) 파일이 없어 커밋 안 됨 | `git add` 먼저 |
 | `Everything up-to-date` | push할 새 커밋이 없음 | commit 했는지 확인 |
@@ -548,15 +537,10 @@ git config --global pull.rebase false  # pull 시 merge 방식으로 합치기
 | `CONFLICT (content): Merge conflict in README.md` | 같은 부분을 양쪽에서 고쳐 자동으로 못 합침 | 파일의 충돌 표시 정리 → 저장 → add → commit |
 | `both modified: README.md` | 충돌 난 파일 (Unmerged paths) | 위와 같음 |
 | `The stash entry is kept in case you need it again` | 충돌이 나서 stash가 자동 삭제되지 않고 남음 | 정리 끝나면 `git stash drop` |
-| `fatal: pathspec 'day4/README.md' did not match any files` | 그 경로에 파일이 없음 (README는 최상위에 있었음) | 경로 확인: `git add README.md` |
 | `fatal: destination path '.' already exists and is not an empty directory` | clone은 빈 폴더에만 가능한데 `.gitignore`가 있었음 | 파일을 옮겨 폴더 비우고 clone, 또는 `.` 빼고 clone |
-| `fatal: not a git repository (or any of the parent directories): .git` | `.git`이 없는 폴더에서 git 명령 실행 | `git init` 또는 `git clone` 먼저 |
 | `hint: You have divergent branches...` | 로컬·GitHub 양쪽에 서로 모르는 커밋이 있어 합치는 방식을 정해야 함 | `git config --global pull.rebase false` 후 pull |
 | `rejected` / `non-fast-forward` | GitHub에 내가 받지 않은 커밋이 있음 (`--amend` 후에도 발생) | 보통 `pull` 후 push. 내 커밋을 고친 경우만 `--force-with-lease` |
-| `The default interactive shell is now zsh` | (오류 아님) bash 터미널을 열어서 나오는 안내 | 터미널 `+` 옆에서 zsh 선택 |
 | ! \[rejected\] main -> main (fetch first) / failed to push some refs | GitHub에 내 폴더엔 없는 커밋이 있음 (다른 폴더 AIO\_4\_practice에서 PR merge함) | git pull --no-edit 후 git push |
-| git: 'satus' is not a git command. ... status | 오타. git이 비슷한 명령어를 제안 | git status |
-| "day4/\\352\\271\\203 ...md" 처럼 깨진 파일명 | (오류 아님) git이 한글을 이스케이프해서 보여줌 | git config --global core.quotepath false |
 
 ### 충돌 표시 읽는 법
 
