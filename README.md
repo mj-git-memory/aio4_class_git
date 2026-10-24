@@ -273,3 +273,5 @@ git stash pop
 
 **실습 완료 기준:** 로컬 작업 폴더에서 `git status`를 실행해 상태를 확인할 수 있고, GitHub 원격 저장소의 `main` 브랜치에 작성한 코드와 커밋이 정상적으로 나타난다.
 
+# aio4_class
+# aio4_class
