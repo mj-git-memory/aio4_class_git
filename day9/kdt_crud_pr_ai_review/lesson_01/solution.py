@@ -5,19 +5,17 @@ from pydantic import BaseModel, Field
 app = FastAPI(title="Task API - Lesson 01")
 tasks = [{"id": 1, "title": "API 확인"}, {"id": 3, "title": "테스트 작성"}]
 
-
 class TaskCreate(BaseModel):
     title: str = Field(min_length=1)
 
-
 def next_id() -> int:
     return max(task["id"] for task in tasks) + 1
-
+    # return max(task["id"] for task in tasks) + 2 
+    # 위 코드로 변경 시, "AssertionError: 새 항목은 현재 최대 ID 3 다음인 4여야 합니다." 에러 발생
 
 @app.get("/tasks")
 def list_tasks():
     return tasks
-
 
 @app.post("/tasks", status_code=201)
 def create_task(payload: TaskCreate):

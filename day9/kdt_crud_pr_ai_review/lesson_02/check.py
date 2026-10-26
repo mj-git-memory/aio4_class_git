@@ -32,7 +32,9 @@ print("missing:", missing.status_code, missing.json())
 # 거짓이면 AssertionError를 발생
 # if not 조건:
 #     raise AssertionError
-# solution을 검사했을 때 세 줄에서 출력이 없는 것이 정상
+# 출력은 print()가 담당하고, assert는 검사만 함 
+# -> solution을 검사했을 때 세 줄에서 출력이 없는 것이 정상
+
 
 ### 2. 첫 번째 assert: 기존 데이터 조회 검사
 assert found.status_code == 200 and found.json()["id"] == 1
@@ -61,13 +63,12 @@ print("PASS")
 # missing: 404 {'detail': 'Task not found'}
 # PASS
 
-# 출력은 print()가 담당하고, assert는 검사만 함 
-
 # main.py에는 함수 맨 앞에 다음 코드가 있음 : return tasks.get(task_id)
-# return이 실행되면 함수가 끝나므로 그 아래의 404 처리 코드는 실행되지 않음. 따라서 /tasks/222에도 200과 null이 응답
+# return이 실행되면 함수가 끝나므로 그 아래의 404 처리 코드는 실행되지 않음. 
+# 따라서 /tasks/222에도 200과 null이 응답
 # python check.py main
 # existing: 200 {'id': 1, 'title': 'Git 준비'}
 # missing: 200 None
 # assert missing.status_code == 404
-# 실제로는 200이므로 AssertionError 발생
-# 리하지 않은 예외 때문에 실행이 중단되어 세 번째 assert와 마지막 print("PASS")는 실행되지 않음
+# -> 실제로는 200이므로 AssertionError 발생
+# -> 처리하지 않은 예외 때문에 실행이 중단되어 세 번째 assert와 마지막 print("PASS")는 실행되지 않음

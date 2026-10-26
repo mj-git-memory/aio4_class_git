@@ -14,12 +14,12 @@ app = FastAPI(title="Lesson 01")
 # @app.get("/")는 "그 요청을 받으면 바로 아래 root 함수를 실행해라"라는 등록임
 # 이런 @ 문법을 데코레이터라고 함 
 @app.get("/", response_class=HTMLResponse) # response_class=HTMLResponse : HTML을 그대로 브라우저에 보여주겠다는 뜻
+# @app.get("/") 
 # root라는 함수를 정의. 접속할 때 FastAPI가 이 함수를 호출.
 def root():  
     # 딕셔너리를 반환. return은 print처럼 터미널에 출력하는 명령이 아님
     # FastAPI가 이 값을 JSON 응답으로 바꾸므로 요청한 브라우저에 내용이 보임
     # return {"message": "Hello FastAPI"}
-
     return '''
             <h1>FastAPI Lesson 01: Hello FastAPI</h1>
             '''
@@ -33,12 +33,12 @@ def sports():
     return {"sports": ["축구", "야구", "농구", "배구", "테니스"]}
 
 
-# GET /menu 요청을 받으면 menu 함수를 실행하도록 등록한다.
+# GET /menu 요청을 받으면 show_menu 함수를 실행하도록 등록한다.
 # 예: http://127.0.0.1:8000/menu 에 접속하면 아래 음식 목록을 받는다.
 @app.get('/menu')
-# menu()라는 함수 이름만으로 URL이 생기지는 않음. 위의 등록이 필요
-def menu():  
-    # {키: 값}은 딕셔너리이고, 대괄호 안의 여러 음식은 리스트다.
+# show_menu()라는 함수 이름만으로 URL이 생기지는 않음. 위의 등록이 필요
+def show_menu():  
+    # {키: 값}은 딕셔너리이고, 대괄호 안의 여러 음식은 리스트
     # 응답 예: {"menu": ["짜장면", "짬뽕", "탕수육", "군만두", "볶음밥"]}
     return {"menu": ["짜장면", "짬뽕", "탕수육", "군만두", "볶음밥"]}
 
@@ -81,8 +81,8 @@ def menu():
 # GET /       -> 인사말 받기
 # GET /sports -> 스포츠 목록 받기
 # GET /menu   -> 음식 목록 받기
-# 함수 이름 menu가 엔드포인트 주소를 정하는 것은 아님. @app.get('/menu')의 경로가 정함
-# 예: 함수 이름만 show_menu로 바꿔도 등록 경로가 /menu이면 접속 주소는 그대로다.
+# 함수 이름 show_menu가 엔드포인트 주소를 정하는 것은 아님. @app.get('/menu')의 경로가 정함
+# 예: 함수 이름만 view_menu로 바꿔도 등록 경로가 /menu이면 접속 주소는 그대로다.
 
 ### 3. 라우팅(Routing): 요청에 맞는 처리 함수를 찾아 연결하는 것
 # 비유: 안내 직원이 '음식 목록을 보러 왔어요'라는 요청을 음식 목록 담당자에게 보내는 일.
@@ -95,7 +95,7 @@ def menu():
 ### 실제로 GET /menu가 들어왔을 때:
 # 1. Uvicorn이 브라우저의 요청을 받아 app에 전달함 
 # *** 2. FastAPI가 등록된 규칙에서 GET과 /menu에 맞는 담당 함수를 찾는다. 이것이 라우팅이다. ***
-# 3. 담당 함수 menu()를 실행한다.
+# 3. 담당 함수 show_menu()를 실행한다.
 # 4. 반환한 딕셔너리를 JSON 응답으로 만들어 브라우저에 보냄 
 # 따라서 '엔드포인트'는 요청할 접점, '라우팅'은 그 요청을 담당 함수로 보내는 연결 과정이다.
 
