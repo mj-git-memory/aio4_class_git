@@ -1,7 +1,10 @@
 """실행: python -m uvicorn main:app --reload (현재 폴더: day1-day8)."""
 
 import os
-import sqlite3
+# 기존
+# import sqlite3
+# 변경
+import psycopg
 from contextlib import asynccontextmanager
 from html import escape
 from pathlib import Path
@@ -15,7 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 from starlette.concurrency import run_in_threadpool
 
-from database import add_entry, get_entry, init_db, list_entries, update_entry
+from database import KST, add_entry, get_entry, init_db, list_entries, update_entry
 
 BASE = Path(__file__).resolve().parent
 MAX_BODY_BYTES = 16384
@@ -52,11 +55,15 @@ def render_page(path: Path, page=1, error="", name="", message="", saved=False,
     rows, total, page, pages = list_entries(path, page)
     cards = []
     for row in rows:
+        created_at = row["created_at"]
+        # 기존 TEXT 열과 PostgreSQL timestamp 열을 모두 표시합니다.
+        if hasattr(created_at, "isoformat"):
+            created_at = created_at.astimezone(KST).isoformat() if created_at.tzinfo else created_at.isoformat()
         cards.append(
             '<article class="entry">'
             f'<header><h3>{escape(row["name"])}</h3>'
-            f'<time datetime="{escape(row["created_at"])}">'
-            f'{escape(row["created_at"][:16].replace("T", " · "))} KST</time></header>'
+            f'<time datetime="{escape(created_at)}">'
+            f'{escape(created_at[:16].replace("T", " · "))} KST</time></header>'
             f'<p>{escape(row["message"])}</p>'
             f'<a class="edit-link" href="/entries/{row["id"]}/edit#write-title">수정</a></article>'
         )
@@ -157,7 +164,10 @@ def create_app(db_path: Path | None = None):
             return await error_page(str(error), 403, entry.name, entry.message)
         except ValueError as error:
             return await error_page(str(error), 409, entry.name, entry.message)
-        except sqlite3.OperationalError:
+        # # 기존
+        # except sqlite3.OperationalError:
+        # 변경
+        except psycopg.OperationalError:
             return await error_page("지금은 저장할 수 없습니다. 잠시 후 다시 시도해 주세요.", 503, entry.name, entry.message)
         # 저장 후 조회로 이동해서 일반적인 새로고침에 따른 재등록을 막는다.
         target = "/?saved=1#entries" if entry_id is None else "/?updated=1#entries"
