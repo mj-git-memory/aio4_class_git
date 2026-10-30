@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>소소상점 · 일상의 작은 취향</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header>
+    <a class="brand" href="#products">소소상점<span>EVERYDAY FINDS</span></a>
+    <nav aria-label="주 메뉴">
+      <a href="#products">상품</a><a href="#cart">장바구니</a>
+      <a href="#orders">구매내역</a><a href="#profile">내 정보</a>
+    </nav>
+    <button id="auth-button" class="outline">로그인</button>
+  </header>
+  <main id="content" tabindex="-1"></main>
+  <footer>소소상점 · 일상의 작은 취향을 모으다.<br><small>학습용 쇼핑몰입니다. 결제는 실제 청구되지 않는 모의 결제입니다.</small></footer>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <dialog id="auth-dialog" aria-labelledby="auth-title">
+    <button type="button" class="close outline" id="close-auth" aria-label="닫기">✕</button>
+    <p class="eyebrow">WELCOME TO SOSO</p>
+    <h2 id="auth-title">다시 만나 반가워요</h2>
+    <p class="muted">로그인하면 하던 쇼핑을 이어갈 수 있어요.</p>
+    <form id="auth-form">
+      <label id="signup-name" hidden>이름<input name="name" maxlength="50" autocomplete="name" placeholder="공백 없이 한글·영문"></label>
+      <label>이메일<input name="email" type="email" required maxlength="100" autocomplete="email" placeholder="hello@example.com"></label>
+      <label>비밀번호<input name="password" type="password" required maxlength="128" autocomplete="current-password" placeholder="8자 이상"></label>
+      <p id="auth-error" class="error" role="alert"></p>
+      <button id="auth-submit" class="wide">로그인</button>
+    </form>
+    <button id="switch-auth" class="link wide">처음이신가요? 회원가입</button>
+  </dialog>
+</body>
+</html>
