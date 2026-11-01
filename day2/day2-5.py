@@ -4,6 +4,7 @@
 allowed_roles = ['admin', 'manager', 'staff']
 role = 'admin'
 
+
 # if role in ['admin', 'manager', 'staff'] :
 if role in allowed_roles :  
     print('접근 허용')

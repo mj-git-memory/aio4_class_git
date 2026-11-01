@@ -26,35 +26,36 @@ for user in test_users :
     suspended = user['is_suspended']
 
     ### 1.
-    # if suspended == True :
-    # if suspended :
-    #     print(f"이름: {username} -  정지된 계정입니다.")
-    #     # break
-    # elif role not in ['admin', 'manager', 'user', 'guest'] : 
-    #     print(f"이름: {username} -  [오류] 알 수 없는 권한입니다.")
-    # else :
-    #     print(f"이름: {username} -  접근 가능.  부여 기능: {role}")
+    if suspended :
+        print(f"이름: {username} -  정지된 계정입니다.")
+
+    elif role in ['admin', 'manager', 'user', 'guest'] : 
+        if role == 'admin' :
+            print(f"이름: {username} = {role} -> 전체 시스템 관리 및 데이터 수정 권한 부여")
+        elif role == 'manager' :
+            print(f"이름: {username} = {role} -> 팀 데이터 조회 및 수정 권한 부여")
+        elif role == 'user' :
+            print(f"이름: {username} = {role} -> 개인 데이터 조회 권한 부여")
+        elif role == 'guest' :
+            print(f"이름: {username} = {role} -> 게스트 권한 (읽기 전용 일부 허용)")
+    else : 
+        print(f"이름: {username} = {role} -  [오류] 알 수 없는 권한입니다.")
+print('-----------')
+
+
+for user in test_users : 
+
+    username = user['username']
+    role = user['user_role']
+    suspended = user['is_suspended']
 
     ### 2.
-    # if suspended :
-    #     print(f"이름: {username} -  정지된 계정입니다.")
-    # elif role in ['admin', 'manager', 'user', 'guest'] : 
-    #     if role == 'admin' :
-    #         print(f"이름: {username} - 전체 시스템 관리 및 데이터 수정 권한 부여")
-    #     elif role == 'manager' :
-    #         print(f"이름: {username} - 팀 데이터 조회 및 수정 권한 부여")
-    #     elif role == 'user' :
-    #         print(f"이름: {username} - 개인 데이터 조회 권한 부여")
-    #     elif role == 'guest' :
-    #         print(f"이름: {username} - 게스트 권한 (읽기 전용 일부 허용)")
-    # else : 
-    #     print(f"이름: {username} -  [오류] 알 수 없는 권한입니다.")
-
-    ### 3.
     print(f"username = {username}", end = "\t")
     if suspended : 
         print('정지된 계정입니다.')
         continue  # suspended == Ture일 시, 아래 내용까지 안 돌고, 다시 위로 올라감
+        # continue는 현재 사용자의 나머지 검사를 건너뛰고, 다음 사용자를 검사
+        # break # 반복문 전체가 종료 so, 사용하면 안됨 
 
     if role == 'admin' :
         print("전체 시스템 관리 및 데이터 수정 권한 부여")
