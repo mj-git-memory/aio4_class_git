@@ -112,6 +112,14 @@ print("----")
 print(wallet)
 # print(wallet.__balance)
 # AttributeError: 'DigitalWallet' object has no attribute '__balance'. Did you mean: 'balance'?
+
+# wallet = DigitalWallet("철수", 1000)
+# 1. owner에 "철수", initial_balance에 1000이 전달됩니다.
+# 2. self.__balance = 0으로 내부 잔액을 먼저 준비합니다.
+# 3. self.balance = initial_balance에서 setter가 실행됩니다.
+# 4. setter의 amount에 1000이 전달됩니다.
+# 5. 음수가 아니므로 self.__balance = amount가 실행되어 실제 잔액이 1000이 됩니다.
+# 이후 wallet.balance를 읽으면 getter가 self.__balance의 값인 1000을 반환해요.
 print("--------------------------")
 
 
