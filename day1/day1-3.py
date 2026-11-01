@@ -1,38 +1,64 @@
-# 사용자로부터 데이터를 입력 받아서 리스트에 저장
-# 저장된 리스트의 값 중 짝수만 출력
+# 숫자 맞추기 게임
+# 규칙
+# 컴퓨터가 1~100 사이의 값을 임의로 생성한 후, 사용자가 맞추는 게임
+# 사용자가 입력한 값이 크면 크다, 작으면 작다라고 알려줌 
 
-# for i in range(5) :
-#     print(f"{i+1}번째 숫자를 입력 : ")
-
-# scores = []
-
-# for i in range(5) :
-#     score = int(input(f"{i+1}번째 숫자를 입력 : "))
-#     scores.append(score)
-
-# print("scores : ", scores)
+# 필요한 기능
+# 입력 : int(input())
+# 컴퓨터가 1~100 사이의 임의의 숫자 선택
+# 비교 연산자를 통해 크다/작다 판별
+# 순환문, 조건문, break
 
 
-# scores_filter = []
+import random
+## 난수 생성 
+num = random.randint(1,100)
 
-# for i in scores :
-#     if i % 2 == 0 :
-#         print(i)
-#         scores_filter.append(i)
-
-# print("짝수 : ", scores_filter)
+for i in range(3) : 
+    num = random.randint(1,100)
+    print(num)
+print('---------')
 
 
+## 사용자 입력
+user_num = int(input("숫자 입력 : "))
+print('---------')
 
-scores = []
-# def list_set() : 
-for i in range(5) :
-    score = int(input(f"{i+1}번째 숫자를 입력 : "))
-    scores.append(score)
 
-scores_filter = []
-for i in scores :
-    if i % 2 == 0 :
-        scores_filter.append(i)
-print("짝수 : ", scores_filter)
+num = random.randint(1,100)
+print(num)
+count = 0 
+while True : 
+    count = count+1 
+    print(count, "번째 시도")
 
+    user_num = int(input("숫자 입력 : "))
+
+    if user_num > num :
+        print("정답 보다 크다")
+    elif user_num < num :
+        print("정답 보다 작다")
+    else :
+        print(num, " : 정답")
+        break
+print('---------')
+
+
+num = random.randint(1,100)
+# print(num)
+count = 0 
+for _ in range(10) : 
+    # count = count+1 
+    count += 1
+    print(count, "번째 시도")
+    
+    user_num = int(input("숫자 입력 : "))
+
+    if user_num > num :
+        print("정답 보다 크다")
+    elif user_num < num :
+        print("정답 보다 작다")
+    else :
+        print(f"정답: {num}.    총 시도 횟수: {count}")
+        break # 자신을 감싸는 가장 가까운 반복문을 종료
+print("게임 종료")  # break로 반복문을 나와도 실행됨
