@@ -30,4 +30,4 @@ else :  # 처음 화면을 열거나, 다른 입력값을 바꿔 실행됐을 �
     st.caption('이름과 질문을 입력한 뒤 미리보기 버튼을 누르세요.')
 
 # python -m pip install streamlit  # 설치
-# python -m streamlit run day16/main1.py  # 실행
+# python -m streamlit run main1.py  # 터미널에서 실행
