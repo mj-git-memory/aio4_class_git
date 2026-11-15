@@ -1,6 +1,6 @@
 erDiagram
     users ||--o{ orders : places
-    users ||--o{ sessions : authenticates
+    users ||--o{ auth_sessions : authenticates
     orders ||--o{ order_items : contains
     products ||--o{ order_items : selected_in
     orders ||--o| payments : paid_by
@@ -9,7 +9,8 @@ erDiagram
         bigint id PK
         varchar name
         varchar email UK
-        text password_hash
+        uuid auth_user_id UK
+        text role
         varchar address
         boolean active
         timestamptz created_at
@@ -22,11 +23,13 @@ erDiagram
         integer price
         integer stock
         text emoji
+        boolean active
     }
     orders {
         bigint id PK
         bigint user_id FK
         text status
+        text fulfillment_status
         integer total
         varchar shipping_address
         timestamptz created_at
@@ -48,8 +51,11 @@ erDiagram
         text status
         timestamptz created_at
     }
-    sessions {
+    auth_sessions {
         text token_hash PK
+        text access_token
+        text refresh_token
+        bigint token_expires_at
         bigint user_id FK
         timestamptz expires_at
     }

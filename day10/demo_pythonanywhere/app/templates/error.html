@@ -1,0 +1,2 @@
+{% extends 'base.html' %}
+{% block content %}<section class="card error-card"><p class="eyebrow">ONE MOMENT</p><h1>잠시 확인해 주세요<span class="accent">.</span></h1><p>{{ message }}</p><a class="button" href="{{ url_for('guestbook.index') }}">방명록으로 돌아가기</a></section>{% endblock %}

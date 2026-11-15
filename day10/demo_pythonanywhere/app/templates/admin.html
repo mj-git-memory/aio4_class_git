@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page-intro"><p class="eyebrow">WORDS MATTER</p><h1>표현 규칙 관리<span class="accent">.</span></h1><p class="muted">서로에게 편안한 공간을 위한 마스킹 규칙입니다. 최대 200개까지 관리할 수 있어요.</p></section>
+<section class="card"><h2>규칙 추가</h2><form id="rule-form">
+  <div class="rule-fields"><div><label for="rule-type">유형</label><select id="rule-type" name="type"><option value="keyword">키워드</option><option value="regex">정규식</option></select></div><div class="grow"><label for="rule-pattern">패턴</label><input id="rule-pattern" name="pattern" maxlength="200" required></div><div><label for="rule-flags">옵션</label><input id="rule-flags" name="flags" maxlength="3" placeholder="i, m, s 중 선택"></div></div>
+  <p class="muted">키워드는 입력한 문자 그대로 탐지합니다. 정규식 옵션은 공백·쉼표 없이 입력하고, 키워드의 옵션은 비워 두세요. 빈 구간에 일치하는 패턴은 사용할 수 없습니다.</p><button type="submit">규칙 등록 ↗</button>
+</form></section>
+<section class="notes-section"><div class="section-heading"><h2>등록된 규칙 <span>{{ rules|length }}</span></h2><small>삭제한 초기 규칙은 재시작해도 복원되지 않습니다.</small></div>
+<ul class="rule-list">{% for rule in rules %}<li><div><span class="pill">{{ '키워드' if rule.type == 'keyword' else '정규식' }}</span><code>{{ rule.pattern }}</code>{% if rule.flags %}<small>옵션: {{ rule.flags }}</small>{% endif %}</div><div class="rule-delete-actions"><button class="secondary danger rule-delete" type="button">삭제</button><span class="rule-confirm" hidden>삭제할까요? <button type="button" class="danger rule-delete-confirm" data-rule-id="{{ rule.id }}">삭제 확인</button><button class="secondary rule-delete-cancel" type="button">취소</button></span></div></li>{% else %}<li class="empty-state">등록된 규칙이 없습니다.</li>{% endfor %}</ul>
+</section>
+{% endblock %}

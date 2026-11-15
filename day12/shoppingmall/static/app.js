@@ -8,7 +8,7 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;',
 async function api(path, options = {}) {
   const response = await fetch('/api' + path, {
     credentials: 'same-origin', ...options,
-    headers: {'Content-Type': 'application/json', ...options.headers},
+    headers: {'Content-Type': 'application/json', 'X-Shop-Request': '1', ...options.headers},
   });
   let data;
   try { data = await response.json(); } catch { throw new Error('서버 응답을 확인할 수 없습니다.'); }
@@ -28,7 +28,10 @@ function toast(message) {
   box.textContent = message; box.classList.add('visible');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => box.classList.remove('visible'), 4000);
 }
-function updateAuth() { document.querySelector('#auth-button').textContent = user ? '로그아웃' : '로그인'; }
+function updateAuth() {
+  document.querySelector('#auth-button').textContent = user ? '로그아웃' : '로그인';
+  document.querySelector('#admin-link').hidden = user?.role !== 'admin';
+}
 function openAuth(action) {
   pending = action || null;
   document.querySelector('#auth-error').textContent = '';
@@ -104,7 +107,7 @@ async function renderOrders() {
   const orders = await api('/orders');
   content.innerHTML = `<p class="eyebrow">YOUR COLLECTION</p><h2>구매내역</h2>`;
   if (!orders.length) { content.innerHTML += empty('첫 번째 발견을 기다려요', '모의 결제한 주문이 여기에 표시됩니다.'); return; }
-  content.innerHTML += orders.map(order => `<article class="panel"><div class="order-head"><div><h3>주문 #${order.id}</h3><small>${new Date(order.paid_at).toLocaleString('ko-KR')}</small></div><span class="badge">모의 결제 완료</span></div><p class="note">배송지: ${esc(order.shipping_address)}</p>${order.items.map(i => `<div class="order-line"><span>${esc(i.product_name)} <small>× ${i.quantity}</small></span><strong>${money(i.unit_price*i.quantity)}</strong></div>`).join('')}<div class="total"><span>결제 금액</span><span>${money(order.total)}</span></div></article>`).join('');
+  content.innerHTML += orders.map(order => `<article class="panel"><div class="order-head"><div><h3>주문 #${order.id}</h3><small>${new Date(order.paid_at).toLocaleString('ko-KR')}</small></div><span class="badge">${esc(deliveryLabel(order.fulfillment_status))}</span></div><p class="note">배송지: ${esc(order.shipping_address)}</p>${order.items.map(i => `<div class="order-line"><span>${esc(i.product_name)} <small>× ${i.quantity}</small></span><strong>${money(i.unit_price*i.quantity)}</strong></div>`).join('')}<div class="total"><span>결제 금액</span><span>${money(order.total)}</span></div></article>`).join('');
 }
 
 async function renderProfile() {
@@ -122,7 +125,7 @@ async function renderProfile() {
     if (!confirm('회원탈퇴를 진행할까요? 다시 로그인할 수 없습니다.')) return;
     authenticated(async () => {
       await api('/me',{method:'DELETE'}); user=null; updateAuth();
-      toast('회원탈퇴가 완료되었습니다.'); location.hash='products';
+      toast('쇼핑몰 탈퇴가 완료되었습니다. 인증 계정 삭제는 운영자에게 요청하세요.'); location.hash='products';
     });
   };
 }
@@ -139,7 +142,8 @@ async function route() {
     openAuth(route); return;
   }
   try {
-    if (page === 'cart') await renderCart();
+    if (page === 'admin') await renderAdmin();
+    else if (page === 'cart') await renderCart();
     else if (page === 'orders') await renderOrders();
     else if (page === 'profile') await renderProfile();
     else await renderProducts();
@@ -152,7 +156,7 @@ async function route() {
 
 document.querySelector('#auth-button').onclick = async () => {
   if (!user) return openAuth();
-  try { await api('/logout',{method:'POST'}); user=null; updateAuth(); toast('로그아웃되었습니다.'); location.hash='products'; await route(); }
+  try { const result = await api('/logout',{method:'POST'}); user=null; updateAuth(); toast(result.message); location.hash='products'; await route(); }
   catch (error) { toast(error.message); }
 };
 document.querySelector('#close-auth').onclick = () => { pending=null; dialog.close(); };
@@ -160,6 +164,7 @@ dialog.addEventListener('cancel', () => { pending=null; });
 function setAuthMode(value) {
   signup=value;
   document.querySelector('#signup-name').hidden=!signup;
+  document.querySelector('#signup-email-help').hidden=!signup;
   authForm.elements.name.required=signup;
   authForm.elements.password.minLength=signup?8:1;
   authForm.elements.password.autocomplete=signup?'new-password':'current-password';
@@ -175,8 +180,8 @@ authForm.onsubmit = async event => {
   const values=Object.fromEntries(new FormData(authForm));
   try {
     if (signup) {
-      await api('/signup',{method:'POST',body:JSON.stringify(values)});
-      setAuthMode(false); toast('회원가입이 완료되었습니다. 로그인하세요.');
+      const result = await api('/signup',{method:'POST',body:JSON.stringify(values)});
+      setAuthMode(false); authForm.elements.password.value=''; toast(result.message);
     } else {
       await api('/login',{method:'POST',body:JSON.stringify({email:values.email,password:values.password})});
       user=await api('/me'); updateAuth(); dialog.close(); authForm.elements.password.value='';
@@ -193,3 +198,54 @@ window.addEventListener('hashchange',route);
   try { user=await api('/me'); } catch { user=null; }
   updateAuth(); await route();
 })();
+
+function deliveryLabel(status) {
+  return {preparing:'배송 준비', shipped:'배송 중', delivered:'배송 완료'}[status] || '배송 준비';
+}
+
+async function renderAdmin() {
+  // 버튼 표시만으로 권한을 보장하지 않는다. 각 API에서도 관리자 여부를 검사한다.
+  user = await api('/me'); updateAuth();
+  if (user.role !== 'admin') {
+    content.innerHTML = empty('관리자 권한이 필요해요', '이 화면은 운영자만 사용할 수 있습니다.');
+    return;
+  }
+  const [products, orders] = await Promise.all([api('/admin/products'), api('/admin/orders')]);
+  const fields = p => `<label>상품명<input name="name" required maxlength="100" value="${esc(p.name)}"></label>
+    <label>설명<input name="description" required maxlength="1000" value="${esc(p.description)}"></label>
+    <label>카테고리<select name="category">${['리빙','패션','문구'].map(c => `<option ${p.category === c ? 'selected' : ''}>${c}</option>`).join('')}</select></label>
+    <label>가격(원)<input name="price" type="number" min="1" max="100000000" required value="${p.price ?? 1000}"></label>
+    <label>재고<input name="stock" type="number" min="0" max="1000000" required value="${p.stock ?? 0}"></label>
+    <label>그림 문자<input name="emoji" required maxlength="20" value="${esc(p.emoji || '📦')}"></label>
+    <label>판매 상태<select name="active"><option value="true" ${p.active !== false ? 'selected' : ''}>판매 중</option><option value="false" ${p.active === false ? 'selected' : ''}>판매 중지</option></select></label>`;
+  content.innerHTML = `<p class="eyebrow">STORE MANAGEMENT</p><h2>상품·주문 관리</h2>
+    <p class="note">가격·재고 변경은 이후 결제에 적용됩니다. 기존 구매 기록은 유지됩니다.</p>
+    <details class="panel"><summary>새 상품 등록</summary><form data-product="new" class="admin-form">${fields({})}<button>등록</button></form></details>
+    <h3>상품 ${products.length}개</h3>${products.map(p => `<details class="panel"><summary>${esc(p.emoji)} ${esc(p.name)} · ${money(p.price)} · 재고 ${p.stock} · ${p.active ? '판매 중' : '판매 중지'}</summary><form data-product="${p.id}" class="admin-form">${fields(p)}<button>변경사항 저장</button></form></details>`).join('')}
+    <h3>최근 결제 주문 (최대 200건)</h3>${orders.length ? orders.map(o => `<article class="panel"><h3>주문 #${o.id} · ${money(o.total)}</h3><p>${esc(o.customer_name)} · ${esc(o.shipping_address)}</p><p>${esc(deliveryLabel(o.fulfillment_status))}</p>${o.fulfillment_status !== 'delivered' ? `<button data-delivery="${o.id}" data-status="${o.fulfillment_status === 'preparing' ? 'shipped' : 'delivered'}">${o.fulfillment_status === 'preparing' ? '배송 시작' : '배송 완료 처리'}</button>` : ''}</article>`).join('') : '<p>결제 주문이 없습니다.</p>'}`;
+  content.querySelectorAll('[data-product]').forEach(form => form.onsubmit = async event => {
+    event.preventDefault();
+    const button = form.querySelector('button'); button.disabled = true;
+    const values = Object.fromEntries(new FormData(form));
+    values.price = Number(values.price); values.stock = Number(values.stock); values.active = values.active === 'true';
+    const isNew = form.dataset.product === 'new';
+    try {
+      await api('/admin/products' + (isNew ? '' : '/' + form.dataset.product), {
+        method:isNew ? 'POST' : 'PUT', body:JSON.stringify(values),
+      });
+      toast(isNew ? '상품을 등록했습니다.' : '상품을 수정했습니다.'); await renderAdmin();
+    } catch (error) { toast(error.message); }
+    finally { button.disabled = false; }
+  });
+  content.querySelectorAll('[data-delivery]').forEach(button => button.onclick = async () => {
+    if (!confirm('주문 #' + button.dataset.delivery + '의 배송 상태를 변경할까요?')) return;
+    button.disabled = true;
+    try {
+      await api('/admin/orders/' + button.dataset.delivery + '/fulfillment', {
+        method:'PATCH', body:JSON.stringify({status:button.dataset.status}),
+      });
+      toast('배송 상태를 변경했습니다.'); await renderAdmin();
+    } catch (error) { toast(error.message); }
+    finally { button.disabled = false; }
+  });
+}

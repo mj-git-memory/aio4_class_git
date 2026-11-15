@@ -1,25 +1,26 @@
 """FastAPI + Supabase PostgreSQL 쇼핑몰. 실제 청구 없는 모의 결제."""
-import hashlib
-import hmac
 import os
 import re
-import secrets
 from contextlib import asynccontextmanager
 from pathlib import Path
+from typing import Literal
 
 import psycopg
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi.openapi.utils import get_openapi
+from auth import (authenticated_user, auth_request, end_session, start_session, validate_config)
 from fastapi.staticfiles import StaticFiles
 from psycopg.rows import dict_row
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 ROOT = Path(__file__).resolve().parent
-# shoppingmall/.env를 우선 사용하고 없으면 상위 폴더의 .env를 탐색
-load_dotenv(ROOT / '.env')
-load_dotenv()
+# 파일별로 누락한 항목을 상위 설정에서 보완한다. 실행 위치에 의존하지 않는다.
+for folder in (ROOT, ROOT.parent, ROOT.parent.parent):
+    load_dotenv(folder / '.env', override=False, interpolate=False)
 
 
 def connect():
@@ -34,23 +35,73 @@ def connect():
 
 @asynccontextmanager
 async def lifespan(app):
+    validate_config()
     with connect() as conn:
         conn.execute((ROOT / 'schema.sql').read_text(encoding='utf-8'))
     yield
 
 
-app = FastAPI(title='소소상점 API', lifespan=lifespan)
+class ForbiddenResponse(BaseModel):
+    detail: str
+    code: str | None = None
+    hint: str | None = None
+
+
+app = FastAPI(title='소소상점 API', lifespan=lifespan, responses={
+    403: {'model': ForbiddenResponse,
+          'description': '요청 보호 헤더 누락, 다른 출처 요청 또는 권한 부족. detail과 hint를 확인하세요.'},
+})
 app.mount('/static', StaticFiles(directory=ROOT / 'static'), name='static')
+
+
+def shop_openapi():
+    if app.openapi_schema is None:
+        schema = get_openapi(title=app.title, version=app.version, routes=app.routes)
+        # 미들웨어가 검사하는 헤더도 API 문서에 표시한다. Swagger는 기본값 1을 전송한다.
+        for path, operations in schema['paths'].items():
+            if not path.startswith('/api/'):
+                continue
+            for method in ('post', 'put', 'patch', 'delete'):
+                if method in operations:
+                    operations[method].setdefault('parameters', []).append({
+                        'name': 'X-Shop-Request', 'in': 'header', 'required': True,
+                        'description': '변경 요청 보호용 헤더입니다. 기본값 1을 유지하세요. 로그인 토큰이 아닙니다.',
+                        'schema': {'type': 'string', 'enum': ['1'], 'default': '1'},
+                    })
+        app.openapi_schema = schema
+    return app.openapi_schema
+
+
+app.openapi = shop_openapi
+
+
+def forbidden_request(code, detail, hint):
+    # detail/hint는 고객 안내, code는 개발자가 원인을 구분하는 식별값이다.
+    return JSONResponse({'detail': detail, 'code': code, 'hint': hint}, status_code=403,
+                        headers={'Cache-Control': 'no-store'})
 
 
 @app.middleware('http')
 async def csrf_check(request: Request, call_next):
     # 쿠키 인증을 사용하는 변경 요청은 브라우저의 같은 출처에서만 허용
-    if request.method in ('POST', 'PATCH', 'DELETE'):
+    if request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+        # same-origin JS만 이 헤더를 보낼 수 있다. CORS로 외부 출처를 허용하지 않는다.
+        if request.headers.get('x-shop-request') != '1':
+            return forbidden_request(
+                'SHOP_REQUEST_HEADER_REQUIRED',
+                '요청을 안전하게 확인하지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해주세요.',
+                '계속 진행되지 않으면 쇼핑몰 홈으로 돌아가 다시 시도해주세요. '
+                '같은 문제가 반복되면 고객지원에 문의해주세요.',
+            )
         origin = request.headers.get('origin')
         expected = f'{request.url.scheme}://{request.url.netloc}'
         if request.headers.get('sec-fetch-site') == 'cross-site' or (origin and origin != expected):
-            return JSONResponse({'detail': '다른 출처의 요청은 허용하지 않습니다.'}, status_code=403)
+            return forbidden_request(
+                'CROSS_ORIGIN_REQUEST_BLOCKED',
+                '쇼핑몰에서 직접 진행한 요청인지 확인할 수 없습니다. 쇼핑몰 홈에서 다시 진행해주세요.',
+                '다른 사이트의 링크나 오래 열어둔 화면을 이용했다면 닫고, '
+                '쇼핑몰 홈에 다시 접속해주세요.',
+            )
     response = await call_next(request)
     if request.url.path.startswith('/api/'):
         response.headers['Cache-Control'] = 'no-store'
@@ -96,26 +147,23 @@ class Checkout(BaseModel):
         return value.strip()
 
 
-def password_hash(password, salt=None):
-    salt = salt or secrets.token_hex(16)
-    digest = hashlib.pbkdf2_hmac('sha256', password.encode(), bytes.fromhex(salt), 600000).hex()
-    return f'{salt}${digest}'
-
-
-def token_hash(token):
-    return hashlib.sha256(token.encode()).hexdigest()
-
-
 def current_user(request: Request):
-    token = request.cookies.get('session', '')
-    with connect() as conn:
-        user = conn.execute('''SELECT u.id, u.name, u.email, u.address
-            FROM shoppingmall.sessions s JOIN shoppingmall.users u ON u.id=s.user_id
-            WHERE s.token_hash=%s AND s.expires_at>NOW() AND u.active''',
-            (token_hash(token),)).fetchone()
-    if not user:
-        raise HTTPException(401, '로그인이 필요합니다.')
+    return authenticated_user(connect, request)
+
+
+def admin_user(user=Depends(current_user)):
+    # UI에서 버튼을 숨기는 것과 별개로 모든 관리자 요청을 서버에서 검사한다.
+    if user['role'] != 'admin':
+        raise HTTPException(403, '관리자 권한이 필요합니다.')
     return user
+
+
+@app.exception_handler(RequestValidationError)
+def validation_error(request: Request, exc: RequestValidationError):
+    # 비밀번호와 입력 원문을 응답에 포함하지 않는다.
+    return JSONResponse({'detail': [
+        {'loc': e['loc'], 'type': e['type'], 'msg': '입력 형식과 필수 항목을 확인하세요.'}
+        for e in exc.errors()]}, status_code=422)
 
 
 def lock_user(conn, user_id):
@@ -147,42 +195,28 @@ def health():
 
 @app.post('/api/signup', status_code=201)
 def signup(data: Signup):
-    try:
-        with connect() as conn:
-            conn.execute('''INSERT INTO shoppingmall.users(name,email,password_hash,address)
-                VALUES (%s,%s,%s,%s)''',
-                (data.name, str(data.email).lower(), password_hash(data.password), data.address))
-    except psycopg.errors.UniqueViolation:
-        raise HTTPException(409, '이미 사용 중인 이메일입니다.')
-    return {'message': '회원가입이 완료되었습니다. 로그인하세요.'}
+    # 비밀번호를 자체 users 테이블에 저장하지 않는다. 이메일 확인은 Supabase가 담당한다.
+    auth_request('POST', 'signup', payload={
+        'email': str(data.email).lower(), 'password': data.password,
+        'data': {'name': data.name, 'address': data.address},
+    })
+    return {'message': '가입 요청을 처리했습니다. 확인 메일이 오면 인증 후 로그인하세요.'}
 
 
 @app.post('/api/login')
-def login(data: Login, response: Response):
-    with connect() as conn:
-        user = conn.execute('SELECT * FROM shoppingmall.users WHERE email=%s AND active FOR UPDATE',
-                            (str(data.email).lower(),)).fetchone()
-        # 없는 계정도 같은 해시 계산을 수행
-        stored = user['password_hash'] if user else ('0' * 32 + '$' + '0' * 64)
-        candidate = password_hash(data.password, stored.split('$')[0])
-        if not hmac.compare_digest(candidate, stored) or not user:
-            raise HTTPException(401, '이메일 또는 비밀번호가 올바르지 않습니다.')
-        token = secrets.token_urlsafe(32)
-        conn.execute('DELETE FROM shoppingmall.sessions WHERE expires_at<NOW()')
-        conn.execute('INSERT INTO shoppingmall.sessions(token_hash,user_id) VALUES (%s,%s)',
-                     (token_hash(token), user['id']))
-    response.set_cookie('session', token, httponly=True, samesite='lax', max_age=604800,
-                        secure=os.getenv('COOKIE_SECURE', 'false').lower() == 'true')
+def login(data: Login, request: Request, response: Response):
+    result = auth_request('POST', 'token?grant_type=password', payload={
+        'email': str(data.email).lower(), 'password': data.password,
+    })
+    # 기존 브라우저 세션도 폐기해 계정 전환 후 이전 쿠키를 재사용하지 못하게 한다.
+    end_session(connect, request, response)
+    start_session(connect, result, response)
     return {'message': '로그인되었습니다.'}
 
 
 @app.post('/api/logout')
 def logout(request: Request, response: Response):
-    with connect() as conn:
-        conn.execute('DELETE FROM shoppingmall.sessions WHERE token_hash=%s',
-                     (token_hash(request.cookies.get('session', '')),))
-    response.delete_cookie('session')
-    return {'message': '로그아웃되었습니다.'}
+    return end_session(connect, request, response)
 
 
 @app.get('/api/me')
@@ -200,24 +234,24 @@ def update_me(data: Profile, user=Depends(current_user)):
 
 
 @app.delete('/api/me')
-def delete_me(response: Response, user=Depends(current_user)):
+def delete_me(request: Request, response: Response, user=Depends(current_user)):
+    end_session(connect, request, response)
     with connect() as conn:
         lock_user(conn, user['id'])
         # 구매 기록은 유지하되 회원 개인정보는 익명화
         conn.execute('''UPDATE shoppingmall.users SET active=FALSE,name='탈퇴회원',
             email=%s,password_hash='',address='' WHERE id=%s''',
             (f'deleted-{user["id"]}@invalid.local', user['id']))
-        conn.execute('DELETE FROM shoppingmall.sessions WHERE user_id=%s', (user['id'],))
+        conn.execute('DELETE FROM shoppingmall.auth_sessions WHERE user_id=%s', (user['id'],))
         conn.execute("DELETE FROM shoppingmall.orders WHERE user_id=%s AND status='cart'", (user['id'],))
         conn.execute("UPDATE shoppingmall.orders SET shipping_address='' WHERE user_id=%s", (user['id'],))
-    response.delete_cookie('session')
-    return {'message': '회원탈퇴가 완료되었습니다.'}
+    return {'message': '쇼핑몰 탈퇴가 완료되었습니다. 인증 계정 삭제는 운영자에게 요청하세요.'}
 
 
 @app.get('/api/products')
 def products():
     with connect() as conn:
-        return conn.execute('SELECT * FROM shoppingmall.products ORDER BY id').fetchall()
+        return conn.execute('SELECT * FROM shoppingmall.products WHERE active ORDER BY id').fetchall()
 
 
 @app.get('/api/cart')
@@ -233,7 +267,7 @@ def cart(user=Depends(current_user)):
 def add_cart(data: CartItem, user=Depends(current_user)):
     with connect() as conn:
         lock_user(conn, user['id'])
-        product = conn.execute('SELECT * FROM shoppingmall.products WHERE id=%s', (data.product_id,)).fetchone()
+        product = conn.execute('SELECT * FROM shoppingmall.products WHERE id=%s AND active', (data.product_id,)).fetchone()
         if not product:
             raise HTTPException(404, '상품이 없습니다.')
         order_id = get_cart(conn, user['id'])
@@ -263,13 +297,15 @@ def checkout(data: Checkout, user=Depends(current_user)):
     with connect() as conn:
         lock_user(conn, user['id'])
         order_id = get_cart(conn, user['id'])
-        items = conn.execute('''SELECT i.*,p.price,p.stock,p.name FROM shoppingmall.order_items i
+        items = conn.execute('''SELECT i.*,p.price,p.stock,p.name,p.active FROM shoppingmall.order_items i
             JOIN shoppingmall.products p ON p.id=i.product_id WHERE i.order_id=%s
             ORDER BY p.id FOR UPDATE OF p''', (order_id,)).fetchall()
         if not items:
             raise HTTPException(400, '장바구니가 비어 있습니다.')
         total = 0
         for item in items:
+            if not item['active']:
+                raise HTTPException(409, '판매 중지된 상품이 있습니다. 장바구니에서 삭제하세요.')
             if item['quantity'] > item['stock']:
                 raise HTTPException(409, f'{item["name"]}의 재고가 부족합니다.')
             total += item['price'] * item['quantity']
@@ -292,6 +328,93 @@ def orders(user=Depends(current_user)):
             order['items'] = conn.execute('SELECT product_name,unit_price,quantity FROM shoppingmall.order_items WHERE order_id=%s ORDER BY id',
                                           (order['id'],)).fetchall()
         return result
+
+
+@app.get('/api/orders/{order_id}')
+def order_detail(order_id: int, user=Depends(current_user)):
+    with connect() as conn:
+        # 관리자도 고객용 경로에서는 본인 주문만 본다. 전체 조회는 관리자 경로로 분리한다.
+        order = conn.execute("""SELECT * FROM shoppingmall.orders
+            WHERE id=%s AND user_id=%s AND status='paid'""", (order_id, user['id'])).fetchone()
+        if not order:
+            raise HTTPException(404, '주문이 없습니다.')
+        order['items'] = conn.execute('''SELECT product_name,unit_price,quantity
+            FROM shoppingmall.order_items WHERE order_id=%s ORDER BY id''', (order_id,)).fetchall()
+        order['payment'] = conn.execute('''SELECT amount,method,status,created_at
+            FROM shoppingmall.payments WHERE order_id=%s''', (order_id,)).fetchone()
+        return order
+
+
+class ProductInput(BaseModel):
+    model_config = ConfigDict(extra='forbid', str_strip_whitespace=True)
+    name: str = Field(min_length=1, max_length=100)
+    description: str = Field(min_length=1, max_length=1000)
+    category: Literal['리빙', '패션', '문구']
+    price: int = Field(gt=0, le=100000000, strict=True)
+    stock: int = Field(ge=0, le=1000000, strict=True)
+    emoji: str = Field(min_length=1, max_length=20)
+    active: bool = True
+
+
+class FulfillmentInput(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    status: Literal['preparing', 'shipped', 'delivered']
+
+
+@app.get('/api/admin/products')
+def admin_products(user=Depends(admin_user)):
+    with connect() as conn:
+        return conn.execute('SELECT * FROM shoppingmall.products ORDER BY id').fetchall()
+
+
+@app.post('/api/admin/products', status_code=201)
+def create_product(data: ProductInput, user=Depends(admin_user)):
+    try:
+        with connect() as conn:
+            return conn.execute('''INSERT INTO shoppingmall.products
+                (name,description,category,price,stock,emoji,active)
+                VALUES (%s,%s,%s,%s,%s,%s,%s) RETURNING *''',
+                tuple(data.model_dump().values())).fetchone()
+    except psycopg.errors.UniqueViolation:
+        raise HTTPException(409, '같은 이름의 상품이 있습니다.') from None
+
+
+@app.put('/api/admin/products/{product_id}')
+def update_product(product_id: int, data: ProductInput, user=Depends(admin_user)):
+    try:
+        with connect() as conn:
+            product = conn.execute('''UPDATE shoppingmall.products SET
+                name=%s,description=%s,category=%s,price=%s,stock=%s,emoji=%s,active=%s
+                WHERE id=%s RETURNING *''', (*data.model_dump().values(), product_id)).fetchone()
+            if not product:
+                raise HTTPException(404, '상품이 없습니다.')
+            return product
+    except psycopg.errors.UniqueViolation:
+        raise HTTPException(409, '같은 이름의 상품이 있습니다.') from None
+
+
+@app.get('/api/admin/orders')
+def admin_orders(user=Depends(admin_user)):
+    with connect() as conn:
+        return conn.execute("""SELECT o.*,u.name AS customer_name
+            FROM shoppingmall.orders o JOIN shoppingmall.users u ON u.id=o.user_id
+            WHERE o.status='paid' ORDER BY o.id DESC LIMIT 200""").fetchall()
+
+
+@app.patch('/api/admin/orders/{order_id}/fulfillment')
+def update_fulfillment(order_id: int, data: FulfillmentInput, user=Depends(admin_user)):
+    with connect() as conn:
+        order = conn.execute("""SELECT fulfillment_status FROM shoppingmall.orders
+            WHERE id=%s AND status='paid' FOR UPDATE""", (order_id,)).fetchone()
+        if not order:
+            raise HTTPException(404, '결제된 주문이 없습니다.')
+        states = ['preparing', 'shipped', 'delivered']
+        current, target = states.index(order['fulfillment_status']), states.index(data.status)
+        if target not in (current, current + 1):
+            raise HTTPException(409, '배송 준비 → 배송 중 → 배송 완료 순서로 변경하세요.')
+        conn.execute('UPDATE shoppingmall.orders SET fulfillment_status=%s WHERE id=%s',
+                     (data.status, order_id))
+    return {'message': '배송 상태를 변경했습니다.'}
 
 
 if __name__ == '__main__':

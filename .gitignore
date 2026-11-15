@@ -24,3 +24,9 @@ __pycache__/
 
 config.json
 
+
+.streamlit/secrets.toml
+*.jsonl
+
+
+/day17/models/

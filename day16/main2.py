@@ -1,4 +1,5 @@
-# llama serve -hf ggml-org/Qwen3.5-0.8B-GGUF --alias local-chat  # 터미널에서 실행
+# curl -LsSf https://llama.app/install.sh | sh  # llama 설치
+# llama serve -hf ggml-org/Qwen3.5-0.8B-GGUF --alias local-chat  # 실행
 # -> 이 명령어는 **“Qwen 모델을 내려받아 내 컴퓨터에서 실행하고, local-chat이라는 이름으로 요청받을 준비를 해라”**라는 뜻
 # -> 처음 실행하면 필요한 모델을 다운로드하고, 이후에는 저장된 파일을 재사용
 # -> 서버는 Streamlit 같은 프로그램에서 보낸 질문을 받아 답변을 생성
@@ -50,3 +51,5 @@ if st.button('ai 답변 받기') :  # st.button()은 버튼을 클릭한 실행�
             st.text(answer.strip())
 
 
+# llama serve -hf ggml-org/Qwen3.5-0.8B-GGUF --alias local-chat  # 로 서버 실행 시킨 후
+# python -m streamlit run main2.py  # 로 streamlit 실행시켜야 함 

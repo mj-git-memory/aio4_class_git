@@ -1,0 +1,22 @@
+{
+  "source": "LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words, ko",
+  "source_url": "https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/blob/master/ko",
+  "license": "CC BY 4.0",
+  "checked_at": "2026-10-27",
+  "adaptation": "명확한 모욕 표현 12개를 선별하고, 분리 표기 탐지용 정규식 1개를 자체 추가",
+  "rules": [
+    {"type": "keyword", "pattern": "개새끼"},
+    {"type": "keyword", "pattern": "개자식"},
+    {"type": "keyword", "pattern": "니기미"},
+    {"type": "keyword", "pattern": "병신"},
+    {"type": "keyword", "pattern": "쌍놈"},
+    {"type": "keyword", "pattern": "씨발"},
+    {"type": "keyword", "pattern": "씨팔"},
+    {"type": "keyword", "pattern": "씹새끼"},
+    {"type": "keyword", "pattern": "염병"},
+    {"type": "keyword", "pattern": "옘병"},
+    {"type": "keyword", "pattern": "짱깨"},
+    {"type": "keyword", "pattern": "쪽바리"},
+    {"type": "regex", "pattern": "씨[\\s._-]{0,3}[발팔]", "flags": ""}
+  ]
+}

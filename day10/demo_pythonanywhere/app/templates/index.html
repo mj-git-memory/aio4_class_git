@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="intro">
+  <p class="eyebrow">A LITTLE NOTE, A LITTLE CONNECTION</p>
+  <h1>잠깐 머물고,<br>한 줄 남겨요<span class="accent">.</span></h1>
+  <p class="intro-description">오늘의 생각, 반가운 인사.<br>당신의 작은 이야기를 이곳에 남겨 주세요.</p>
+  <span class="intro-stamp" aria-hidden="true">HELLO<br>THERE ↗</span>
+</section>
+<div id="guestbook" data-page="{{ page }}">
+  <section class="compose card" aria-labelledby="compose-title">
+    <div class="section-label"><span class="dot"></span><h2 id="compose-title">이야기 남기기</h2></div>
+    {% if g.user %}
+    <form id="post-form">
+      <label class="sr-only" for="post-body">방명록 본문</label>
+      <textarea id="post-body" name="body" rows="3" maxlength="5000" placeholder="어떤 이야기를 남기고 싶으세요?" required></textarea>
+      <div class="form-bottom"><small>본문만 작성해 주세요. 최대 5,000자</small><button type="submit">기록 남기기 <span aria-hidden="true">↗</span></button></div>
+    </form>
+    {% else %}
+    <p class="muted">인사를 남기려면 로그인해 주세요. 누구나 편하게 읽을 수 있어요.</p>
+    <a class="button" href="{{ url_for('auth.login') }}">로그인하고 남기기 ↗</a>
+    {% endif %}
+  </section>
+  <section class="notes-section" aria-labelledby="list-title">
+    <div class="section-heading"><h2 id="list-title">모두의 기록 <span id="post-count">{{ total }}</span></h2><small>최신 기록부터 · 페이지당 10개</small></div>
+    <p class="list-hint">기록을 선택하면 이 페이지에서 전체 내용과 댓글을 볼 수 있어요.</p>
+    <ol id="post-list" class="post-list">
+      {% for post in posts %}
+      <li><button class="post-row" type="button" data-post-id="{{ post.id }}" aria-controls="post-detail" aria-expanded="false"><span class="note-icon" aria-hidden="true">↗</span><span class="row-main"><span class="preview">{{ post.preview }}</span><span class="row-meta">{{ post.nickname }} · <time datetime="{{ post.created_at }}">{{ post.created_at[:10] }}</time></span></span><span class="row-arrow" aria-hidden="true">→</span></button></li>
+      {% endfor %}
+    </ol>
+    <p id="empty-state" class="empty-state" {% if total %}hidden{% endif %}>아직 기록이 없어요. 첫 번째 이야기를 남겨 주세요.</p>
+    <nav class="pagination" aria-label="방명록 페이지">
+      <button id="prev-page" class="secondary" type="button" {% if page <= 1 %}disabled{% endif %}>← 이전</button>
+      <span id="page-label" aria-live="polite">{{ page }} / {{ pages }}</span>
+      <button id="next-page" class="secondary" type="button" {% if page >= pages %}disabled{% endif %}>다음 →</button>
+    </nav>
+  </section>
+  <section id="post-detail" class="card detail" aria-labelledby="detail-title" tabindex="-1" hidden>
+    <div class="section-heading"><h2 id="detail-title">남겨진 이야기</h2><button id="close-detail" type="button" class="secondary">닫기 ×</button></div>
+    <p id="detail-meta" class="muted"></p>
+    <p id="detail-body" class="full-body"></p>
+    <div id="owner-actions" class="actions" hidden><button id="edit-post" class="secondary" type="button">수정</button><button id="ask-delete" class="danger secondary" type="button">삭제</button></div>
+    <form id="edit-form" hidden>
+      <label for="edit-body">내 기록 수정</label><textarea id="edit-body" rows="5" maxlength="5000" required></textarea>
+      <div class="actions"><button type="submit">변경 저장</button><button id="cancel-edit" type="button" class="secondary">취소</button></div>
+    </form>
+    <div id="delete-confirm" class="notice" hidden><p>이 글과 연결된 댓글을 삭제할까요? 삭제 후에는 되돌릴 수 없어요.</p><div class="actions"><button id="confirm-delete" class="danger" type="button">삭제하기</button><button id="cancel-delete" class="secondary" type="button">취소</button></div></div>
+    <div class="comments"><h3>함께 나눈 이야기 <span id="comment-count"></span></h3><ul id="comment-list"></ul><p id="no-comments" class="muted">아직 댓글이 없어요.</p>
+    {% if g.user %}
+      <form id="comment-form"><label for="comment-body">댓글 남기기</label><textarea id="comment-body" rows="2" maxlength="1000" placeholder="다정한 한마디를 남겨 주세요." required></textarea><div class="form-bottom"><small>최대 1,000자</small><button type="submit">댓글 남기기</button></div></form>
+    {% else %}<p class="muted"><a href="{{ url_for('auth.login') }}">로그인</a>하면 댓글을 남길 수 있어요.</p>{% endif %}
+    </div>
+  </section>
+</div>
+<p class="policy-note">서로를 존중하는 표현을 사용해 주세요. 등록된 불쾌한 표현은 *로 표시됩니다.</p>
+{% endblock %}

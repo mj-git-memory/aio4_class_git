@@ -1,81 +1,47 @@
 # 소소상점
 
-Python / FastAPI / Uvicorn / Supabase PostgreSQL과 HTML·CSS·순수 JavaScript로 만든 반응형 학습용 쇼핑몰입니다. React·Node.js를 사용하지 않습니다.
+FastAPI / Supabase PostgreSQL / Supabase Auth / HTML·CSS·JavaScript로 만든 학습용 쇼핑몰입니다. 결제는 실제 청구 없는 모의 결제입니다.
 
-## 설계와 학습 문서
+## 로컬 실행
 
-- [ERD.mmd](ERD.mmd): Mermaid ERD 전용 파일, 테이블·키·관계
-- [테이블정의.md](테이블정의.md): 각 열의 자료형·제약조건·역할
-- [상품구매시뮬레이션.md](상품구매시뮬레이션.md): 회원가입부터 결제와 구매내역까지 테이블의 행이 바뀌는 과정
-- [main코드설명.md](main코드설명.md): 서버 시작 시 데이터 생성 과정과 주요 함수별 역할
-
-## 실행
-
-`py313` 환경을 활성화한 터미널에서 실행합니다. day12의 다른 서버가 8000번 포트를 사용하고 있으면 먼저 종료하세요.
+자세한 설정·명령어·검증 순서·피드백 양식은 **[로컬테스트.md](로컬테스트.md)**에 있습니다.
 
 ```bash
+conda activate py313
 cd day12/shoppingmall
 python -m pip install -r requirements.txt
-```
-
-`.env.example`을 참고해 이 폴더에 `.env`를 만들고 Supabase **Connect → Session pooler**의 실제 접속 정보를 입력하세요. 기존 프로젝트 최상위 `.env`에 소문자 `host`, `port`, `dbname`, `user`, `password`가 있으면 그것도 사용할 수 있습니다. 기존 실행 환경변수가 파일보다 우선합니다. `.env`는 Git에 올리지 마세요.
-
-`DATABASE_URL` 환경변수를 사용하는 방법도 지원합니다. URL 안 비밀번호의 특수문자는 URL 인코딩이 필요합니다.
-
-```bash
-python main.py
+# .env.example과 로컬테스트.md를 보고 DB/Auth 연결값과 AUTH_SESSION_KEY 설정
+python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 ```
 
 - 쇼핑몰: http://127.0.0.1:8000
 - API 문서: http://127.0.0.1:8000/docs
-- 시작할 때 `schema.sql`로 `shoppingmall` 스키마와 테이블, 예시 상품 36개를 준비합니다. 기존 `kdt_api01`은 사용하지 않습니다.
-- DB 계정에 스키마·테이블 생성 권한이 필요합니다. DB 연결은 백엔드에서만 이루어집니다.
+- `shoppingmall/.env`를 먼저 읽고 상위 `.env`도 탐색합니다. 기존 환경변수가 우선합니다.
+- 시작할 때 `schema.sql`로 Auth 연결 컬럼·서버 세션·관리자 역할·배송 상태를 준비합니다. 개발용 Supabase 프로젝트에서 먼저 실행하세요.
 
-## 사용 흐름
+## 인증과 권한
 
-1. 로그인하지 않아도 상품을 조회하고 카테고리별로 볼 수 있습니다.
-2. 담기·구매하기·장바구니·내 정보·구매내역은 로그인 화면으로 이어집니다.
-3. 회원가입 후 로그인하면 이전 화면/선택 동작을 이어갑니다. 이름에는 공백 없이 한글·영문만, 비밀번호는 8~128자를 입력합니다.
-4. 구매하기는 선택 상품을 장바구니에 추가하고 장바구니로 이동합니다. **결제는 장바구니 전체를 대상으로 합니다.** 수량을 바꾸려면 삭제 후 다시 담으세요.
-5. 배송지를 입력해 모의 결제합니다. 실제 카드·계좌 청구나 배송은 발생하지 않습니다.
-6. 구매내역에서 결제 당시 상품명·가격·수량을 확인합니다. 재고 부족 시 전체 결제를 취소하고 재고/결제 기록을 롤백합니다.
-7. 내 정보에서 이름·배송지를 수정하거나 탈퇴합니다. 탈퇴는 개인정보 익명화와 세션 삭제를 수행하며 주문·결제 이력은 유지합니다.
+- 회원가입·비밀번호 확인·이메일 인증·JWT 발급/갱신은 Supabase Auth에 위임합니다.
+- JWT와 refresh token은 서버 DB에 암호화해 보관합니다. 브라우저는 HttpOnly 세션 쿠키만 받습니다.
+- 로그아웃은 쇼핑몰 세션을 즉시 삭제하고 Supabase 현재 세션 해제를 요청합니다.
+- 회원의 장바구니·회원정보·주문 상세·결제 정보는 본인만 접근합니다.
+- 관리자는 상품 등록·수정·판매 중지·재고 관리, 전체 결제 주문 조회, 배송 상태 변경을 할 수 있습니다.
+- 역할은 DB에서 조회합니다. 관리자 지정은 신뢰할 수 있는 SQL 운영자만 하며 웹을 통한 자기 승격은 허용하지 않습니다.
+- 브라우저의 Supabase Data API 직접 접근은 차단하고 백엔드의 소유권·역할 검사로 DB 작업을 제한합니다.
+- POST/PUT/PATCH/DELETE에는 같은 출처 확인과 `X-Shop-Request: 1` 헤더를 적용합니다.
 
-이메일 중복 가입은 409, 인증 실패는 401, 입력 검증 실패는 422입니다. 비밀번호는 솔트와 PBKDF2 해시로 보관하고, 로그인 토큰은 HttpOnly 쿠키와 DB의 SHA-256 해시로 관리합니다. 세션 유효기간은 7일입니다.
+기존 회원은 이메일만 같다는 이유로 자동 연결하지 않습니다. 기존 주문을 보존하는 수동 연결 SQL은 로컬 테스트 문서를 확인하세요. 쇼핑몰 탈퇴는 이용 중지·개인정보 익명화이며 Supabase Auth 계정 삭제는 별도 운영 절차입니다.
 
-## ERD
+## 파일
 
-```mermaid
-erDiagram
-    users ||--o{ orders : places
-    users ||--o{ sessions : authenticates
-    orders ||--o{ order_items : contains
-    products ||--o{ order_items : selected
-    orders ||--o| payments : paid_by
-```
+- `main.py`: 쇼핑·회원·관리자 API와 서버 권한 검사
+- `auth.py`: Supabase Auth HTTP API, 토큰 암호화·검증·갱신·세션 폐기
+- `schema.sql`: 기존 데이터를 보존하는 스키마 추가와 Data API 접근 제한
+- `static/`: 쇼핑몰과 관리자 화면
+- `tests/`: 임시 PostgreSQL + 모의 Auth 통합 테스트
+- [ERD.md](ERD.md): 현재 구조
+- `테이블정의.md`, `main코드설명.md`, `상품구매시뮬레이션.md`: 전환 전 학습 자료 (이전 인증 설명 포함)
 
-- `users`: 회원 정보와 비밀번호 해시
-- `products`: 상품과 현재 가격·재고
-- `orders`: 장바구니(`cart`) 또는 결제 완료 주문(`paid`). 회원당 활성 장바구니는 최대 1개
-- `order_items`: 주문과 상품의 다대다 연결, 구매 수량과 결제 당시 가격·상품명
-- `payments`: 주문당 1건의 모의 결제 기록
-- `sessions`: 로그인 세션
+## 배포
 
-## Render 배포 설정
-
-저장소를 Render Web Service에 연결할 때 다음 값을 사용합니다. 배포는 자동으로 수행하지 않습니다.
-
-| 항목 | 값 |
-|---|---|
-| Root Directory | `day12/shoppingmall` |
-| Build Command | `pip install -r requirements.txt` |
-| Start Command | `uvicorn main:app --host 0.0.0.0 --port $PORT --proxy-headers` |
-| Health Check Path | `/health` |
-
-환경변수에 `DATABASE_URL` 또는 DB 연결 항목 5개를 등록하고 `COOKIE_SECURE=true`를 설정하세요. HTTPS에서 접속합니다. lifespan에서 DB 초기화를 수행하므로 Uvicorn 명령으로 실행할 때도 초기화됩니다.
-
-실제 결제를 제공하려면 별도의 결제사 연동, 결제 검증, 취소·환불 처리가 필요합니다. 공개 서비스 운영 전에는 로그인 시도 제한, 비밀번호 재설정·이메일 소유 확인, 운영 환경 보안 설정도 준비해야 합니다.
-
-## 검증 상태
-
-사용자 요청에 따라 코드 작성 후 실행·자동 테스트·브라우저 검토·Supabase 접속은 하지 않았습니다. 검증은 사용자 동의를 받은 뒤 진행합니다.
+아직 배포하지 않았습니다. 로컬 검증과 사용자 피드백 후 진행합니다. Render를 사용한다면 Root Directory는 `day12/shoppingmall`, Build Command는 `pip install -r requirements.txt`, Start Command는 `uvicorn main:app --host 0.0.0.0 --port $PORT --proxy-headers`, Health Check Path는 `/health`입니다. 환경변수와 영구적인 암호화 키를 등록하고 HTTPS에서 `COOKIE_SECURE=true`를 사용하세요.

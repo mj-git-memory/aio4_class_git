@@ -13,6 +13,7 @@
     <nav aria-label="주 메뉴">
       <a href="#products">상품</a><a href="#cart">장바구니</a>
       <a href="#orders">구매내역</a><a href="#profile">내 정보</a>
+      <a href="#admin" id="admin-link" hidden>관리자</a>
     </nav>
     <button id="auth-button" class="outline">로그인</button>
   </header>
@@ -26,7 +27,8 @@
     <p class="muted">로그인하면 하던 쇼핑을 이어갈 수 있어요.</p>
     <form id="auth-form">
       <label id="signup-name" hidden>이름<input name="name" maxlength="50" autocomplete="name" placeholder="공백 없이 한글·영문"></label>
-      <label>이메일<input name="email" type="email" required maxlength="100" autocomplete="email" placeholder="hello@example.com"></label>
+      <label>이메일<input name="email" type="email" required maxlength="100" autocomplete="email" placeholder="사용 중인 이메일 주소" aria-describedby="signup-email-help"></label>
+      <p id="signup-email-help" class="note" hidden>가입 확인 메일을 받을 수 있는 실제 이메일을 입력해주세요.</p>
       <label>비밀번호<input name="password" type="password" required maxlength="128" autocomplete="current-password" placeholder="8자 이상"></label>
       <p id="auth-error" class="error" role="alert"></p>
       <button id="auth-submit" class="wide">로그인</button>

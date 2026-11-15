@@ -50,6 +50,40 @@ CREATE TABLE IF NOT EXISTS shoppingmall.sessions (
     user_id BIGINT NOT NULL REFERENCES shoppingmall.users(id),
     expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '7 days'
 );
+-- 기존 주문 FK와 회원 ID는 보존한다. 비밀번호 인증에는 이 열을 더 이상 사용하지 않는다.
+ALTER TABLE shoppingmall.users ALTER COLUMN password_hash SET DEFAULT '';
+ALTER TABLE shoppingmall.users ADD COLUMN IF NOT EXISTS auth_user_id UUID UNIQUE;
+ALTER TABLE shoppingmall.users ADD COLUMN IF NOT EXISTS role TEXT NOT NULL DEFAULT 'customer'
+    CHECK (role IN ('customer', 'admin'));
+ALTER TABLE shoppingmall.products ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE shoppingmall.orders ADD COLUMN IF NOT EXISTS fulfillment_status TEXT NOT NULL DEFAULT 'preparing'
+    CHECK (fulfillment_status IN ('preparing', 'shipped', 'delivered'));
+CREATE TABLE IF NOT EXISTS shoppingmall.auth_sessions (
+    token_hash TEXT PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES shoppingmall.users(id),
+    access_token TEXT NOT NULL, -- AUTH_SESSION_KEY로 암호화한 JWT
+    refresh_token TEXT NOT NULL, -- AUTH_SESSION_KEY로 암호화한 refresh token
+    token_expires_at BIGINT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW() + INTERVAL '7 days'
+);
+-- DB 직접 연결은 백엔드 전용이다. 브라우저 Data API에는 이 테이블을 공개하지 않는다.
+ALTER TABLE shoppingmall.users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shoppingmall.products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shoppingmall.orders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shoppingmall.order_items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shoppingmall.payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shoppingmall.sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE shoppingmall.auth_sessions ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON ALL TABLES IN SCHEMA shoppingmall FROM anon, authenticated;
+REVOKE ALL ON ALL SEQUENCES IN SCHEMA shoppingmall FROM anon, authenticated;
+REVOKE ALL ON SCHEMA shoppingmall FROM anon, authenticated;
+-- 예시 상품은 최초 전환 때 한 번만 준비한다. 이름 수정 후 재시작해도 되살리지 않는다.
+CREATE TABLE IF NOT EXISTS shoppingmall.app_migrations (version TEXT PRIMARY KEY);
+ALTER TABLE shoppingmall.app_migrations ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON shoppingmall.app_migrations FROM anon, authenticated;
+DO $$
+BEGIN
+IF NOT EXISTS (SELECT 1 FROM shoppingmall.app_migrations WHERE version='sample_products_v1') THEN
 INSERT INTO shoppingmall.products (name, description, category, price, stock, emoji)
 VALUES
 ('데일리 머그', '아침 커피에 어울리는 도자기 머그 · 350ml', '리빙', 18000, 50, '☕'),
@@ -90,3 +124,7 @@ VALUES
 ('메모 패드', '할 일을 간단히 적는 메모지 · 100매', '문구', 4500, 110, '📝'),
 ('레터 세트', '마음을 전하는 편지지와 봉투 · 5세트', '문구', 6500, 80, '✉️')
 ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO shoppingmall.app_migrations(version) VALUES ('sample_products_v1');
+END IF;
+END $$;

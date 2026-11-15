@@ -3,3 +3,5 @@ uvicorn
 psycopg[binary]
 python-dotenv
 email-validator
+httpx>=0.27,<1
+cryptography>=44
