@@ -1,0 +1,15 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>1차시 실행 기록</title>
+<style>body{font:16px/1.6 sans-serif;max-width:760px;margin:3em auto}pre{white-space:pre-wrap;overflow-wrap:anywhere}h3{break-after:avoid}</style>
+<h1>1차시 실행 기록</h1><p>demo · gsm8k-main-test-0000</p>
+<p>지정 데이터 D04 · <a href="https://huggingface.co/datasets/openai/gsm8k/tree/main">openai/gsm8k</a> · main / test · 원본 행 0 (첫 번째)</p>
+<h3>문제 원문</h3><pre>Janet’s ducks lay 16 eggs per day. She eats three for breakfast every morning and bakes muffins for her friends every day with four. She sells the remainder at the farmers&#x27; market daily for $2 per fresh duck egg. How much in dollars does she make every day at the farmers&#x27; market?</pre><h3>실행 방식</h3><pre>교사용 대본 · 로컬 계산</pre><h3>CoT · 작성한 프롬프트</h3><pre>예시처럼 계산식과 단위를 사용해 한국어로 풀이하고 마지막 줄에 답을 쓴다.
+예시 문제: 연필 10자루 중 4자루를 쓰고 나머지를 두 명에게 똑같이 나눈다.
+예시 풀이: 남은 연필은 10 - 4 = 6자루이다. 한 명의 몫은 6 ÷ 2 = 3자루이다.
+예시 답: 3자루</pre><h3>CoT · 모델 응답</h3><pre>판매량은 16 - 3 - 4 = 9개이다. 하루 판매액은 9 × 2 = 18달러이다.
+답: 18달러</pre><h3>ReAct · 작성한 프롬프트</h3><pre>문제를 풀 때 계산 도구를 사용한다. 한 번에 JSON 객체 하나만 출력한다.
+계산 요청 예: {&quot;action&quot;:&quot;subtract&quot;,&quot;a&quot;:10,&quot;b&quot;:4}
+사용 가능한 action은 add, subtract, multiply이다. a와 b에는 정수를 쓴다.
+직전 계산 결과는 Observation 메시지로 전달된다. 다음 계산에는 그 값을 사용한다.
+답을 구하면 {&quot;final&quot;:&quot;단위가 있는 한국어 답&quot;} 형식으로 마친다.</pre><h3>ReAct · 모델 응답</h3><pre>{&quot;action&quot;:&quot;subtract&quot;,&quot;a&quot;:16,&quot;b&quot;:3}</pre><h3>계산 도구 · 반환값</h3><pre>Observation: 13</pre><h3>ReAct · 모델 응답</h3><pre>{&quot;action&quot;: &quot;subtract&quot;, &quot;a&quot;: 13, &quot;b&quot;: 4}</pre><h3>계산 도구 · 반환값</h3><pre>Observation: 9</pre><h3>ReAct · 모델 응답</h3><pre>{&quot;action&quot;: &quot;multiply&quot;, &quot;a&quot;: 9, &quot;b&quot;: 2}</pre><h3>계산 도구 · 반환값</h3><pre>Observation: 18</pre><h3>ReAct · 모델 응답</h3><pre>{&quot;final&quot;: &quot;하루 판매액은 18달러이다.&quot;}</pre><h3>원본 풀이와 정답</h3><pre>Janet sells 16 - 3 - 4 = &lt;&lt;16-3-4=9&gt;&gt;9 duck eggs a day.
+She makes 9 * 2 = $&lt;&lt;9*2=18&gt;&gt;18 every day at the farmer’s market.
+#### 18</pre></html>

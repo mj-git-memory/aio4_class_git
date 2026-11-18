@@ -1,0 +1,19 @@
+{
+  "resource_id": "D01",
+  "name": "Fake Store API 유래 공개 가공 상품 표본",
+  "original_api": "https://fakestoreapi.com/products",
+  "source_url": "https://github.com/mivan08/e-commerce-react-tailwindCSS/blob/main/products.json",
+  "source_blob_sha": "a0e2a97aad87e0ede84d11d54d3e8285314141b0",
+  "checked_on": "2026-11-16",
+  "acquisition": "public_derived_file",
+  "live_api_status": "HTTP 403 / 브라우저 보안 확인으로 원본 응답 미확보",
+  "record_count": 20,
+  "file_sha256": "14390850b813cf54b8c86c7e6098077a52302b191d1a7012bf8cbfad5b68965f",
+  "transformations": [
+    "원문 파일을 보존하고 행 순번으로 row-001 형식의 로컬 record_id를 부여",
+    "원문에 API id와 rating이 없어 해당 값을 만들지 않음",
+    "price는 공개 가공본의 값이며 통화/현재가격을 확인하지 못해 모델 맥락에서 제외",
+    "title/category/description만 프롬프트에 사용"
+  ],
+  "limitation": "D01 API에서 이번에 직접 받은 원본이 아니며 공식 원본 활용 완료/기관 증빙 승인으로 간주하지 않음"
+}

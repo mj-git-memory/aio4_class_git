@@ -1,0 +1,980 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>11월 18일 · CoT와 ReAct 실습 8차시</title><style>@page{size:A4;margin:16mm 17mm;@bottom-right{content:counter(page)" / "counter(pages);font:9pt sans-serif;color:#496562}}*{box-sizing:border-box}body{font:10pt/1.64 "Noto Sans CJK KR",sans-serif;color:#1e333a;margin:0}section{break-before:page;max-width:780px;margin:0 auto}small{color:#23756f;font-weight:700;letter-spacing:.1em}h1{font-size:22pt;line-height:1.35;border-bottom:2px solid #21837a;padding-bottom:9px;margin:10px 0 18px}h3{font-size:12pt;color:#12635d;margin:16px 0 6px}p{margin:8px 0}table{border-collapse:collapse;width:100%;font-size:9.4pt}td,th{vertical-align:top;border-bottom:1px solid #c6d8d5;padding:6px;text-align:left}th{background:#e8f2ef}pre{padding:10px 12px;background:#edf3f5;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45}code{font-family:"DejaVu Sans Mono","Noto Sans CJK KR",monospace;font-size:.89em}a{color:#12635d}svg{display:block;width:100%;height:245px} @media screen{body{background:#f4f6f5}section{background:white;padding:32px;margin:16px auto}} section svg{height:190px} h1{font-size:20pt} td,th{padding:5px} @media print{section:first-of-type{break-before:auto}}</style><section><small>KDT AI CAMP　 /　 단일 에이전트 추론 및 AI 오케스트레이션</small><h1>CoT와 ReAct 프롬프트 작성</h1><p>2026년 11월 18일 · 이규영 강사</p><p>같은 수학 문제를 세 방식으로 풀고, 풀이에 적힌 계산식과 파이썬 도구가 실제로 반환한 값을 대조한다. 마지막 차시에는 문제 원문부터 최종 답까지 한 화면에서 읽을 수 있는 실행 보고서를 완성한다.</p><h3>차시별 실습</h3><table><tr><th>차시</th><th>내용</th><th>실행 파일</th></tr><tr><td>1</td><td><a href="#s1">같은 문제에 CoT와 ReAct 적용하기</a></td><td>lesson.py</td></tr><tr><td>2</td><td><a href="#s2">같은 질문에 두 가지 지시문 작성하기</a></td><td>s02.py</td></tr><tr><td>3</td><td><a href="#s3">생성형 AI API로 풀이 비교하기</a></td><td>s03.py</td></tr><tr><td>4</td><td><a href="#s4">계산 요청을 파이썬 함수에 연결하기</a></td><td>s04.py</td></tr><tr><td>5</td><td><a href="#s5">도구의 반환값으로 다음 행동 결정하기</a></td><td>s05.py</td></tr><tr><td>6</td><td><a href="#s6">같은 조건에서 세 방식 비교하기</a></td><td>s06.py</td></tr><tr><td>7</td><td><a href="#s7">응답 오류와 반복 중단 재현하기</a></td><td>s07.py</td></tr><tr><td>8</td><td><a href="#s8">실행 기록으로 비교 보고서 만들기</a></td><td>s08.py</td></tr></table><p>차시당 50분으로 설계했다. ZIP의 README.md에서 설치를 시작한다. 모의 실행은 키 없이 가능하며, 작성한 프롬프트에 따른 응답 변화는 API 모드에서 살펴본다.</p></section><section id="s1"><small>KDT AI CAMP　/　U2-02　 ·　1차시</small><h1>프롬프트로 풀이와 도구 사용을 설계한다</h1><p>오리가 하루에 알을 16개 낳는다. 재닛은 아침에 3개를 먹고, 머핀을 만들 때 4개를 쓴다. 남은 알을 한 개에 2달러씩 팔면 하루 판매액은 얼마인가? 답은 <strong>18달러</strong>다. 이번에는 답을 얻는 두 경로를 코드에서 살펴본다.</p>
+<table>
+<thead>
+<tr>
+<th>방식</th>
+<th>프롬프트로 정할 내용</th>
+<th>실행 화면에서 읽을 내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CoT</td>
+<td>풀이 예시와 답의 형식</td>
+<td>판매할 수량과 금액을 연결한 계산식</td>
+</tr>
+<tr>
+<td>ReAct</td>
+<td>사용할 도구, 입력 형식, 종료 조건</td>
+<td>모델의 계산 요청, 파이썬이 반환한 수, 다음 요청</td>
+</tr>
+</tbody>
+</table>
+<p><strong>앞 차시와의 연결.</strong> 앞서 사용한 ChatPromptTemplate은 지시문과 질문을 메시지로 구성한다. CoT 실습에서는 같은 호출 구조에 풀이 예시를 추가한다. ReAct 실습에서는 도구의 반환값을 메시지 목록에 추가해 모델을 다시 호출한다.</p>
+<h3>오늘 사용하는 원본 데이터</h3>
+<p>캠프 지정 자료 <strong>D04 · GSM8K</strong>에서 가져온 문제다. 배포본은 <strong>openai/gsm8k → main 설정 → test 분할 → 0번 행</strong>(첫 번째 문제)이다. 위 문단은 수업용 번역이며 프로그램은 영어 원문을 사용한다. <code>data/problem.json</code>의 <code>question</code>은 모델 입력이고, <code>answer</code>는 실행 후 비교하는 원본 풀이다. <code>gsm8k-main-test-0000</code>은 수업용 식별자다. <a href="https://huggingface.co/datasets/openai/gsm8k/tree/main">지정 데이터 원본</a></p>
+<h3>50분 수업 진행</h3>
+<table>
+<thead>
+<tr>
+<th>시간</th>
+<th>수업에서 하는 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0–8분</td>
+<td>원본 문제를 읽고 판매량과 판매액을 구분한다. README에 따라 환경을 준비한다.</td>
+</tr>
+<tr>
+<td>8–20분</td>
+<td>풀이 예시를 작성하고 CoT 응답에서 수량과 단위를 확인한다.</td>
+</tr>
+<tr>
+<td>20–37분</td>
+<td>계산 도구의 입력 형식을 정하고 한 번의 반환이 다음 요청으로 이어지는 과정을 추적한다.</td>
+</tr>
+<tr>
+<td>37–50분</td>
+<td>같은 모델로 두 방식을 실행하고 HTML에 남은 응답과 도구 반환값을 비교한다.</td>
+</tr>
+</tbody>
+</table></section><section><small>KDT AI CAMP　/　U2-02　 ·　1차시</small><h1>풀이 예시로 답의 형식을 가르친다</h1><p>생각의 사슬(Chain-of-Thought, CoT) 프롬프팅은 질문과 정답 사이에 풀이 단계를 담은 예시를 제시하는 방법이다. Wei 등의 연구에서는 여러 예시를 사용했다. 이 실습은 예시를 하나로 줄이고, 각 식의 수량과 단위가 드러나도록 작성한다. <a href="https://arxiv.org/html/2201.11903v6">Wei 등, 논문 2절</a></p>
+<h3>실습 1 · 예시와 실제 질문을 나눈다</h3>
+<p><code>lesson.py</code> 상단의 <code>COT</code>가 지시문이다. 먼저 연필 예시를 읽는다. 첫 번째 식은 남은 수량을, 두 번째 식은 한 명의 몫을 구한다. 예시의 숫자와 답은 재닛의 문제와 다르다.</p>
+<pre><code class="language-python">COT = &quot;&quot;&quot;예시처럼 계산식과 단위를 사용해 한국어로 풀이하고 마지막 줄에 답을 쓴다.
+예시 문제: 연필 10자루 중 4자루를 쓰고 나머지를 두 명에게 똑같이 나눈다.
+예시 풀이: 남은 연필은 10 - 4 = 6자루이다. 한 명의 몫은 6 ÷ 2 = 3자루이다.
+예시 답: 3자루&quot;&quot;&quot;
+</code></pre>
+<p><strong>직접 작성하기.</strong> 연필 예시의 세 줄을 다음 상황에 맞춰 바꾼다. 귤 12개 중 2개를 먹고 나머지를 5명에게 나누는 문제다. 한 줄에는 남은 수량, 다음 줄에는 한 명의 몫을 단위와 함께 쓴다. 실제 질문을 담는 <code>question</code>은 그대로 둔다.</p>
+<pre><code class="language-python">def prompt(system, question):
+    template = ChatPromptTemplate.from_messages([
+        (&quot;system&quot;, &quot;{instruction}&quot;), (&quot;human&quot;, &quot;{question}&quot;)
+    ])
+    value = template.invoke({&quot;instruction&quot;: system, &quot;question&quot;: question})
+    instruction, problem = value.to_messages()
+    return [{&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: instruction.content},
+            {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: problem.content}]
+</code></pre>
+<p>첫 번째 메시지는 풀이 형식을, 두 번째 메시지는 풀 문제를 전달한다. <code>invoke</code>가 두 변수에 문자열을 채운다. <code>to_messages()</code>로 꺼낸 내용을 공급자가 받을 역할과 본문으로 구성하면, <code>chat(prompt(COT, question))</code>이 두 메시지를 한 번에 전달한다. <code>{instruction}</code>에 값을 넣는 방식은 다음 실습의 JSON 중괄호도 본문 그대로 전달한다. <a href="https://docs.langchain.com/oss/python/langchain/messages">LangChain 메시지 문서</a></p>
+<p><strong>응답 읽기.</strong> 첫 식의 9는 판매할 알의 수(개), 다음 식의 18은 하루 판매액(달러)이다. 모델이 계산의 일부를 생략했다면 실제 응답에서 어느 수량까지 설명했는지 살펴본다.</p></section><section><small>KDT AI CAMP　/　U2-02　 ·　1차시</small><h1>도구를 요청하고 계산 결과를 돌려받는다</h1><p>ReAct는 추론과 행동을 결합한다. 모델이 필요한 행동을 선택하면 외부 환경이 결과를 제공하고, 모델은 이 관찰을 바탕으로 다음 행동을 선택한다. 원 연구는 사고 단계(Thought), 행동(Action), 관찰(Observation)을 포함한 예시를 사용했다. 여기서는 행동을 계산 요청 JSON으로 표현하고, 파이썬이 계산한 정수를 관찰값으로 되돌려 준다. <a href="https://react-lm.github.io/">Yao 등, ReAct Prompting</a></p>
+<h3>실습 2 · 모델과 프로그램이 주고받을 형식을 작성한다</h3>
+<pre><code class="language-python">REACT = &quot;&quot;&quot;문제를 풀 때 계산 도구를 사용한다. 한 번에 JSON 객체 하나만 출력한다.
+계산 요청 예: {&quot;action&quot;:&quot;subtract&quot;,&quot;a&quot;:10,&quot;b&quot;:4}
+사용 가능한 action은 add, subtract, multiply이다. a와 b에는 정수를 쓴다.
+직전 계산 결과는 Observation 메시지로 전달된다. 다음 계산에는 그 값을 사용한다.
+답을 구하면 {&quot;final&quot;:&quot;단위가 있는 한국어 답&quot;} 형식으로 마친다.&quot;&quot;&quot;
+</code></pre>
+<p><strong>직접 작성하기.</strong> 계산 요청 예시를 곱셈으로 바꾼다. 예를 들어 <code>{"action":"multiply","a":3,"b":5}</code>는 정수 두 개를 곱하라는 요청이다. 도구 이름과 필드 이름을 유지한 채, 관찰값을 받은 뒤 언제 최종 답을 쓸지 자신의 문장으로 작성한다.</p>
+<h3>호출 흐름</h3>
+<p><svg width="287pt" height="225pt"
+ viewBox="0.00 0.00 287.00 225.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 221)">
+<title>G</title>
+<!-- a -->
+<g id="node1" class="node">
+<title>a</title>
+<path fill="#eff5f6" stroke="#7eaaa9" d="M205,-217C205,-217 36,-217 36,-217 30,-217 24,-211 24,-205 24,-205 24,-193 24,-193 24,-187 30,-181 36,-181 36,-181 205,-181 205,-181 211,-181 217,-187 217,-193 217,-193 217,-205 217,-205 217,-211 211,-217 205,-217"/>
+<text text-anchor="middle" x="120.5" y="-202.4" font-family="Noto Sans CJK KR" font-size="12.00">lesson.py · main()</text>
+<text text-anchor="middle" x="120.5" y="-189.4" font-family="Noto Sans CJK KR" font-size="12.00">problem.json에서 question 읽기</text>
+</g>
+<!-- b -->
+<g id="node2" class="node">
+<title>b</title>
+<path fill="#eff5f6" stroke="#7eaaa9" d="M205.5,-160C205.5,-160 35.5,-160 35.5,-160 29.5,-160 23.5,-154 23.5,-148 23.5,-148 23.5,-136 23.5,-136 23.5,-130 29.5,-124 35.5,-124 35.5,-124 205.5,-124 205.5,-124 211.5,-124 217.5,-130 217.5,-136 217.5,-136 217.5,-148 217.5,-148 217.5,-154 211.5,-160 205.5,-160"/>
+<text text-anchor="middle" x="120.5" y="-145.4" font-family="Noto Sans CJK KR" font-size="12.00">prompt(COT, question) → chat()</text>
+<text text-anchor="middle" x="120.5" y="-132.4" font-family="Noto Sans CJK KR" font-size="12.00">풀이 응답 기록</text>
+</g>
+<!-- a&#45;&gt;b -->
+<g id="edge1" class="edge">
+<title>a&#45;&gt;b</title>
+<path fill="none" stroke="#447977" d="M120.5,-180.9C120.5,-177.62 120.5,-174.11 120.5,-170.6"/>
+<polygon fill="#447977" stroke="#447977" points="124,-170.28 120.5,-160.28 117,-170.28 124,-170.28"/>
+</g>
+<!-- c -->
+<g id="node3" class="node">
+<title>c</title>
+<path fill="#eff5f6" stroke="#7eaaa9" d="M187,-103C187,-103 54,-103 54,-103 48,-103 42,-97 42,-91 42,-91 42,-79 42,-79 42,-73 48,-67 54,-67 54,-67 187,-67 187,-67 193,-67 199,-73 199,-79 199,-79 199,-91 199,-91 199,-97 193,-103 187,-103"/>
+<text text-anchor="middle" x="120.5" y="-88.4" font-family="Noto Sans CJK KR" font-size="12.00">react() → chat(messages)</text>
+<text text-anchor="middle" x="120.5" y="-75.4" font-family="Noto Sans CJK KR" font-size="12.00">다음 응답 읽기</text>
+</g>
+<!-- b&#45;&gt;c -->
+<g id="edge2" class="edge">
+<title>b&#45;&gt;c</title>
+<path fill="none" stroke="#447977" d="M120.5,-123.9C120.5,-120.62 120.5,-117.11 120.5,-113.6"/>
+<polygon fill="#447977" stroke="#447977" points="124,-113.28 120.5,-103.28 117,-113.28 124,-113.28"/>
+</g>
+<!-- d -->
+<g id="node4" class="node">
+<title>d</title>
+<path fill="#eff5f6" stroke="#7eaaa9" d="M125,-36C125,-36 12,-36 12,-36 6,-36 0,-30 0,-24 0,-24 0,-12 0,-12 0,-6 6,0 12,0 12,0 125,0 125,0 131,0 137,-6 137,-12 137,-12 137,-24 137,-24 137,-30 131,-36 125,-36"/>
+<text text-anchor="middle" x="68.5" y="-21.4" font-family="Noto Sans CJK KR" font-size="12.00">calculate(action, a, b)</text>
+<text text-anchor="middle" x="68.5" y="-8.4" font-family="Noto Sans CJK KR" font-size="12.00">정수 반환</text>
+</g>
+<!-- c&#45;&gt;d -->
+<g id="edge3" class="edge">
+<title>c&#45;&gt;d</title>
+<path fill="none" stroke="#447977" d="M61.85,-66.83C58.26,-64.04 55.07,-60.78 52.5,-57 50.06,-53.4 49.68,-49.37 50.51,-45.32"/>
+<polygon fill="#447977" stroke="#447977" points="53.78,-46.59 54.29,-36 47.29,-43.96 53.78,-46.59"/>
+<text text-anchor="middle" x="73" y="-49" font-family="Noto Sans CJK KR" font-size="10.00"> 계산 요청</text>
+</g>
+<!-- e -->
+<g id="node5" class="node">
+<title>e</title>
+<path fill="#eff5f6" stroke="#7eaaa9" d="M267,-36C267,-36 188,-36 188,-36 182,-36 176,-30 176,-24 176,-24 176,-12 176,-12 176,-6 182,0 188,0 188,0 267,0 267,0 273,0 279,-6 279,-12 279,-12 279,-24 279,-24 279,-30 273,-36 267,-36"/>
+<text text-anchor="middle" x="227.5" y="-21.4" font-family="Noto Sans CJK KR" font-size="12.00">main() → save()</text>
+<text text-anchor="middle" x="227.5" y="-8.4" font-family="Noto Sans CJK KR" font-size="12.00">실행 기록 저장</text>
+</g>
+<!-- c&#45;&gt;e -->
+<g id="edge5" class="edge">
+<title>c&#45;&gt;e</title>
+<path fill="none" stroke="#447977" d="M168.05,-66.98C174.44,-64 180.76,-60.66 186.5,-57 192.55,-53.14 198.52,-48.34 203.96,-43.47"/>
+<polygon fill="#447977" stroke="#447977" points="206.61,-45.78 211.49,-36.38 201.81,-40.69 206.61,-45.78"/>
+<text text-anchor="middle" x="215.5" y="-49" font-family="Noto Sans CJK KR" font-size="10.00"> 최종 답</text>
+</g>
+<!-- d&#45;&gt;c -->
+<g id="edge4" class="edge">
+<title>d&#45;&gt;c</title>
+<path fill="none" stroke="#447977" d="M85.73,-36.04C88.75,-39.26 91.79,-42.67 94.5,-46 97.68,-49.9 100.86,-54.18 103.86,-58.42"/>
+<polygon fill="#447977" stroke="#447977" points="101.15,-60.65 109.69,-66.92 106.92,-56.69 101.15,-60.65"/>
+<text text-anchor="middle" x="141.5" y="-49" font-family="Noto Sans CJK KR" font-size="10.00"> Observation 추가</text>
+</g>
+</g>
+</svg></p>
+<p><code>main()</code>은 먼저 CoT 응답을 기록한 뒤 <code>react()</code>를 호출한다. <code>chat</code>은 선택한 모드에 따라 로컬 대본 함수 또는 <code>providers.py</code>의 원격 호출 객체다. 계산 요청이 들어오면 <code>calculate</code>가 정수를 반환한다. <code>final</code> 응답을 받으면 반복이 끝나고 결과 파일을 저장한다.</p></section><section><small>KDT AI CAMP　/　U2-02　 ·　1차시</small><h1>코드에서 13이 다음 입력이 되는 곳</h1><p>모의 실행의 첫 응답은 16에서 3을 빼라는 요청이다. <code>json.loads(reply)</code>는 응답 문자열을 딕셔너리로 바꾼다. 이때 <code>step["a"]</code>는 정수 16, <code>step["b"]</code>는 정수 3이다.</p>
+<pre><code class="language-python">def react(messages, chat, events):
+    for _ in range(5):
+        reply = chat(messages)
+        events.append((&quot;ReAct · 모델 응답&quot;, reply))
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: reply})
+        step = json.loads(reply)
+        if isinstance(step, dict) and set(step) == {&quot;final&quot;} and isinstance(step[&quot;final&quot;], str):
+            return
+        if not isinstance(step, dict) or set(step) != {&quot;action&quot;, &quot;a&quot;, &quot;b&quot;}:
+            raise ValueError(&quot;action, a, b 또는 final 필드를 확인한다.&quot;)
+        value = calculate(step[&quot;action&quot;], step[&quot;a&quot;], step[&quot;b&quot;])
+        observation = f&quot;Observation: {value}&quot;
+        events.append((&quot;계산 도구 · 반환값&quot;, observation))
+        messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: observation})
+    raise ValueError(&quot;다섯 번의 응답 안에 최종 답이 없어 종료했다.&quot;)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>코드</th>
+<th>값과 역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>calculate("subtract", 16, 3)</code></td>
+<td>두 인자가 정수인지 확인하고 뺄셈 결과 13을 반환한다. 덧셈과 곱셈도 같은 함수에서 연산명을 확인해 처리한다.</td>
+</tr>
+<tr>
+<td><code>events.append(...)</code></td>
+<td>학생이 읽을 실행 기록에 결과를 추가한다.</td>
+</tr>
+<tr>
+<td><code>messages.append(...)</code></td>
+<td>모델에 다시 보낼 대화 목록에 <code>Observation: 13</code>을 추가한다. 다음 반복의 <code>chat(messages)</code>가 이 값을 받는다.</td>
+</tr>
+<tr>
+<td><code>return</code></td>
+<td>모델이 문자열 값을 가진 <code>final</code> 객체를 보내면 호출자에게 제어를 돌려준다.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>두 목록의 차이.</strong> <code>events</code>는 수업 화면에 보여 줄 기록이고, <code>messages</code>는 다음 API 요청의 입력이다. 관찰값을 화면에만 출력하면 모델에 전달되지 않는다. 도구 응답은 이 실습의 텍스트 규약에 따라 사용자 역할 메시지로 보낸다.</p></section><section><small>KDT AI CAMP　/　U2-02　 ·　1차시</small><h1>실행 기록을 읽고 원본 풀이와 대조한다</h1><h3>실습 3 · 같은 문제를 같은 모델에 전달한다</h3>
+<p><code>README.md</code>에 따라 설치한다. 기본 명령은 <code>python lesson.py</code>이다. 모의 실행에서는 모델 응답에 수업용 대본을 쓰고, 계산 도구는 실제로 실행한다. 직접 작성한 프롬프트가 응답에 미치는 영향은 <strong>API 모드</strong>에서 관찰한다.</p>
+<p><code>.env.example</code>을 <code>.env</code>로 복사한다. 예를 들어 Groq를 선택하면 <code>GROQ_API_KEY</code>와 <code>GROQ_MODEL</code>에 수업 계정의 키와 사용 가능한 모델 ID를 적고 같은 가상환경에서 실행한다.</p>
+<pre><code class="language-text">python lesson.py --provider groq
+</code></pre>
+<p>Gemini는 <code>--provider gemini</code>와 <code>GEMINI_API_KEY / GEMINI_MODEL</code>, 유료 OpenAI는 <code>--provider openai</code>와 <code>OPENAI_API_KEY / OPENAI_MODEL</code>을 사용한다. 무료 실습은 계정에 무료 한도가 확인된 모델을 선택한다. 한 번 실행하면 CoT 1회, ReAct 최대 5회 요청한다.</p>
+<table>
+<thead>
+<tr>
+<th>실행 기록</th>
+<th>모의 실행에서 확인한 값</th>
+<th>읽는 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CoT 응답</td>
+<td>16 − 3 − 4 = 9, 9 × 2 = 18</td>
+<td>모델 응답에 적힌 풀이와 단위를 읽는다.</td>
+</tr>
+<tr>
+<td>ReAct 도구 반환</td>
+<td>13 → 9 → 18</td>
+<td>13은 아침 식사 후, 9는 머핀을 만든 후 남은 수량이다. 마지막 18은 달러 단위의 판매액이다.</td>
+</tr>
+<tr>
+<td>원본 풀이와 정답</td>
+<td><code>#### 18</code></td>
+<td>두 방식의 최종 금액을 동일한 원본 값과 대조한다.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>내 실행 기록 읽기.</strong> 마지막에 출력된 <code>results/…html</code>을 연다. 첫 계산 요청과 바로 아래 도구 반환값을 찾고, 다음 계산 요청에 그 값이 어떻게 쓰였는지 확인한다. 모델에 따라 두 차감량을 먼저 더하는 등 연산 순서가 달라질 수 있다. 계산 기록 없이 최종 답만 나온 경우에는 도구 호출이 0회였다고 읽는다. 작성한 프롬프트, 입력값, 결과가 보이도록 화면을 캡처하거나 인쇄 메뉴에서 PDF로 저장한다.</p>
+<h3>실행을 지원하는 코드</h3>
+<p><code>providers.py</code>의 <code>RemoteChat</code>은 선택한 계정 설정을 읽는다. <code>prepare</code>는 세 공급자에 같은 messages와 Bearer 인증 형식을 적용하고, <code>__call__</code>은 요청을 보낸다. <code>extract</code>가 choices[0].message.content에서 본문을 꺼내면 <code>chat(messages)</code>의 반환값이 된다. <code>lesson.py</code>의 <code>demo</code>는 같은 위치에서 대본을 반환한다. <code>save</code>는 각 기록의 줄바꿈을 보존해 HTML 파일에 쓰고 파일 경로를 반환한다.</p>
+<p><strong>중단된 경우.</strong> JSON 형식 오류가 나면 결과 파일의 마지막 모델 응답에서 코드 블록이나 설명이 섞였는지 확인하고 <code>REACT</code>의 출력 지시를 수정한다. HTTP 429는 계정 한도를 확인한 뒤 재실행한다. 오류 전까지 받은 응답은 같은 결과 파일에 남는다.</p></section><section id="s2"><small>KDT AI CAMP　 /　 U2-02　 ·　 2차시</small><h1>같은 질문에 두 가지 지시문 작성하기</h1><p><strong>질문은 그대로 두고 답을 요청하는 방식을 바꾼다.</strong> 1차시에서는 모델의 답과 계산기 기록을 함께 보았다. 이번에는 모델을 호출하기 직전에 멈춘다. 응답이 달라진 이유를 살펴보려면 우선 어떤 메시지를 보냈는지 확인해야 한다.</p>
+<h3>풀이 예시를 구성하는 세 요소</h3>
+<p>예시에는 문제, 중간 계산, 최종 답이 들어간다. “연필 10자루 중 4자루를 쓰고 두 사람에게 나눈다”에서 6자루는 남은 수량이고, 3자루는 각 사람의 몫이다. 단위를 적으면 두 숫자의 역할이 드러난다. 원 연구의 여러 예시를 이 실습에서는 한 개로 줄인다. <a href="https://arxiv.org/html/2201.11903v6">Wei 등, CoT 논문 2절</a></p>
+<table>
+<thead>
+<tr>
+<th>위치</th>
+<th>direct</th>
+<th>cot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>시스템 메시지</td>
+<td>최종 답의 형식</td>
+<td>풀이 예시와 최종 답의 형식</td>
+</tr>
+<tr>
+<td>사용자 메시지</td>
+<td>선택한 행의 영어 질문</td>
+<td>같은 행의 같은 영어 질문</td>
+</tr>
+<tr>
+<td>원본 풀이</td>
+<td>응답 이후 대조에 사용</td>
+<td>응답 이후 대조에 사용</td>
+</tr>
+</tbody>
+</table>
+<h3>작성 순서 · 50분</h3>
+<ol>
+<li><strong>10분</strong>　<code>data/problems.json</code>에서 두 행의 <code>question</code>과 <code>answer</code>를 찾는다. 3번 행은 제임스가 일주일에 달린 총거리를 묻는다.</li>
+<li><strong>15분</strong>　<code>s02.py</code>의 <code>WORKED</code>에 “각 식 뒤에 단위를 쓴다”를 추가한다. 정답 지시 <code>DIRECT</code>는 유지한다.</li>
+<li><strong>15분</strong>　두 행을 차례로 출력한다. 두 방식의 사용자 메시지가 같은지 살펴보고 새 지시가 추가된 위치를 찾는다.</li>
+<li><strong>10분</strong>　예시의 단위를 하나 지운 버전을 작성한다. 다음 차시의 API 비교에 쓸 문장을 선택해 저장한다.</li>
+</ol>
+<p><strong>이번 차시 원본</strong>　<a href="https://huggingface.co/datasets/openai/gsm8k/tree/main">D04 · openai/gsm8k, main/test</a> · 0번·3번 행</p></section><section><small>KDT AI CAMP　 /　 U2-02　 ·　 2차시</small><h1>코드와 실행 기록</h1><pre><code class="language-python">def variants(row):
+    return {name: prompt(instruction, row[&quot;question&quot;])
+            for name, instruction in [(&quot;direct&quot;, DIRECT), (&quot;cot&quot;, WORKED)]}
+</code></pre>
+<p>함수는 한 행을 받아 <code>direct</code>와 <code>cot</code>를 키로 하는 딕셔너리를 만든다. 각 값은 <code>lesson.prompt()</code>가 만든 메시지 두 개다. <code>records()</code>는 JSON 배열을 읽어 두 행을 반환한다. 배열의 두 번째 항목에 적힌 원본 행 번호는 3이다.</p>
+<pre><code class="language-bash">python s02.py --row 0
+python s02.py --row 3
+</code></pre>
+<p><strong>출력 해석.</strong> 3번 행에서는 두 방식 모두 사용자 메시지가 ‘James decides to run …’으로 시작한다. <code>cot</code>의 시스템 메시지에만 풀이 예시가 있다. 이 단계에서는 모델 응답과 비용이 발생하지 않는다.</p><svg width="416pt" height="170pt"
+ viewBox="0.00 0.00 416.00 170.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 166)">
+<title>G</title>
+<!-- n0 -->
+<g id="node1" class="node">
+<title>n0</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M231,-162C231,-162 172,-162 172,-162 166,-162 160,-156 160,-150 160,-150 160,-138 160,-138 160,-132 166,-126 172,-126 172,-126 231,-126 231,-126 237,-126 243,-132 243,-138 243,-138 243,-150 243,-150 243,-156 237,-162 231,-162"/>
+<text text-anchor="middle" x="201.5" y="-141.2" font-family="Noto Sans CJK KR" font-size="11.00">s02.records()</text>
+</g>
+<!-- n1 -->
+<g id="node2" class="node">
+<title>n1</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M242,-99C242,-99 161,-99 161,-99 155,-99 149,-93 149,-87 149,-87 149,-75 149,-75 149,-69 155,-63 161,-63 161,-63 242,-63 242,-63 248,-63 254,-69 254,-75 254,-75 254,-87 254,-87 254,-93 248,-99 242,-99"/>
+<text text-anchor="middle" x="201.5" y="-78.2" font-family="Noto Sans CJK KR" font-size="11.00">s02.variants(row)</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="edge1" class="edge">
+<title>n0&#45;&gt;n1</title>
+<path fill="none" stroke="#478378" d="M201.5,-125.68C201.5,-120.62 201.5,-114.95 201.5,-109.42"/>
+<polygon fill="#478378" stroke="#478378" points="205,-109.15 201.5,-99.15 198,-109.15 205,-109.15"/>
+<text text-anchor="middle" x="216.5" y="-110" font-family="Noto Sans CJK KR" font-size="10.00">원본 행</text>
+</g>
+<!-- n2 -->
+<g id="node3" class="node">
+<title>n2</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M175,-36C175,-36 12,-36 12,-36 6,-36 0,-30 0,-24 0,-24 0,-12 0,-12 0,-6 6,0 12,0 12,0 175,0 175,0 181,0 187,-6 187,-12 187,-12 187,-24 187,-24 187,-30 181,-36 175,-36"/>
+<text text-anchor="middle" x="93.5" y="-15.2" font-family="Noto Sans CJK KR" font-size="11.00">lesson.prompt(DIRECT, question)</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="edge2" class="edge">
+<title>n1&#45;&gt;n2</title>
+<path fill="none" stroke="#478378" d="M171.13,-62.85C159.18,-56.1 145.31,-48.26 132.62,-41.1"/>
+<polygon fill="#478378" stroke="#478378" points="134.07,-37.9 123.64,-36.03 130.63,-43.99 134.07,-37.9"/>
+<text text-anchor="middle" x="171.5" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">direct</text>
+</g>
+<!-- n3 -->
+<g id="node4" class="node">
+<title>n3</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M396,-36C396,-36 223,-36 223,-36 217,-36 211,-30 211,-24 211,-24 211,-12 211,-12 211,-6 217,0 223,0 223,0 396,0 396,0 402,0 408,-6 408,-12 408,-12 408,-24 408,-24 408,-30 402,-36 396,-36"/>
+<text text-anchor="middle" x="309.5" y="-15.2" font-family="Noto Sans CJK KR" font-size="11.00">lesson.prompt(WORKED, question)</text>
+</g>
+<!-- n1&#45;&gt;n3 -->
+<g id="edge3" class="edge">
+<title>n1&#45;&gt;n3</title>
+<path fill="none" stroke="#478378" d="M231.87,-62.85C243.82,-56.1 257.69,-48.26 270.38,-41.1"/>
+<polygon fill="#478378" stroke="#478378" points="272.37,-43.99 279.36,-36.03 268.93,-37.9 272.37,-43.99"/>
+<text text-anchor="middle" x="272" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">cot</text>
+</g>
+</g>
+</svg>
+</section><section id="s3"><small>KDT AI CAMP　 /　 U2-02　 ·　 3차시</small><h1>생성형 AI API로 풀이 비교하기</h1><p><strong>프롬프트 한 쌍을 같은 모델에 보내고, 어느 응답에서 판매량과 금액이 구분되는지 읽는다.</strong> 2차시에 만든 메시지는 역할과 본문으로 구성된다. 여기서는 같은 <code>messages</code>를 로컬 대본 또는 원격 모델에 전달한다. <a href="https://docs.langchain.com/oss/python/langchain/messages">LangChain 공식 문서 · Messages</a></p>
+<h3>공급자를 선택하고 메시지를 보낸다</h3>
+<p><code>.env.example</code>을 <code>.env</code>로 복사하고 한 공급자의 키와 모델 ID를 작성한다. 수업 계정에서 무료 한도를 확인한 Groq 또는 Gemini로 먼저 실행할 수 있다. OpenAI는 유료 선택 경로다.</p>
+<table>
+<thead>
+<tr>
+<th>선택</th>
+<th>설정하는 두 항목</th>
+<th>요청에 담기는 메시지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>groq</td>
+<td>GROQ_API_KEY, GROQ_MODEL</td>
+<td>messages</td>
+</tr>
+<tr>
+<td>gemini</td>
+<td>GEMINI_API_KEY, GEMINI_MODEL</td>
+<td>messages</td>
+</tr>
+<tr>
+<td>openai</td>
+<td>OPENAI_API_KEY, OPENAI_MODEL</td>
+<td>messages</td>
+</tr>
+</tbody>
+</table>
+<h3>같은 조건으로 두 번 읽기 · 50분</h3>
+<ol>
+<li><strong>10분</strong>　<code>python s03.py</code>로 대본을 실행한다. 출력이 두 묶음인지 확인한다.</li>
+<li><strong>15분</strong>　<code>python s03.py --provider groq</code>를 실행한다. Gemini 계정은 마지막 값을 <code>gemini</code>로 바꾼다. 한 번 실행하면 모델 요청은 최대 2회다.</li>
+<li><strong>15분</strong>　두 응답의 마지막 줄을 나란히 보고, 풀이에서 ‘9개’와 ‘18달러’가 어느 식에서 나왔는지 표시한다.</li>
+<li><strong>10분</strong>　<code>WORKED</code>에서 단위 지시만 바꾸고 같은 모델로 재실행한다. 표현이나 답이 바뀐 위치를 이전 출력과 대조한다. 한 번의 차이는 해당 실행의 관찰로 기록한다.</li>
+</ol>
+<p>공급자 요청 형식은 <a href="https://console.groq.com/docs/text-chat">Groq</a>, <a href="https://ai.google.dev/gemini-api/docs/openai">Gemini</a>, <a href="https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create">OpenAI</a>의 채팅·텍스트 생성 문서에서 확인할 수 있다.</p>
+<p><strong>이번 차시 원본</strong>　<a href="https://huggingface.co/datasets/openai/gsm8k/tree/main">D04 · openai/gsm8k, main/test</a> · 0번 행</p></section><section><small>KDT AI CAMP　 /　 U2-02　 ·　 3차시</small><h1>코드와 실행 기록</h1><pre><code class="language-python">def ask(row, method, messages, remote):
+    if remote is None:
+        return scripted(row, method, messages)
+    return remote(messages)
+</code></pre>
+<p>모의 모드의 <code>remote</code>는 <code>None</code>이다. <code>scripted()</code>가 행 번호와 전략에 해당하는 고정 응답을 반환한다. 원격 모드에서는 <code>RemoteChat</code> 객체를 함수처럼 호출하면 <code>providers.py</code>의 <code>__call__()</code>이 실행된다.</p>
+<table>
+<thead>
+<tr>
+<th>호출 위치</th>
+<th>처리와 반환</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RemoteChat.<strong>init</strong></td>
+<td>.env에서 키와 모델 ID를 읽고 호출 한도를 설정한다.</td>
+</tr>
+<tr>
+<td>prepare(messages)</td>
+<td>BASE_URLS에서 주소를 고른다. 세 공급자 모두 Bearer 인증과 같은 messages를 사용한다.</td>
+</tr>
+<tr>
+<td><strong>call</strong>(messages)</td>
+<td>HTTP 요청을 보내고 받은 JSON을 extract에 전달한다.</td>
+</tr>
+<tr>
+<td>extract(data)</td>
+<td>choices[0].message.content와 usage를 읽는다. 호출자에게는 본문 문자열이 돌아간다.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>모의 출력.</strong> direct에는 ‘답: 18달러’가, cot에는 ‘16 − 3 − 4 = 9개’, ‘9 × 2 = 18달러’와 마지막 답이 나온다. API 모드에서 출력이 잘리면 오류 문구를 확인하고 해당 모델의 출력 한도와 계정 설정을 점검한다.</p><svg width="304pt" height="170pt"
+ viewBox="0.00 0.00 303.50 170.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 166)">
+<title>G</title>
+<!-- n0 -->
+<g id="node1" class="node">
+<title>n0</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M90,-162C90,-162 52,-162 52,-162 46,-162 40,-156 40,-150 40,-150 40,-138 40,-138 40,-132 46,-126 52,-126 52,-126 90,-126 90,-126 96,-126 102,-132 102,-138 102,-138 102,-150 102,-150 102,-156 96,-162 90,-162"/>
+<text text-anchor="middle" x="71" y="-141.2" font-family="Noto Sans CJK KR" font-size="11.00">s03.ask()</text>
+</g>
+<!-- n1 -->
+<g id="node2" class="node">
+<title>n1</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M74,-99C74,-99 12,-99 12,-99 6,-99 0,-93 0,-87 0,-87 0,-75 0,-75 0,-69 6,-63 12,-63 12,-63 74,-63 74,-63 80,-63 86,-69 86,-75 86,-75 86,-87 86,-87 86,-93 80,-99 74,-99"/>
+<text text-anchor="middle" x="43" y="-78.2" font-family="Noto Sans CJK KR" font-size="11.00">s03.scripted()</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="edge1" class="edge">
+<title>n0&#45;&gt;n1</title>
+<path fill="none" stroke="#478378" d="M63.05,-125.68C60.61,-120.36 57.86,-114.37 55.2,-108.57"/>
+<polygon fill="#478378" stroke="#478378" points="58.22,-106.78 50.87,-99.15 51.86,-109.7 58.22,-106.78"/>
+<text text-anchor="middle" x="73.5" y="-110" font-family="Noto Sans CJK KR" font-size="10.00">demo</text>
+</g>
+<!-- n2 -->
+<g id="node3" class="node">
+<title>n2</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M283.5,-99C283.5,-99 122.5,-99 122.5,-99 116.5,-99 110.5,-93 110.5,-87 110.5,-87 110.5,-75 110.5,-75 110.5,-69 116.5,-63 122.5,-63 122.5,-63 283.5,-63 283.5,-63 289.5,-63 295.5,-69 295.5,-75 295.5,-75 295.5,-87 295.5,-87 295.5,-93 289.5,-99 283.5,-99"/>
+<text text-anchor="middle" x="203" y="-78.2" font-family="Noto Sans CJK KR" font-size="11.00">providers.RemoteChat.__call__()</text>
+</g>
+<!-- n0&#45;&gt;n2 -->
+<g id="edge2" class="edge">
+<title>n0&#45;&gt;n2</title>
+<path fill="none" stroke="#478378" d="M102.28,-128.54C118.51,-121.04 138.66,-111.73 156.66,-103.42"/>
+<polygon fill="#478378" stroke="#478378" points="158.23,-106.54 165.84,-99.17 155.3,-100.19 158.23,-106.54"/>
+<text text-anchor="middle" x="156" y="-110" font-family="Noto Sans CJK KR" font-size="10.00">API</text>
+</g>
+<!-- n3 -->
+<g id="node4" class="node">
+<title>n3</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M274.5,-36C274.5,-36 131.5,-36 131.5,-36 125.5,-36 119.5,-30 119.5,-24 119.5,-24 119.5,-12 119.5,-12 119.5,-6 125.5,0 131.5,0 131.5,0 274.5,0 274.5,0 280.5,0 286.5,-6 286.5,-12 286.5,-12 286.5,-24 286.5,-24 286.5,-30 280.5,-36 274.5,-36"/>
+<text text-anchor="middle" x="203" y="-15.2" font-family="Noto Sans CJK KR" font-size="11.00">prepare() → HTTP → extract()</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="edge3" class="edge">
+<title>n2&#45;&gt;n3</title>
+<path fill="none" stroke="#478378" d="M203,-62.68C203,-57.62 203,-51.95 203,-46.42"/>
+<polygon fill="#478378" stroke="#478378" points="206.5,-46.15 203,-36.15 199.5,-46.15 206.5,-46.15"/>
+<text text-anchor="middle" x="225.5" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">messages</text>
+</g>
+</g>
+</svg>
+</section><section id="s4"><small>KDT AI CAMP　 /　 U2-02　 ·　 4차시</small><h1>계산 요청을 파이썬 함수에 연결하기</h1><p><strong>모델이 작성한 계산 요청을 파이썬 함수의 인자로 바꾼다.</strong> ‘3개를 먹고 남은 수량’을 계산하는 데 필요한 값은 연산명과 두 정수다. JSON은 이 세 값을 이름이 있는 필드로 전달한다. 문자열을 파이썬 객체로 읽는 단계와 실제 뺄셈을 하는 단계는 코드의 서로 다른 위치에 있다. <a href="https://docs.python.org/3/library/json.html#json.loads">Python 문서 · json.loads</a></p>
+<table>
+<thead>
+<tr>
+<th>전달 내용</th>
+<th>파이썬에서 읽는 값</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>"action":"subtract"</code></td>
+<td>문자열 subtract</td>
+<td>수행할 연산 선택</td>
+</tr>
+<tr>
+<td><code>"a":16</code></td>
+<td>정수 16</td>
+<td>왼쪽 피연산자</td>
+</tr>
+<tr>
+<td><code>"b":3</code></td>
+<td>정수 3</td>
+<td>오른쪽 피연산자</td>
+</tr>
+</tbody>
+</table>
+<h3>계산 요청을 직접 구성하기 · 50분</h3>
+<ol>
+<li><strong>10분</strong>　재닛의 첫 계산 요청을 JSON 한 줄로 작성한다. 숫자와 필드 이름의 따옴표 사용을 비교한다.</li>
+<li><strong>15분</strong>　<code>s04.py</code>에서 <code>execute()</code>를 읽고, 검사하는 필드 집합과 <code>lesson.calculate()</code>의 인자를 대응시킨다.</li>
+<li><strong>15분</strong>　뺄셈을 실행한 뒤 두 번째 입력을 4로 바꿔 다음 수량을 계산한다. 남은 9개에 개당 2달러를 곱하는 명령도 작성한다.</li>
+<li><strong>10분</strong>　연산명을 <code>minus</code>로 바꾼다. 필드 검사를 통과한 뒤 어느 함수에서 중단되는지 오류 메시지와 대조한다.</li>
+</ol>
+<p>1차시의 ReAct 프롬프트는 같은 입력 형식을 모델에 알려 준다. 이번 차시는 터미널 입력을 사용해 모델 없이도 도구를 개별 실행한다.</p>
+<p><strong>이번 차시 원본</strong>　<a href="https://huggingface.co/datasets/openai/gsm8k/tree/main">D04 · openai/gsm8k, main/test</a> · 0번 행의 수량과 가격</p></section><section><small>KDT AI CAMP　 /　 U2-02　 ·　 4차시</small><h1>코드와 실행 기록</h1><pre><code class="language-python">def execute(reply):
+    step = json.loads(reply)
+    if not isinstance(step, dict) or set(step) != {&quot;action&quot;, &quot;a&quot;, &quot;b&quot;}:
+        raise ValueError(&quot;계산 요청에는 action, a, b가 필요하다.&quot;)
+    return calculate(step[&quot;action&quot;], step[&quot;a&quot;], step[&quot;b&quot;])
+</code></pre>
+<p><code>json.loads()</code>는 문자열을 딕셔너리로 바꾼다. 키 세 개가 일치하면 이름으로 값을 꺼낸다. <code>calculate()</code>는 두 값이 정수인지 확인한 다음 연산명에 따라 정수를 반환한다. 이 반환값을 실행 파일 맨 아래에서 출력한다.</p>
+<pre><code class="language-bash">python s04.py --action subtract --a 16 --b 3
+python s04.py --action subtract --a 13 --b 4
+python s04.py --action multiply --a 9 --b 2
+</code></pre>
+<p><strong>출력 해석.</strong> 차례로 13, 9, 18이 나온다. 세 번 모두 별도 실행이므로 앞선 결과를 다음 명령에 직접 입력했다. 다음 차시에는 이 전달을 메시지 목록으로 구현한다.</p><svg width="169pt" height="233pt"
+ viewBox="0.00 0.00 169.00 233.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 229)">
+<title>G</title>
+<!-- n0 -->
+<g id="node1" class="node">
+<title>n0</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M123.5,-225C123.5,-225 37.5,-225 37.5,-225 31.5,-225 25.5,-219 25.5,-213 25.5,-213 25.5,-201 25.5,-201 25.5,-195 31.5,-189 37.5,-189 37.5,-189 123.5,-189 123.5,-189 129.5,-189 135.5,-195 135.5,-201 135.5,-201 135.5,-213 135.5,-213 135.5,-219 129.5,-225 123.5,-225"/>
+<text text-anchor="middle" x="80.5" y="-204.2" font-family="Noto Sans CJK KR" font-size="11.00">s04.execute(reply)</text>
+</g>
+<!-- n1 -->
+<g id="node2" class="node">
+<title>n1</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M120,-162C120,-162 41,-162 41,-162 35,-162 29,-156 29,-150 29,-150 29,-138 29,-138 29,-132 35,-126 41,-126 41,-126 120,-126 120,-126 126,-126 132,-132 132,-138 132,-138 132,-150 132,-150 132,-156 126,-162 120,-162"/>
+<text text-anchor="middle" x="80.5" y="-141.2" font-family="Noto Sans CJK KR" font-size="11.00">json.loads(reply)</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="edge1" class="edge">
+<title>n0&#45;&gt;n1</title>
+<path fill="none" stroke="#478378" d="M80.5,-188.68C80.5,-183.62 80.5,-177.95 80.5,-172.42"/>
+<polygon fill="#478378" stroke="#478378" points="84,-172.15 80.5,-162.15 77,-172.15 84,-172.15"/>
+<text text-anchor="middle" x="94.5" y="-173" font-family="Noto Sans CJK KR" font-size="10.00">문자열</text>
+</g>
+<!-- n2 -->
+<g id="node3" class="node">
+<title>n2</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M149,-99C149,-99 12,-99 12,-99 6,-99 0,-93 0,-87 0,-87 0,-75 0,-75 0,-69 6,-63 12,-63 12,-63 149,-63 149,-63 155,-63 161,-69 161,-75 161,-75 161,-87 161,-87 161,-93 155,-99 149,-99"/>
+<text text-anchor="middle" x="80.5" y="-78.2" font-family="Noto Sans CJK KR" font-size="11.00">lesson.calculate(action, a, b)</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="edge2" class="edge">
+<title>n1&#45;&gt;n2</title>
+<path fill="none" stroke="#478378" d="M80.5,-125.68C80.5,-120.62 80.5,-114.95 80.5,-109.42"/>
+<polygon fill="#478378" stroke="#478378" points="84,-109.15 80.5,-99.15 77,-109.15 84,-109.15"/>
+<text text-anchor="middle" x="95.5" y="-110" font-family="Noto Sans CJK KR" font-size="10.00">세 필드</text>
+</g>
+<!-- n3 -->
+<g id="node4" class="node">
+<title>n3</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M128,-36C128,-36 33,-36 33,-36 27,-36 21,-30 21,-24 21,-24 21,-12 21,-12 21,-6 27,0 33,0 33,0 128,0 128,0 134,0 140,-6 140,-12 140,-12 140,-24 140,-24 140,-30 134,-36 128,-36"/>
+<text text-anchor="middle" x="80.5" y="-15.2" font-family="Noto Sans CJK KR" font-size="11.00">터미널 · Observation</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="edge3" class="edge">
+<title>n2&#45;&gt;n3</title>
+<path fill="none" stroke="#478378" d="M80.5,-62.68C80.5,-57.62 80.5,-51.95 80.5,-46.42"/>
+<polygon fill="#478378" stroke="#478378" points="84,-46.15 80.5,-36.15 77,-46.15 84,-46.15"/>
+<text text-anchor="middle" x="90" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">정수</text>
+</g>
+</g>
+</svg>
+</section><section id="s5"><small>KDT AI CAMP　 /　 U2-02　 ·　 5차시</small><h1>도구의 반환값으로 다음 행동 결정하기</h1><p><strong>이번에는 다음 계산의 입력을 프로그램이 대화 목록에 돌려준다.</strong> 제임스는 일주일에 세 번 달리기 훈련을 하고, 훈련할 때마다 60미터를 세 번 달린다. 먼저 주간 횟수를 구하면 9회이고, 이 값을 거리 계산에 사용하면 540미터다.</p>
+<p>ReAct의 원형에서는 행동으로 얻은 관찰이 다음 판단에 쓰인다. 이 수업에서는 모델이 계산 요청을 JSON으로 보내고 프로그램이 반환한 값을 <code>Observation</code>이라는 텍스트로 다음 입력에 붙인다. <a href="https://react-lm.github.io/">ReAct 저자 프로젝트 · ReAct Prompting</a></p>
+<table>
+<thead>
+<tr>
+<th>메시지 순서</th>
+<th>역할</th>
+<th>3번 행의 모의 실행</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>처음 두 개</td>
+<td>system, user</td>
+<td>도구 사용 규칙, 원본 질문</td>
+</tr>
+<tr>
+<td>세 번째</td>
+<td>assistant</td>
+<td>multiply(3, 3) 요청</td>
+</tr>
+<tr>
+<td>네 번째</td>
+<td>user</td>
+<td>Observation: 9</td>
+</tr>
+<tr>
+<td>다섯 번째와 여섯 번째</td>
+<td>assistant, user</td>
+<td>multiply(9, 60) 요청, Observation: 540</td>
+</tr>
+<tr>
+<td>일곱 번째</td>
+<td>assistant</td>
+<td>final 필드에 540미터 반환</td>
+</tr>
+</tbody>
+</table>
+<h3>두 문제의 반복 횟수 비교 · 50분</h3>
+<ol>
+<li><strong>10분</strong>　3번 행의 요청과 관찰을 위 표에서 같은 연산끼리 짝짓는다.</li>
+<li><strong>15분</strong>　<code>python s05.py --row 3</code>과 <code>--row 0</code>을 각각 실행한다. 관찰값이 나온 횟수를 센다.</li>
+<li><strong>15분</strong>　<code>lesson.py</code>의 <code>REACT</code>에 “첫 계산에는 같은 단위의 수량을 사용한다”를 덧붙인다. API 모드에서는 <code>python s05.py --row 3 --provider gemini</code>처럼 공급자를 명시한다. 최대 5회 요청한다.</li>
+<li><strong>10분</strong>　출력에서 도구 호출 순서와 답을 읽는다. 같은 거리라도 연산 순서가 다를 수 있으므로 실제로 반환된 값을 따라간다.</li>
+</ol>
+<p><strong>이번 차시 원본</strong>　<a href="https://huggingface.co/datasets/openai/gsm8k/tree/main">D04 · openai/gsm8k, main/test</a> · 3번 행, 비교용 0번 행</p></section><section><small>KDT AI CAMP　 /　 U2-02　 ·　 5차시</small><h1>코드와 실행 기록</h1><pre><code class="language-python">def trace(row, remote, events):
+    messages = prompt(REACT, row[&quot;question&quot;])
+    def chat(history):
+        return ask(row, &quot;react&quot;, history, remote)
+    react(messages, chat, events)
+    return messages
+</code></pre>
+<p><code>trace()</code>는 질문을 받아 메시지 목록을 새로 만든다. 안쪽 함수 <code>chat(history)</code>는 현재 행과 모델 설정을 기억하고, 반복할 때마다 갱신된 목록을 <code>ask()</code>에 전달한다. <code>react()</code>는 받은 목록과 <code>events</code>에 항목을 추가한다. <code>trace()</code>가 돌려주는 목록에는 최종 응답까지 들어 있다.</p>
+<p><strong>실행 위치.</strong> <code>lesson.react()</code> 안에서 <code>messages.append(...)</code> 다음에 반복문의 처음으로 돌아간다. 3번 행의 네 번째 메시지에 담긴 9가 바로 다음 모델 호출의 입력에 포함된다. <code>s03.sprint_demo()</code>는 로컬 대본용 함수다. 직전 관찰에서 9를 읽어 두 번째 곱셈을 요청하고, 다음 관찰에서 540을 읽어 종료한다.</p><svg width="211pt" height="223pt"
+ viewBox="0.00 0.00 210.50 223.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 219)">
+<title>G</title>
+<!-- n0 -->
+<g id="node1" class="node">
+<title>n0</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M145.5,-215C145.5,-215 100.5,-215 100.5,-215 94.5,-215 88.5,-209 88.5,-203 88.5,-203 88.5,-191 88.5,-191 88.5,-185 94.5,-179 100.5,-179 100.5,-179 145.5,-179 145.5,-179 151.5,-179 157.5,-185 157.5,-191 157.5,-191 157.5,-203 157.5,-203 157.5,-209 151.5,-215 145.5,-215"/>
+<text text-anchor="middle" x="123" y="-194.2" font-family="Noto Sans CJK KR" font-size="11.00">s05.trace()</text>
+</g>
+<!-- n1 -->
+<g id="node2" class="node">
+<title>n1</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M154,-162C154,-162 92,-162 92,-162 86,-162 80,-156 80,-150 80,-150 80,-138 80,-138 80,-132 86,-126 92,-126 92,-126 154,-126 154,-126 160,-126 166,-132 166,-138 166,-138 166,-150 166,-150 166,-156 160,-162 154,-162"/>
+<text text-anchor="middle" x="123" y="-141.2" font-family="Noto Sans CJK KR" font-size="11.00">lesson.react()</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="edge1" class="edge">
+<title>n0&#45;&gt;n1</title>
+<path fill="none" stroke="#478378" d="M123,-178.73C123,-176.66 123,-174.5 123,-172.32"/>
+<polygon fill="#478378" stroke="#478378" points="126.5,-172.25 123,-162.25 119.5,-172.25 126.5,-172.25"/>
+</g>
+<!-- n2 -->
+<g id="node3" class="node">
+<title>n2</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M99,-99C99,-99 61,-99 61,-99 55,-99 49,-93 49,-87 49,-87 49,-75 49,-75 49,-69 55,-63 61,-63 61,-63 99,-63 99,-63 105,-63 111,-69 111,-75 111,-75 111,-87 111,-87 111,-93 105,-99 99,-99"/>
+<text text-anchor="middle" x="80" y="-78.2" font-family="Noto Sans CJK KR" font-size="11.00">s03.ask()</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="edge2" class="edge">
+<title>n1&#45;&gt;n2</title>
+<path fill="none" stroke="#478378" d="M110.79,-125.68C106.86,-120.1 102.4,-113.78 98.13,-107.72"/>
+<polygon fill="#478378" stroke="#478378" points="100.71,-105.31 92.09,-99.15 94.99,-109.34 100.71,-105.31"/>
+<text text-anchor="middle" x="124.5" y="-110" font-family="Noto Sans CJK KR" font-size="10.00">대화 목록</text>
+</g>
+<!-- n3 -->
+<g id="node4" class="node">
+<title>n3</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M190.5,-36C190.5,-36 109.5,-36 109.5,-36 103.5,-36 97.5,-30 97.5,-24 97.5,-24 97.5,-12 97.5,-12 97.5,-6 103.5,0 109.5,0 109.5,0 190.5,0 190.5,0 196.5,0 202.5,-6 202.5,-12 202.5,-12 202.5,-24 202.5,-24 202.5,-30 196.5,-36 190.5,-36"/>
+<text text-anchor="middle" x="150" y="-15.2" font-family="Noto Sans CJK KR" font-size="11.00">lesson.calculate()</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="edge3" class="edge">
+<title>n2&#45;&gt;n3</title>
+<path fill="none" stroke="#478378" d="M75.43,-62.98C74.68,-56.51 75.17,-49.41 79,-44 81.66,-40.24 84.94,-37.04 88.61,-34.32"/>
+<polygon fill="#478378" stroke="#478378" points="90.47,-37.28 97.19,-29.09 86.83,-31.31 90.47,-37.28"/>
+<text text-anchor="middle" x="113" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">계산 요청을 해석</text>
+</g>
+<!-- n4 -->
+<g id="node5" class="node">
+<title>n4</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M46,-36C46,-36 12,-36 12,-36 6,-36 0,-30 0,-24 0,-24 0,-12 0,-12 0,-6 6,0 12,0 12,0 46,0 46,0 52,0 58,-6 58,-12 58,-12 58,-24 58,-24 58,-30 52,-36 46,-36"/>
+<text text-anchor="middle" x="29" y="-15.2" font-family="Noto Sans CJK KR" font-size="11.00">최종 응답</text>
+</g>
+<!-- n2&#45;&gt;n4 -->
+<g id="edge5" class="edge">
+<title>n2&#45;&gt;n4</title>
+<path fill="none" stroke="#478378" d="M48.82,-71.72C40.65,-67.99 32.8,-62.63 28,-55 26.32,-52.33 25.35,-49.32 24.86,-46.21"/>
+<polygon fill="#478378" stroke="#478378" points="28.36,-46.13 24.7,-36.18 21.36,-46.23 28.36,-46.13"/>
+<text text-anchor="middle" x="39" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">final</text>
+</g>
+<!-- n3&#45;&gt;n1 -->
+<g id="edge4" class="edge">
+<title>n3&#45;&gt;n1</title>
+<path fill="none" stroke="#478378" d="M153.72,-36.29C156.94,-54.89 159.93,-85.23 148.17,-116.5"/>
+<polygon fill="#478378" stroke="#478378" points="144.92,-115.2 144.24,-125.77 151.36,-117.93 144.92,-115.2"/>
+<text text-anchor="middle" x="176.5" y="-78.5" font-family="Noto Sans CJK KR" font-size="10.00">관찰 추가</text>
+</g>
+</g>
+</svg>
+</section><section id="s6"><small>KDT AI CAMP　 /　 U2-02　 ·　 6차시</small><h1>같은 조건에서 세 방식 비교하기</h1><p><strong>프롬프트의 효과를 읽으려면 비교 조건을 먼저 맞춘다.</strong> 문제를 바꾸면서 모델도 바꾸면 응답 차이의 원인을 구분하기 어렵다. 여기서는 원본 문제 두 개와 모델 하나를 고정하고, 정답만 요청하는 방식(direct), 풀이 예시를 주는 방식(cot), 계산 도구를 쓰는 방식(react)을 차례로 실행한다.</p>
+<table>
+<thead>
+<tr>
+<th>기록할 값</th>
+<th>해석</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>predicted, expected</td>
+<td>응답에서 추출한 수와 원본 정답의 수</td>
+</tr>
+<tr>
+<td>tools</td>
+<td>프로그램이 계산을 마치고 반환값을 기록한 횟수</td>
+</tr>
+<tr>
+<td>status</td>
+<td>실행 완료, 답 형식 확인 또는 실행 중단</td>
+</tr>
+<tr>
+<td>events</td>
+<td>조건별 실제 응답과 도구 반환 순서</td>
+</tr>
+</tbody>
+</table>
+<h3>비교 실습 · 50분</h3>
+<ol>
+<li><strong>10분</strong>　<code>data/problems.json</code>을 열어 두 문제의 단위를 확인한다. 0번은 달러, 3번은 미터다.</li>
+<li><strong>15분</strong>　<code>python s06.py</code>로 모의 비교를 실행한다. 결과 JSON에서 같은 행 번호를 가진 세 항목을 찾는다.</li>
+<li><strong>15분</strong>　같은 모델을 선택해 <code>python s06.py --provider groq</code>를 실행한다. 두 문제를 합쳐 최대 14회 요청한다. 수업 계정의 한도에 맞게 모의 기록으로 분석을 진행해도 된다.</li>
+<li><strong>10분</strong>　같은 답에 도달한 두 기록에서 계산 근거가 어디에 남았는지 비교한다. 응답 문장이 달라도 최종 수치와 단위는 따로 확인한다.</li>
+</ol>
+<p><strong>해석 범위.</strong> 결과 화면의 ‘수치 일치’는 숫자를 비교한 값이다. 잘못된 단위나 잘못된 풀이가 같은 숫자에 도달한 경우는 원문과 실행 기록을 읽어 확인한다.</p>
+<p><strong>이번 차시 원본</strong>　<a href="https://huggingface.co/datasets/openai/gsm8k/tree/main">D04 · openai/gsm8k, main/test</a> · 0번·3번 행</p></section><section><small>KDT AI CAMP　 /　 U2-02　 ·　 6차시</small><h1>코드와 실행 기록</h1><pre><code class="language-python">for row in records():
+    cases.extend(compare(row, remote, args.provider))
+</code></pre>
+<p><code>compare()</code>는 한 행에서 세 방식을 실행해 기록 세 개를 반환한다. <code>extend()</code>로 두 행의 기록 여섯 개를 한 목록에 모은다. <code>number()</code>는 일반 응답의 마지막 줄을 검사한다. ReAct 응답은 <code>final</code>에서 끝의 수량을 꺼낸다. 원본 <code>answer</code>의 마지막 <code>####</code> 다음 숫자는 비교 시점에 읽는다.</p>
+<table>
+<thead>
+<tr>
+<th>모의 실행</th>
+<th>direct</th>
+<th>cot</th>
+<th>react</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0번 · 판매액</td>
+<td>18 / 0회</td>
+<td>18 / 0회</td>
+<td>18 / 3회</td>
+</tr>
+<tr>
+<td>3번 · 주간 거리</td>
+<td>540 / 0회</td>
+<td>540 / 0회</td>
+<td>540 / 2회</td>
+</tr>
+</tbody>
+</table>
+<p>각 칸의 오른쪽 값은 도구 실행 횟수다. 대본으로 얻은 이 표는 기록 방법을 익히는 예시다. 실제 API 실험에서는 생성된 JSON의 모델 이름, 응답, 호출 기록을 사용한다. 마지막 줄을 한글 문장으로만 작성해 수치를 추출하지 못하면 ‘답 형식 확인’ 상태로 남는다.</p><svg width="262pt" height="213pt"
+ viewBox="0.00 0.00 262.00 213.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 209)">
+<title>G</title>
+<!-- n0 -->
+<g id="node1" class="node">
+<title>n0</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M174,-205C174,-205 88,-205 88,-205 82,-205 76,-199 76,-193 76,-193 76,-181 76,-181 76,-175 82,-169 88,-169 88,-169 174,-169 174,-169 180,-169 186,-175 186,-181 186,-181 186,-193 186,-193 186,-199 180,-205 174,-205"/>
+<text text-anchor="middle" x="131" y="-184.2" font-family="Noto Sans CJK KR" font-size="11.00">s06.compare(row)</text>
+</g>
+<!-- n1 -->
+<g id="node2" class="node">
+<title>n1</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M112,-152C112,-152 12,-152 12,-152 6,-152 0,-146 0,-140 0,-140 0,-128 0,-128 0,-122 6,-116 12,-116 12,-116 112,-116 112,-116 118,-116 124,-122 124,-128 124,-128 124,-140 124,-140 124,-146 118,-152 112,-152"/>
+<text text-anchor="middle" x="62" y="-131.2" font-family="Noto Sans CJK KR" font-size="11.00">s03.ask() · direct, cot</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="edge1" class="edge">
+<title>n0&#45;&gt;n1</title>
+<path fill="none" stroke="#478378" d="M107.64,-168.73C103.14,-165.41 98.36,-161.88 93.66,-158.4"/>
+<polygon fill="#478378" stroke="#478378" points="95.46,-155.38 85.34,-152.25 91.3,-161.01 95.46,-155.38"/>
+</g>
+<!-- n2 -->
+<g id="node3" class="node">
+<title>n2</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M242,-152C242,-152 160,-152 160,-152 154,-152 148,-146 148,-140 148,-140 148,-128 148,-128 148,-122 154,-116 160,-116 160,-116 242,-116 242,-116 248,-116 254,-122 254,-128 254,-128 254,-140 254,-140 254,-146 248,-152 242,-152"/>
+<text text-anchor="middle" x="201" y="-131.2" font-family="Noto Sans CJK KR" font-size="11.00">s05.trace() · react</text>
+</g>
+<!-- n0&#45;&gt;n2 -->
+<g id="edge2" class="edge">
+<title>n0&#45;&gt;n2</title>
+<path fill="none" stroke="#478378" d="M154.7,-168.73C159.37,-165.33 164.35,-161.7 169.24,-158.14"/>
+<polygon fill="#478378" stroke="#478378" points="171.3,-160.97 177.33,-152.25 167.18,-155.31 171.3,-160.97"/>
+</g>
+<!-- n3 -->
+<g id="node4" class="node">
+<title>n3</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M189.5,-99C189.5,-99 72.5,-99 72.5,-99 66.5,-99 60.5,-93 60.5,-87 60.5,-87 60.5,-75 60.5,-75 60.5,-69 66.5,-63 72.5,-63 72.5,-63 189.5,-63 189.5,-63 195.5,-63 201.5,-69 201.5,-75 201.5,-75 201.5,-87 201.5,-87 201.5,-93 195.5,-99 189.5,-99"/>
+<text text-anchor="middle" x="131" y="-78.2" font-family="Noto Sans CJK KR" font-size="11.00">s06.number() 및 수치 대조</text>
+</g>
+<!-- n1&#45;&gt;n3 -->
+<g id="edge3" class="edge">
+<title>n1&#45;&gt;n3</title>
+<path fill="none" stroke="#478378" d="M85.36,-115.73C89.86,-112.41 94.64,-108.88 99.34,-105.4"/>
+<polygon fill="#478378" stroke="#478378" points="101.7,-108.01 107.66,-99.25 97.54,-102.38 101.7,-108.01"/>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="edge4" class="edge">
+<title>n2&#45;&gt;n3</title>
+<path fill="none" stroke="#478378" d="M177.3,-115.73C172.63,-112.33 167.65,-108.7 162.76,-105.14"/>
+<polygon fill="#478378" stroke="#478378" points="164.82,-102.31 154.67,-99.25 160.7,-107.97 164.82,-102.31"/>
+</g>
+<!-- n4 -->
+<g id="node5" class="node">
+<title>n4</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M175.5,-36C175.5,-36 86.5,-36 86.5,-36 80.5,-36 74.5,-30 74.5,-24 74.5,-24 74.5,-12 74.5,-12 74.5,-6 80.5,0 86.5,0 86.5,0 175.5,0 175.5,0 181.5,0 187.5,-6 187.5,-12 187.5,-12 187.5,-24 187.5,-24 187.5,-30 181.5,-36 175.5,-36"/>
+<text text-anchor="middle" x="131" y="-15.2" font-family="Noto Sans CJK KR" font-size="11.00">compare_시각.json</text>
+</g>
+<!-- n3&#45;&gt;n4 -->
+<g id="edge5" class="edge">
+<title>n3&#45;&gt;n4</title>
+<path fill="none" stroke="#478378" d="M131,-62.68C131,-57.62 131,-51.95 131,-46.42"/>
+<polygon fill="#478378" stroke="#478378" points="134.5,-46.15 131,-36.15 127.5,-46.15 134.5,-46.15"/>
+<text text-anchor="middle" x="140.5" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">기록</text>
+</g>
+</g>
+</svg>
+</section><section id="s7"><small>KDT AI CAMP　 /　 U2-02　 ·　 7차시</small><h1>응답 오류와 반복 중단 재현하기</h1><p><strong>같은 최종 답도 실행 경로에 따라 의미가 달라진다.</strong> <code>{"final":"18달러"}</code>를 첫 응답으로 받으면 프로그램은 정상 종료한다. 그러나 계산 기록은 0개다. 반대로 계산 요청을 계속 보내면 매번 13을 구하더라도 최종 답을 받지 못해 종료 상한에 이른다.</p>
+<h3>오류가 생긴 위치 찾기</h3>
+<table>
+<thead>
+<tr>
+<th>입력 사례</th>
+<th>멈추는 위치</th>
+<th>확인할 값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“계산하겠습니다.”</td>
+<td>json.loads</td>
+<td>JSON 첫 글자</td>
+</tr>
+<tr>
+<td>연산명 minus</td>
+<td>calculate</td>
+<td>허용된 이름 subtract</td>
+</tr>
+<tr>
+<td>문자열 "16"</td>
+<td>calculate</td>
+<td>정수 16과 문자열의 차이</td>
+</tr>
+<tr>
+<td>같은 뺄셈만 반환</td>
+<td>react의 다섯 번째 반복 후</td>
+<td>관찰 5개, 최종 답 없음</td>
+</tr>
+</tbody>
+</table>
+<h3>재현과 수정 · 50분</h3>
+<ol>
+<li><strong>10분</strong>　<code>python s07.py</code>를 실행하고 첫 세 오류에서 관찰 목록이 비어 있는지 본다.</li>
+<li><strong>15분</strong>　<code>CASES</code>에서 <code>minus</code>를 <code>subtract</code>로 바꿔 실행한다. 연산명 오류가 사라진 뒤 새로 나타난 반복 상한의 이유를 추적한다.</li>
+<li><strong>15분</strong>　잘못된 자료형의 <code>"16"</code>을 <code>16</code>으로 바꾸고 같은 과정을 반복한다. 다음 응답을 항상 똑같이 주는 <code>lambda</code>와 5차시의 대본 함수를 비교한다.</li>
+<li><strong>10분</strong>　<code>{"final":"18달러"}</code>의 실행과 5차시 0번 행의 실행을 비교한다. 호출 기록을 읽으면 두 실행 중 어디서 계산을 수행했는지 알 수 있다.</li>
+</ol>
+<p><a href="https://docs.python.org/3/library/json.html#json.JSONDecodeError">Python 문서 · JSONDecodeError</a></p>
+<p><strong>이번 차시 원본</strong>　<a href="https://huggingface.co/datasets/openai/gsm8k/tree/main">D04 · openai/gsm8k, main/test</a> · 0번 행을 입력한 오류 재현</p></section><section><small>KDT AI CAMP　 /　 U2-02　 ·　 7차시</small><h1>코드와 실행 기록</h1><pre><code class="language-python">def replay(reply, question):
+    events = []
+    try:
+        react(prompt(REACT, question), lambda history: reply, events)
+        status = &quot;종료&quot;
+    except ValueError as exc:
+        status = str(exc)
+    observations = [text for title, text in events if title == &quot;계산 도구 · 반환값&quot;]
+    return status, observations
+</code></pre>
+<p><code>replay()</code>는 응답을 문자열로 받는다. 질문과 도구 규칙은 그대로 유지하고, 모형 함수가 매번 그 문자열을 돌려주도록 한다. <code>react()</code>가 예외를 일으켜도 그때까지의 <code>events</code>는 남아 있다. 함수는 종료 상태와 관찰 목록을 한 쌍으로 반환한다.</p>
+<p><strong>모의 재현 결과.</strong> 반복 상한 사례에서는 <code>Observation: 13</code>이 다섯 번 남는다. 재시도 횟수를 늘려도 입력에 관계없이 고정 응답을 반환하는 원인은 그대로다. 이때는 모델 입력에 관찰이 전달됐는지와 호출자가 그 입력을 실제로 읽는지를 순서대로 확인한다.</p><svg width="282pt" height="170pt"
+ viewBox="0.00 0.00 281.50 170.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 166)">
+<title>G</title>
+<!-- n0 -->
+<g id="node1" class="node">
+<title>n0</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M166.5,-162C166.5,-162 113.5,-162 113.5,-162 107.5,-162 101.5,-156 101.5,-150 101.5,-150 101.5,-138 101.5,-138 101.5,-132 107.5,-126 113.5,-126 113.5,-126 166.5,-126 166.5,-126 172.5,-126 178.5,-132 178.5,-138 178.5,-138 178.5,-150 178.5,-150 178.5,-156 172.5,-162 166.5,-162"/>
+<text text-anchor="middle" x="140" y="-141.2" font-family="Noto Sans CJK KR" font-size="11.00">s07.replay()</text>
+</g>
+<!-- n1 -->
+<g id="node2" class="node">
+<title>n1</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M171,-99C171,-99 109,-99 109,-99 103,-99 97,-93 97,-87 97,-87 97,-75 97,-75 97,-69 103,-63 109,-63 109,-63 171,-63 171,-63 177,-63 183,-69 183,-75 183,-75 183,-87 183,-87 183,-93 177,-99 171,-99"/>
+<text text-anchor="middle" x="140" y="-78.2" font-family="Noto Sans CJK KR" font-size="11.00">lesson.react()</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="edge1" class="edge">
+<title>n0&#45;&gt;n1</title>
+<path fill="none" stroke="#478378" d="M140,-125.68C140,-120.62 140,-114.95 140,-109.42"/>
+<polygon fill="#478378" stroke="#478378" points="143.5,-109.15 140,-99.15 136.5,-109.15 143.5,-109.15"/>
+<text text-anchor="middle" x="159.5" y="-110" font-family="Noto Sans CJK KR" font-size="10.00">고정 응답</text>
+</g>
+<!-- n2 -->
+<g id="node3" class="node">
+<title>n2</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M126,-36C126,-36 12,-36 12,-36 6,-36 0,-30 0,-24 0,-24 0,-12 0,-12 0,-6 6,0 12,0 12,0 126,0 126,0 132,0 138,-6 138,-12 138,-12 138,-24 138,-24 138,-30 132,-36 126,-36"/>
+<text text-anchor="middle" x="69" y="-15.2" font-family="Noto Sans CJK KR" font-size="11.00">json.loads() / calculate()</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="edge2" class="edge">
+<title>n1&#45;&gt;n2</title>
+<path fill="none" stroke="#478378" d="M96.77,-74.22C85.61,-70.54 74.83,-64.6 68,-55 66.14,-52.38 65.07,-49.37 64.54,-46.22"/>
+<polygon fill="#478378" stroke="#478378" points="68.03,-45.99 64.42,-36.03 61.03,-46.07 68.03,-45.99"/>
+<text text-anchor="middle" x="89" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">해석·계산</text>
+</g>
+<!-- n3 -->
+<g id="node4" class="node">
+<title>n3</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M261.5,-36C261.5,-36 174.5,-36 174.5,-36 168.5,-36 162.5,-30 162.5,-24 162.5,-24 162.5,-12 162.5,-12 162.5,-6 168.5,0 174.5,0 174.5,0 261.5,0 261.5,0 267.5,0 273.5,-6 273.5,-12 273.5,-12 273.5,-24 273.5,-24 273.5,-30 267.5,-36 261.5,-36"/>
+<text text-anchor="middle" x="218" y="-15.2" font-family="Noto Sans CJK KR" font-size="11.00">상태와 기존 관찰 반환</text>
+</g>
+<!-- n1&#45;&gt;n3 -->
+<g id="edge4" class="edge">
+<title>n1&#45;&gt;n3</title>
+<path fill="none" stroke="#478378" d="M162.14,-62.68C170.2,-56.38 179.44,-49.16 188.06,-42.42"/>
+<polygon fill="#478378" stroke="#478378" points="190.35,-45.07 196.07,-36.15 186.04,-39.55 190.35,-45.07"/>
+<text text-anchor="middle" x="214.5" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">종료 또는 오류</text>
+</g>
+<!-- n2&#45;&gt;n1 -->
+<g id="edge3" class="edge">
+<title>n2&#45;&gt;n1</title>
+<path fill="none" stroke="#478378" d="M101.85,-36.29C105.42,-38.69 108.88,-41.27 112,-44 115.68,-47.22 119.22,-50.98 122.46,-54.83"/>
+<polygon fill="#478378" stroke="#478378" points="119.74,-57.03 128.67,-62.73 125.24,-52.7 119.74,-57.03"/>
+<text text-anchor="middle" x="131.5" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">관찰</text>
+</g>
+</g>
+</svg>
+</section><section id="s8"><small>KDT AI CAMP　 /　 U2-02　 ·　 8차시</small><h1>실행 기록으로 비교 보고서 만들기</h1><p><strong>한 실행의 근거를 원문부터 최종 답까지 따라갈 수 있게 배치한다.</strong> 6차시는 비교 기록을 JSON 파일에 보관했다. 이번 차시는 그 파일을 다시 읽어 HTML로 표현한다. 보고서를 다시 만들어도 모델을 재호출할 필요가 없다.</p>
+<h3>보고서 한 항목 읽기</h3>
+<ol>
+<li><strong>출처</strong>에서 D04, 설정 main, 분할 test, 원본 행 번호를 읽는다.</li>
+<li><strong>모델과 실행 방식</strong>에서 demo 대본 또는 실제 공급자와 모델명을 확인한다.</li>
+<li><strong>원본 문제와 프롬프트</strong>를 읽고, 응답과 도구 반환값을 위에서 아래로 따라간다.</li>
+<li><strong>원본 풀이와 답</strong>에서 숫자와 단위를 대조한다. 계산을 실행한 횟수와 응답의 문장 수는 각각 다른 정보다.</li>
+</ol>
+<h3>결과 화면 완성 · 50분</h3>
+<ul>
+<li><strong>10분</strong>　<code>python s06.py</code>로 만든 JSON의 경로를 확인한다.</li>
+<li><strong>15분</strong>　<code>python s08.py</code>를 실행하고 출력된 HTML을 브라우저에서 연다. 기본값은 파일명 시각이 가장 최근인 비교 기록이다. 이전 기록은 <code>--input</code> 뒤에 실제 JSON 경로를 적는다.</li>
+<li><strong>15분</strong>　0번 행의 CoT 풀이에서 줄바꿈을, ReAct 항목에서는 모델의 계산 요청과 바로 아래 도구 반환을 확인한다. 같은 방식으로 3번 행을 살펴본다.</li>
+<li><strong>10분</strong>　브라우저의 인쇄 메뉴에서 PDF로 저장한다. 원본 행, 실행 모드, 계산 요청, 반환값이 함께 보이는 부분을 캡처한다.</li>
+</ul>
+<p>다음 수업에서 출력 형식을 정의할 때는 이번 기록 중 ‘답 형식 확인’ 사례를 활용할 수 있다. 어떤 필드를 숫자로 받을지, 단위를 어디에 기록할지가 다음 설계의 출발점이다.</p>
+<p><strong>이번 차시 원본</strong>　<a href="https://huggingface.co/datasets/openai/gsm8k/tree/main">D04 · openai/gsm8k, main/test</a> · 0번·3번 행의 저장 기록</p></section><section><small>KDT AI CAMP　 /　 U2-02　 ·　 8차시</small><h1>코드와 실행 기록</h1><pre><code class="language-python">for title, body in fields:
+    parts.append(f&quot;&lt;h3&gt;{escape(title)}&lt;/h3&gt;&lt;pre&gt;{escape(body)}&lt;/pre&gt;&quot;)
+</code></pre>
+<p><code>s08.report(path)</code>는 한 파일에서 여러 비교 항목을 읽는다. <code>fields</code>는 원본 문제, 프롬프트, 이벤트, 원본 풀이 순의 목록이다. <code>escape()</code>가 본문의 기호를 텍스트로 다루게 하고, <code>pre</code>의 <code>white-space: pre-wrap</code>은 실제 개행을 보존하면서 긴 문장을 줄 바꿈한다. <a href="https://docs.python.org/3/library/html.html#html.escape">Python 문서 · html.escape</a> · <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/white-space">MDN · white-space</a></p>
+<p><strong>보관할 파일.</strong> JSON은 다시 렌더링할 입력이고 같은 이름의 HTML은 열람용 결과다. 동일 JSON을 다시 지정하면 대응하는 HTML이 갱신된다. 배포본의 <code>results/comparison_demo.pdf</code>는 포함된 모의 실행 기록을 인쇄한 예시다.</p>
+<p><strong>학습 결과 해석 예.</strong> 3번 행에서 모델은 먼저 3과 3의 곱을 요청했다. 파이썬은 9를 반환했다. 다음 요청은 이 9에 60을 곱했고 최종 답은 540미터였다. 이처럼 실행 주체와 값, 다음 입력을 한 문장씩 연결하면 보고서만으로 계산 경로를 재구성할 수 있다.</p><svg width="130pt" height="233pt"
+ viewBox="0.00 0.00 130.00 233.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 229)">
+<title>G</title>
+<!-- n0 -->
+<g id="node1" class="node">
+<title>n0</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M99.5,-225C99.5,-225 22.5,-225 22.5,-225 16.5,-225 10.5,-219 10.5,-213 10.5,-213 10.5,-201 10.5,-201 10.5,-195 16.5,-189 22.5,-189 22.5,-189 99.5,-189 99.5,-189 105.5,-189 111.5,-195 111.5,-201 111.5,-201 111.5,-213 111.5,-213 111.5,-219 105.5,-225 99.5,-225"/>
+<text text-anchor="middle" x="61" y="-204.2" font-family="Noto Sans CJK KR" font-size="11.00">s08.report(path)</text>
+</g>
+<!-- n1 -->
+<g id="node2" class="node">
+<title>n1</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M110,-162C110,-162 12,-162 12,-162 6,-162 0,-156 0,-150 0,-150 0,-138 0,-138 0,-132 6,-126 12,-126 12,-126 110,-126 110,-126 116,-126 122,-132 122,-138 122,-138 122,-150 122,-150 122,-156 116,-162 110,-162"/>
+<text text-anchor="middle" x="61" y="-141.2" font-family="Noto Sans CJK KR" font-size="11.00">JSON · 원문과 events</text>
+</g>
+<!-- n0&#45;&gt;n1 -->
+<g id="edge1" class="edge">
+<title>n0&#45;&gt;n1</title>
+<path fill="none" stroke="#478378" d="M61,-188.68C61,-183.62 61,-177.95 61,-172.42"/>
+<polygon fill="#478378" stroke="#478378" points="64.5,-172.15 61,-162.15 57.5,-172.15 64.5,-172.15"/>
+<text text-anchor="middle" x="70.5" y="-173" font-family="Noto Sans CJK KR" font-size="10.00">읽기</text>
+</g>
+<!-- n2 -->
+<g id="node3" class="node">
+<title>n2</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M98,-99C98,-99 24,-99 24,-99 18,-99 12,-93 12,-87 12,-87 12,-75 12,-75 12,-69 18,-63 24,-63 24,-63 98,-63 98,-63 104,-63 110,-69 110,-75 110,-75 110,-87 110,-87 110,-93 104,-99 98,-99"/>
+<text text-anchor="middle" x="61" y="-78.2" font-family="Noto Sans CJK KR" font-size="11.00">HTML · 화면 열람</text>
+</g>
+<!-- n1&#45;&gt;n2 -->
+<g id="edge2" class="edge">
+<title>n1&#45;&gt;n2</title>
+<path fill="none" stroke="#478378" d="M61,-125.68C61,-120.62 61,-114.95 61,-109.42"/>
+<polygon fill="#478378" stroke="#478378" points="64.5,-109.15 61,-99.15 57.5,-109.15 64.5,-109.15"/>
+<text text-anchor="middle" x="85" y="-110" font-family="Noto Sans CJK KR" font-size="10.00">텍스트 삽입</text>
+</g>
+<!-- n3 -->
+<g id="node4" class="node">
+<title>n3</title>
+<path fill="#eef6f5" stroke="#93b9b5" d="M103,-36C103,-36 19,-36 19,-36 13,-36 7,-30 7,-24 7,-24 7,-12 7,-12 7,-6 13,0 19,0 19,0 103,0 103,0 109,0 115,-6 115,-12 115,-12 115,-24 115,-24 115,-30 109,-36 103,-36"/>
+<text text-anchor="middle" x="61" y="-15.2" font-family="Noto Sans CJK KR" font-size="11.00">브라우저 인쇄 · PDF</text>
+</g>
+<!-- n2&#45;&gt;n3 -->
+<g id="edge3" class="edge">
+<title>n2&#45;&gt;n3</title>
+<path fill="none" stroke="#478378" d="M61,-62.68C61,-57.62 61,-51.95 61,-46.42"/>
+<polygon fill="#478378" stroke="#478378" points="64.5,-46.15 61,-36.15 57.5,-46.15 64.5,-46.15"/>
+<text text-anchor="middle" x="70.5" y="-47" font-family="Noto Sans CJK KR" font-size="10.00">저장</text>
+</g>
+</g>
+</svg>
+</section></html>

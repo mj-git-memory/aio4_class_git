@@ -1,0 +1,136 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>U2-01 결과 화면</title><style>body{font-family:"Malgun Gothic",sans-serif;background:#edf3fb;color:#17324f;margin:0;line-height:1.7}main{max-width:1220px;margin:30px auto;padding:32px;background:white;border-radius:16px}h1{font-size:28px}.badge{display:inline-block;padding:7px 13px;background:#dcebed;border-radius:6px;margin:4px;font-weight:bold;font-size:13px}.warn{background:#fff0cd}.meta{font-size:13px;color:#52677e}article{border:1px solid #d6e0ee;border-radius:12px;padding:20px;margin:20px 0}.cols{display:grid;grid-template-columns:1fr 1fr;gap:25px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.8 Consolas,monospace;background:#f5f8fc;padding:15px;border-radius:7px}h3{font-size:16px}@media(max-width:800px){.cols{grid-template-columns:1fr}main{margin:0;padding:20px}}@media print{body{background:white}main{margin:0;max-width:none}article{break-inside:avoid}}</style><main><p>2026-11-17 · LangChain · 제공 자료 활용 실습</p><h1>U2-01 / 7차시 실행 결과</h1><div class="badge warn">공개 가공 표본 · 원본 API 직접 수집 아님</div><div class="badge">모의 모델 · 실제 추론 아님</div><p class="meta">데이터: products_public_derived.json / 공급자: mock / 모델: local-fixture</p><p class="meta">출처: https://github.com/mivan08/e-commerce-react-tailwindCSS/blob/main/products.json<br>SHA256: 14390850b813cf54b8c86c7e6098077a52302b191d1a7012bf8cbfad5b68965f</p><p class="meta">캡처: 데이터 출처·표본 id·입력·결과·실행 모드를 포함해 저장합니다. 기관 승인 화면이 아닙니다.</p><p>같은 상품·질문·모델을 사용합니다. 문자 수는 의미 품질 점수가 아닙니다.</p><article><h2>row-001 · weak</h2><div class="cols"><section><h3>상품 원문</h3><pre>{
+  &quot;title&quot;: &quot;Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops&quot;,
+  &quot;price&quot;: 1090,
+  &quot;description&quot;: &quot;Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday&quot;,
+  &quot;category&quot;: &quot;men&#x27;s clothing&quot;,
+  &quot;image&quot;: &quot;https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg&quot;
+}</pre></section><section><h3>입력·메시지·실행 결과</h3><pre>{
+  &quot;record_id&quot;: &quot;row-001&quot;,
+  &quot;question&quot;: &quot;15인치 노트북을 넣을 수 있나요? 반품이 가능한가요?&quot;,
+  &quot;version&quot;: &quot;weak&quot;,
+  &quot;repeat&quot;: 1,
+  &quot;context_hash&quot;: &quot;4683412b1782&quot;,
+  &quot;question_hash&quot;: &quot;de297c6ef004&quot;,
+  &quot;prompt_hash&quot;: &quot;fdbd66f4de1b&quot;,
+  &quot;elapsed_seconds&quot;: 0.0224
+}</pre></section></div></article><article><h2>row-001 · role</h2><div class="cols"><section><h3>상품 원문</h3><pre>{
+  &quot;title&quot;: &quot;Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops&quot;,
+  &quot;price&quot;: 1090,
+  &quot;description&quot;: &quot;Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday&quot;,
+  &quot;category&quot;: &quot;men&#x27;s clothing&quot;,
+  &quot;image&quot;: &quot;https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg&quot;
+}</pre></section><section><h3>입력·메시지·실행 결과</h3><pre>{
+  &quot;record_id&quot;: &quot;row-001&quot;,
+  &quot;question&quot;: &quot;15인치 노트북을 넣을 수 있나요? 반품이 가능한가요?&quot;,
+  &quot;version&quot;: &quot;role&quot;,
+  &quot;repeat&quot;: 1,
+  &quot;context_hash&quot;: &quot;4683412b1782&quot;,
+  &quot;question_hash&quot;: &quot;de297c6ef004&quot;,
+  &quot;prompt_hash&quot;: &quot;60e25ea2f231&quot;,
+  &quot;elapsed_seconds&quot;: 0.0006
+}</pre></section></div></article><article><h2>row-001 · designed</h2><div class="cols"><section><h3>상품 원문</h3><pre>{
+  &quot;title&quot;: &quot;Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops&quot;,
+  &quot;price&quot;: 1090,
+  &quot;description&quot;: &quot;Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday&quot;,
+  &quot;category&quot;: &quot;men&#x27;s clothing&quot;,
+  &quot;image&quot;: &quot;https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg&quot;
+}</pre></section><section><h3>입력·메시지·실행 결과</h3><pre>{
+  &quot;record_id&quot;: &quot;row-001&quot;,
+  &quot;question&quot;: &quot;15인치 노트북을 넣을 수 있나요? 반품이 가능한가요?&quot;,
+  &quot;version&quot;: &quot;designed&quot;,
+  &quot;repeat&quot;: 1,
+  &quot;context_hash&quot;: &quot;4683412b1782&quot;,
+  &quot;question_hash&quot;: &quot;de297c6ef004&quot;,
+  &quot;prompt_hash&quot;: &quot;88dc33e58ecb&quot;,
+  &quot;elapsed_seconds&quot;: 0.0005
+}</pre></section></div></article><article><h2>row-003 · weak</h2><div class="cols"><section><h3>상품 원문</h3><pre>{
+  &quot;title&quot;: &quot;Mens Cotton Jacket&quot;,
+  &quot;price&quot;: 550,
+  &quot;description&quot;: &quot;great outerwear jackets for Spring/Autumn/Winter, suitable for many occasions, such as working, hiking, camping, mountain/rock climbing, cycling, traveling or other outdoors. Good gift choice for you or your family member. A warm hearted love to Father, husband or son in this thanksgiving or Christmas Day.&quot;,
+  &quot;category&quot;: &quot;men&#x27;s clothing&quot;,
+  &quot;image&quot;: &quot;https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg&quot;
+}</pre></section><section><h3>입력·메시지·실행 결과</h3><pre>{
+  &quot;record_id&quot;: &quot;row-003&quot;,
+  &quot;question&quot;: &quot;어떤 활동에 적합한 상품인가요? 현재 재고가 있나요?&quot;,
+  &quot;version&quot;: &quot;weak&quot;,
+  &quot;repeat&quot;: 1,
+  &quot;context_hash&quot;: &quot;300ad1e92361&quot;,
+  &quot;question_hash&quot;: &quot;82caf6d47861&quot;,
+  &quot;prompt_hash&quot;: &quot;30642afd67da&quot;,
+  &quot;elapsed_seconds&quot;: 0.0003
+}</pre></section></div></article><article><h2>row-003 · role</h2><div class="cols"><section><h3>상품 원문</h3><pre>{
+  &quot;title&quot;: &quot;Mens Cotton Jacket&quot;,
+  &quot;price&quot;: 550,
+  &quot;description&quot;: &quot;great outerwear jackets for Spring/Autumn/Winter, suitable for many occasions, such as working, hiking, camping, mountain/rock climbing, cycling, traveling or other outdoors. Good gift choice for you or your family member. A warm hearted love to Father, husband or son in this thanksgiving or Christmas Day.&quot;,
+  &quot;category&quot;: &quot;men&#x27;s clothing&quot;,
+  &quot;image&quot;: &quot;https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg&quot;
+}</pre></section><section><h3>입력·메시지·실행 결과</h3><pre>{
+  &quot;record_id&quot;: &quot;row-003&quot;,
+  &quot;question&quot;: &quot;어떤 활동에 적합한 상품인가요? 현재 재고가 있나요?&quot;,
+  &quot;version&quot;: &quot;role&quot;,
+  &quot;repeat&quot;: 1,
+  &quot;context_hash&quot;: &quot;300ad1e92361&quot;,
+  &quot;question_hash&quot;: &quot;82caf6d47861&quot;,
+  &quot;prompt_hash&quot;: &quot;b6437ff521e5&quot;,
+  &quot;elapsed_seconds&quot;: 0.0003
+}</pre></section></div></article><article><h2>row-003 · designed</h2><div class="cols"><section><h3>상품 원문</h3><pre>{
+  &quot;title&quot;: &quot;Mens Cotton Jacket&quot;,
+  &quot;price&quot;: 550,
+  &quot;description&quot;: &quot;great outerwear jackets for Spring/Autumn/Winter, suitable for many occasions, such as working, hiking, camping, mountain/rock climbing, cycling, traveling or other outdoors. Good gift choice for you or your family member. A warm hearted love to Father, husband or son in this thanksgiving or Christmas Day.&quot;,
+  &quot;category&quot;: &quot;men&#x27;s clothing&quot;,
+  &quot;image&quot;: &quot;https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg&quot;
+}</pre></section><section><h3>입력·메시지·실행 결과</h3><pre>{
+  &quot;record_id&quot;: &quot;row-003&quot;,
+  &quot;question&quot;: &quot;어떤 활동에 적합한 상품인가요? 현재 재고가 있나요?&quot;,
+  &quot;version&quot;: &quot;designed&quot;,
+  &quot;repeat&quot;: 1,
+  &quot;context_hash&quot;: &quot;300ad1e92361&quot;,
+  &quot;question_hash&quot;: &quot;82caf6d47861&quot;,
+  &quot;prompt_hash&quot;: &quot;753d56402f2c&quot;,
+  &quot;elapsed_seconds&quot;: 0.0003
+}</pre></section></div></article><article><h2>row-009 · weak</h2><div class="cols"><section><h3>상품 원문</h3><pre>{
+  &quot;title&quot;: &quot;WD 2TB Elements Portable External Hard Drive - USB 3.0 &quot;,
+  &quot;price&quot;: 640,
+  &quot;description&quot;: &quot;USB 3.0 and USB 2.0 Compatibility Fast data transfers Improve PC Performance High Capacity; Compatibility Formatted NTFS for Windows 10, Windows 8.1, Windows 7; Reformatting may be required for other operating systems; Compatibility may vary depending on user’s hardware configuration and operating system&quot;,
+  &quot;category&quot;: &quot;electronics&quot;,
+  &quot;image&quot;: &quot;https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_.jpg&quot;
+}</pre></section><section><h3>입력·메시지·실행 결과</h3><pre>{
+  &quot;record_id&quot;: &quot;row-009&quot;,
+  &quot;question&quot;: &quot;지원하는 운영체제는 무엇인가요? 배송일은 언제인가요?&quot;,
+  &quot;version&quot;: &quot;weak&quot;,
+  &quot;repeat&quot;: 1,
+  &quot;context_hash&quot;: &quot;ef2baa4463e1&quot;,
+  &quot;question_hash&quot;: &quot;e0e51cec999a&quot;,
+  &quot;prompt_hash&quot;: &quot;92848b7bf2b0&quot;,
+  &quot;elapsed_seconds&quot;: 0.0003
+}</pre></section></div></article><article><h2>row-009 · role</h2><div class="cols"><section><h3>상품 원문</h3><pre>{
+  &quot;title&quot;: &quot;WD 2TB Elements Portable External Hard Drive - USB 3.0 &quot;,
+  &quot;price&quot;: 640,
+  &quot;description&quot;: &quot;USB 3.0 and USB 2.0 Compatibility Fast data transfers Improve PC Performance High Capacity; Compatibility Formatted NTFS for Windows 10, Windows 8.1, Windows 7; Reformatting may be required for other operating systems; Compatibility may vary depending on user’s hardware configuration and operating system&quot;,
+  &quot;category&quot;: &quot;electronics&quot;,
+  &quot;image&quot;: &quot;https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_.jpg&quot;
+}</pre></section><section><h3>입력·메시지·실행 결과</h3><pre>{
+  &quot;record_id&quot;: &quot;row-009&quot;,
+  &quot;question&quot;: &quot;지원하는 운영체제는 무엇인가요? 배송일은 언제인가요?&quot;,
+  &quot;version&quot;: &quot;role&quot;,
+  &quot;repeat&quot;: 1,
+  &quot;context_hash&quot;: &quot;ef2baa4463e1&quot;,
+  &quot;question_hash&quot;: &quot;e0e51cec999a&quot;,
+  &quot;prompt_hash&quot;: &quot;ce2385e7ce3c&quot;,
+  &quot;elapsed_seconds&quot;: 0.0003
+}</pre></section></div></article><article><h2>row-009 · designed</h2><div class="cols"><section><h3>상품 원문</h3><pre>{
+  &quot;title&quot;: &quot;WD 2TB Elements Portable External Hard Drive - USB 3.0 &quot;,
+  &quot;price&quot;: 640,
+  &quot;description&quot;: &quot;USB 3.0 and USB 2.0 Compatibility Fast data transfers Improve PC Performance High Capacity; Compatibility Formatted NTFS for Windows 10, Windows 8.1, Windows 7; Reformatting may be required for other operating systems; Compatibility may vary depending on user’s hardware configuration and operating system&quot;,
+  &quot;category&quot;: &quot;electronics&quot;,
+  &quot;image&quot;: &quot;https://fakestoreapi.com/img/61IBBVJvSDL._AC_SY879_.jpg&quot;
+}</pre></section><section><h3>입력·메시지·실행 결과</h3><pre>{
+  &quot;record_id&quot;: &quot;row-009&quot;,
+  &quot;question&quot;: &quot;지원하는 운영체제는 무엇인가요? 배송일은 언제인가요?&quot;,
+  &quot;version&quot;: &quot;designed&quot;,
+  &quot;repeat&quot;: 1,
+  &quot;context_hash&quot;: &quot;ef2baa4463e1&quot;,
+  &quot;question_hash&quot;: &quot;e0e51cec999a&quot;,
+  &quot;prompt_hash&quot;: &quot;6e496aec2786&quot;,
+  &quot;elapsed_seconds&quot;: 0.0003
+}</pre></section></div></article></main></html>

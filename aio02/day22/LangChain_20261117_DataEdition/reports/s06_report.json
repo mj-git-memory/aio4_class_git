@@ -1,0 +1,56 @@
+{
+  "topic_id": "U2-01",
+  "session": 6,
+  "created_at": "2026-11-17T06:24:52.036025+00:00",
+  "data": {
+    "resource_id": "D01",
+    "name": "Fake Store API 유래 공개 가공 상품 표본",
+    "original_api": "https://fakestoreapi.com/products",
+    "source_url": "https://github.com/mivan08/e-commerce-react-tailwindCSS/blob/main/products.json",
+    "source_blob_sha": "a0e2a97aad87e0ede84d11d54d3e8285314141b0",
+    "checked_on": "2026-11-16",
+    "acquisition": "public_derived_file",
+    "live_api_status": "HTTP 403 / 브라우저 보안 확인으로 원본 응답 미확보",
+    "record_count": 20,
+    "file_sha256": "14390850b813cf54b8c86c7e6098077a52302b191d1a7012bf8cbfad5b68965f",
+    "transformations": [
+      "원문 파일을 보존하고 행 순번으로 row-001 형식의 로컬 record_id를 부여",
+      "원문에 API id와 rating이 없어 해당 값을 만들지 않음",
+      "price는 공개 가공본의 값이며 통화/현재가격을 확인하지 못해 모델 맥락에서 제외",
+      "title/category/description만 프롬프트에 사용"
+    ],
+    "limitation": "D01 API에서 이번에 직접 받은 원본이 아니며 공식 원본 활용 완료/기관 증빙 승인으로 간주하지 않음",
+    "file": "products_public_derived.json",
+    "sha256": "14390850b813cf54b8c86c7e6098077a52302b191d1a7012bf8cbfad5b68965f"
+  },
+  "dataset_mode": "공개 가공 표본 · 원본 API 직접 수집 아님",
+  "provider": "mock",
+  "model": "local-fixture",
+  "model_mode": "모의 모델 · 실제 추론 아님",
+  "temperature": null,
+  "max_output": 500,
+  "notes": [],
+  "rows": [
+    {
+      "record_id": "row-001",
+      "question": "15인치 노트북을 넣을 수 있나요? 반품이 가능한가요?",
+      "status": "ok",
+      "answer": "[모의 응답] 안녕하세요. 상품 설명과 질문을 연결하는 형식을 확인했습니다. 재고·배송·반품 정책은 별도 확인이 필요합니다. 문의별 실제 답변을 생성한 결과는 아닙니다.",
+      "execution": "batch"
+    },
+    {
+      "record_id": "row-003",
+      "question": "어떤 활동에 적합한 상품인가요? 현재 재고가 있나요?",
+      "status": "ok",
+      "answer": "[모의 응답] 안녕하세요. 상품 설명과 질문을 연결하는 형식을 확인했습니다. 재고·배송·반품 정책은 별도 확인이 필요합니다. 문의별 실제 답변을 생성한 결과는 아닙니다.",
+      "execution": "batch"
+    },
+    {
+      "record_id": "row-009",
+      "question": "지원하는 운영체제는 무엇인가요? 배송일은 언제인가요?",
+      "status": "ok",
+      "answer": "[모의 응답] 안녕하세요. 상품 설명과 질문을 연결하는 형식을 확인했습니다. 재고·배송·반품 정책은 별도 확인이 필요합니다. 문의별 실제 답변을 생성한 결과는 아닙니다.",
+      "execution": "batch"
+    }
+  ]
+}

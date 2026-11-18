@@ -30,3 +30,12 @@ config.json
 
 
 /day17/models/
+
+
+
+data/products_live.json
+data/products_live.source.json
+reports/*
+outputs/*
+evidence/*
+REFERENCES.md
