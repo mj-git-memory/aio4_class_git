@@ -1,0 +1,50 @@
+{
+  "mode": "schema",
+  "dataset_name": "Bank Marketing Dataset",
+  "source": "https://archive.ics.uci.edu/dataset/222/bank+marketing",
+  "file": "bank.csv",
+  "sha256": "dc8d576e9bda0f41ee891251bd84bab9a39ce576cba715aac08adc2374a01fde",
+  "row": 1,
+  "input": {
+    "duration": "79",
+    "campaign": "1",
+    "poutcome": "unknown"
+  },
+  "schema": {
+    "additionalProperties": false,
+    "properties": {
+      "duration_s": {
+        "title": "Duration S",
+        "type": "integer"
+      },
+      "contacts": {
+        "title": "Contacts",
+        "type": "integer"
+      },
+      "previous_result": {
+        "anyOf": [
+          {
+            "enum": [
+              "success",
+              "failure",
+              "other"
+            ],
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Previous Result"
+      }
+    },
+    "required": [
+      "duration_s",
+      "contacts",
+      "previous_result"
+    ],
+    "title": "Contact",
+    "type": "object"
+  },
+  "status": "ok"
+}

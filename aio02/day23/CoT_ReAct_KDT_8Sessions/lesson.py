@@ -1,6 +1,7 @@
 """두 프롬프트를 같은 문제에 적용하고 메시지와 계산 결과를 기록한다."""
 import argparse
 import json
+import math
 from datetime import datetime
 from html import escape
 from pathlib import Path
@@ -15,9 +16,13 @@ COT = """예시처럼 계산식과 단위를 사용해 한국어로 풀이하고
 예시 답: 3자루"""
 REACT = """문제를 풀 때 계산 도구를 사용한다. 한 번에 JSON 객체 하나만 출력한다.
 계산 요청 예: {"action":"subtract","a":10,"b":4}
-사용 가능한 action은 add, subtract, multiply이다. a와 b에는 정수를 쓴다.
+사용 가능한 action은 add, subtract, multiply, percent_of이다.
+percent_of의 a는 기준 수량, b는 퍼센트 정수이다. 예: {"action":"percent_of","a":60,"b":20}은 60의 20%를 계산한다.
+a와 b에는 유한한 숫자를 쓴다.
 직전 계산 결과는 Observation 메시지로 전달된다. 다음 계산에는 그 값을 사용한다.
-답을 구하면 {"final":"단위가 있는 한국어 답"} 형식으로 마친다."""
+질문에 답이 여러 개면 모두 포함한다. 답을 구하면 {"final":"단위가 있는 한국어 답"} 형식으로 마친다."""
+
+MAX_REACT_TURNS = 8
 
 
 def prompt(system, question):
@@ -31,19 +36,26 @@ def prompt(system, question):
 
 
 def calculate(action, a, b):
-    if type(a) is not int or type(b) is not int:
-        raise ValueError("a와 b에는 정수를 입력한다.")
+    if not all(
+        (isinstance(value, int) and not isinstance(value, bool))
+        or (isinstance(value, float) and math.isfinite(value))
+        for value in (a, b)
+    ):
+        raise ValueError("a와 b에는 유한한 숫자를 입력한다.")
     if action == "add":
         return a + b
     if action == "subtract":
         return a - b
     if action == "multiply":
         return a * b
+    if action == "percent_of":
+        result = a * b / 100
+        return int(result) if result.is_integer() else result
     raise ValueError(f"지원하지 않는 연산: {action}")
 
 
 def react(messages, chat, events):
-    for _ in range(5):
+    for _ in range(MAX_REACT_TURNS):
         reply = chat(messages)
         events.append(("ReAct · 모델 응답", reply))
         messages.append({"role": "assistant", "content": reply})
@@ -56,7 +68,7 @@ def react(messages, chat, events):
         observation = f"Observation: {value}"
         events.append(("계산 도구 · 반환값", observation))
         messages.append({"role": "user", "content": observation})
-    raise ValueError("다섯 번의 응답 안에 최종 답이 없어 종료했다.")
+    raise ValueError(f"{MAX_REACT_TURNS}번의 응답 안에 최종 답이 없어 종료했다.")
 
 
 def demo(messages):
@@ -96,7 +108,7 @@ def main():
     question = row["question"]
     events = [("문제 원문", question)]
     try:
-        chat = demo if mode == "demo" else RemoteChat(mode, max_calls=6)
+        chat = demo if mode == "demo" else RemoteChat(mode, max_calls=MAX_REACT_TURNS + 1)
         label = "교사용 대본 · 로컬 계산" if mode == "demo" else f"{mode} · {chat.model}"
         events.append(("실행 방식", label))
         events.append(("CoT · 작성한 프롬프트", COT))

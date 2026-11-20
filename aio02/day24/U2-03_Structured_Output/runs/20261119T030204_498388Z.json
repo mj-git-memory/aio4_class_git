@@ -1,0 +1,17 @@
+{
+  "mode": "plain",
+  "dataset_name": "Bank Marketing Dataset",
+  "source": "https://archive.ics.uci.edu/dataset/222/bank+marketing",
+  "file": "bank.csv",
+  "sha256": "dc8d576e9bda0f41ee891251bd84bab9a39ce576cba715aac08adc2374a01fde",
+  "row": 1,
+  "input": {
+    "duration": "79",
+    "campaign": "1",
+    "poutcome": "unknown"
+  },
+  "attempts": [],
+  "prompt": "전화 접촉 기록을 정규화하라. duration은 초 단위 duration_s, campaign은 contacts, poutcome은 previous_result에 넣고 unknown은 null로 바꿔라. 그 외 값은 그대로 옮겨라.\nJSON 객체 하나만 출력하라.\n출력 명세 {\"additionalProperties\": false, \"properties\": {\"duration_s\": {\"title\": \"Duration S\", \"type\": \"integer\"}, \"contacts\": {\"title\": \"Contacts\", \"type\": \"integer\"}, \"previous_result\": {\"anyOf\": [{\"enum\": [\"success\", \"failure\", \"other\"], \"type\": \"string\"}, {\"type\": \"null\"}], \"title\": \"Previous Result\"}}, \"required\": [\"duration_s\", \"contacts\", \"previous_result\"], \"title\": \"Contact\", \"type\": \"object\"}\n입력 {\"duration\": \"79\", \"campaign\": \"1\", \"poutcome\": \"unknown\"}",
+  "status": "error",
+  "error": "ValueError: GEMINI_API_KEY 설정 필요"
+}

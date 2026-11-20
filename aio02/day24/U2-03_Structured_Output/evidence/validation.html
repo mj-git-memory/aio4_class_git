@@ -1,0 +1,40 @@
+<meta charset=utf-8><style>body{font:15px sans-serif;max-width:850px;margin:3em auto}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef4f3;padding:1em}h2{font-size:17px}</style><h1>구조화 출력 실행 기록</h1><h2>mode</h2><pre>diagnose</pre><h2>dataset_name</h2><pre>Bank Marketing Dataset</pre><h2>source</h2><pre>https://archive.ics.uci.edu/dataset/222/bank+marketing</pre><h2>file</h2><pre>bank.csv</pre><h2>sha256</h2><pre>dc8d576e9bda0f41ee891251bd84bab9a39ce576cba715aac08adc2374a01fde</pre><h2>row</h2><pre>1</pre><h2>input</h2><pre>{
+  &quot;duration&quot;: &quot;79&quot;,
+  &quot;campaign&quot;: &quot;1&quot;,
+  &quot;poutcome&quot;: &quot;unknown&quot;
+}</pre><h2>validation</h2><pre>{
+  &quot;원본 변환&quot;: &quot;통과&quot;,
+  &quot;필수 키 누락&quot;: [
+    [
+      [
+        &quot;previous_result&quot;
+      ],
+      &quot;missing&quot;
+    ]
+  ],
+  &quot;숫자 문자열&quot;: [
+    [
+      [
+        &quot;duration_s&quot;
+      ],
+      &quot;int_type&quot;
+    ]
+  ],
+  &quot;허용 목록 밖&quot;: [
+    [
+      [
+        &quot;previous_result&quot;
+      ],
+      &quot;literal_error&quot;
+    ]
+  ],
+  &quot;추가 키&quot;: [
+    [
+      [
+        &quot;y&quot;
+      ],
+      &quot;extra_forbidden&quot;
+    ]
+  ],
+  &quot;다른 정수&quot;: &quot;형식 통과 / 원본 불일치&quot;
+}</pre><h2>status</h2><pre>ok</pre>

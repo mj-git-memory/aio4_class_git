@@ -1,0 +1,5 @@
+langsmith
+langchain
+langchain-openai
+
+# python -m pip install -r requirement.txt

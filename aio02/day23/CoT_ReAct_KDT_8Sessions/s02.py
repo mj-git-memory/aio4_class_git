@@ -3,8 +3,9 @@ import argparse
 import json
 from lesson import ROOT, COT, prompt
 
-DIRECT = "최종 답을 '답: 숫자 단위' 한 줄로 작성한다."
-WORKED = COT + "\n마지막 줄은 '답: 숫자 단위'로 작성한다. 예: 답: 3자루"
+DIRECT = """문제의 조건을 순서대로 계산하고 한국어로 간단히 설명한다.
+마지막 줄은 '답: 숫자와 단위' 형식으로 쓴다. 답이 여러 개면 질문 순서대로 쉼표로 구분한다."""
+WORKED = COT + "\n마지막 줄은 '답: 숫자와 단위' 형식으로 쓴다. 답이 여러 개면 질문 순서대로 쉼표로 구분한다. 예: 답: 3자루"
 
 
 def records():
@@ -22,6 +23,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     row = next(r for r in records() if r["row_index"] == args.row)
     for name, messages in variants(row).items():
-        print(name)
+        print(name); print('---')
         for message in messages:
             print(message["role"], message["content"], sep="\n")
+            print()

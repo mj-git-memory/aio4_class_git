@@ -1,6 +1,6 @@
 """행동과 관찰을 번갈아 기록한다."""
 import argparse
-from lesson import REACT, react, prompt
+from lesson import MAX_REACT_TURNS, REACT, react, prompt
 from s02 import records
 from s03 import ask, MODES, RemoteChat
 
@@ -19,7 +19,9 @@ if __name__ == "__main__":
     p.add_argument("--provider", choices=MODES, default="demo")
     args = p.parse_args()
     row = next(r for r in records() if r["row_index"] == args.row)
-    remote = None if args.provider == "demo" else RemoteChat(args.provider, max_calls=5)
+    remote = None if args.provider == "demo" else RemoteChat(
+        args.provider, max_calls=MAX_REACT_TURNS
+    )
     events = []
     try:
         messages = trace(row, remote, events)

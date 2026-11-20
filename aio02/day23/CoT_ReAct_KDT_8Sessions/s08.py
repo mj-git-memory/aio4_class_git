@@ -1,9 +1,20 @@
 """6차시의 실행 기록으로 결과 화면을 만든다."""
 import argparse
 import json
+import re
 from html import escape
 from pathlib import Path
 from lesson import ROOT
+
+
+def numeric_values(value):
+    if isinstance(value, list):
+        return [float(item) for item in value]
+    if isinstance(value, (int, float)):
+        return [float(value)]
+    if isinstance(value, str):
+        return [float(item.replace(",", "")) for item in re.findall(r"-?\d[\d,]*(?:\.\d+)?", value)]
+    return []
 
 
 def report(path):
@@ -11,10 +22,14 @@ def report(path):
     parts = []
     for case in cases:
         status = case["status"]
-        if status == "완료":
-            status = "수치 일치" if case["predicted"] == case["expected"] else "수치 불일치"
+        if case.get("correct") is not None:
+            status = "수치 일치" if case["correct"] else "수치 불일치"
+        elif status == "완료":
+            predicted = numeric_values(case.get("predicted"))
+            expected = numeric_values(case.get("expected_numbers", case.get("expected")))
+            status = "수치 일치" if predicted and predicted == expected else "수치 불일치"
         parts.append(f"<section><h2>원본 행 {int(case['row'])} · {escape(case['method'])}</h2>")
-        parts.append(f"<p>{escape(case['provider'])} / {escape(case['model'])} · {escape(status)} · 도구 실행 {int(case['tools'])}회</p>")
+        parts.append(f"<p>{escape(case['provider'])} / {escape(case['model'])} · {escape(status)} · API 요청 {int(case.get('api_requests', 0))}회 · 도구 실행 {int(case['tools'])}회</p>")
         fields = [("원본 문제", case["question"]), ("프롬프트", case["instruction"]),
                   *case["events"], ("원본 풀이와 답", case["reference"])]
         for title, body in fields:
