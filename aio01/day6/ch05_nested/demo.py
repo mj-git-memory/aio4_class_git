@@ -9,40 +9,43 @@ class DeliveryMethod(str, Enum):
 
 method = DeliveryMethod.STANDARD
 method1 = DeliveryMethod['STANDARD'] # 이름으로 찾기 -> DeliveryMethod.STANDARD
-method2 = DeliveryMethod('standard')      # 값으로 찾기 -> DeliveryMethod.STANDARD
+method2 = DeliveryMethod('standard') # 값으로 찾기 -> DeliveryMethod.STANDARD
 
 print(method)
 print(method1)
 print(method2)
-
-print(method.value)
-print(method.name)
-print(method== 'standard')
-print(isinstance(method,str))
+print('---')
+print(method.value) # standard
+print(method.name) # STANDARD
+print(method == 'standard') # True
+print(isinstance(method, str)) # True
 print('----------------------')
 
-# class Weekend(str, Enum) : 
-#     MON = '월요일'
-#     TUE = '화요일'
+class Weekend(str, Enum) : 
+    MON = '월요일'
+    TUE = '화요일'
 
-# method = Weekend.MON
-# print(method)
-# print(method.value)
-# print(method.name)
-# print(method== 'a')
-# print(isinstance(method,str))
+method = Weekend.MON
+print(method) # Weekend.MON
+print(method.value) # 월요일
+print(method.name) # MON
+print(method== 'a') # False
+print(isinstance(method, str)) # True
+print('----------------------')
 
+
+class DeliveryMethod(str, Enum):
+    STANDARD = 'standard' # DeliveryMethod.STANDARD
+    EXPRESS = 'express' # DeliveryMethod.EXPRESS
 
 class Address(BaseModel):
     city: str
     street: str
 
-
 class OrderItem(BaseModel):
     product_id: int = Field(gt=0)
     quantity: int = Field(ge=1)
     unit_price: int = Field(ge=0)
-
 
 class Order(BaseModel):
     customer_name: str
@@ -66,11 +69,13 @@ def main() -> None:
     print('STEP 1 - 중첩 모델:', order.address.city, order.items[0].quantity)
     print('STEP 2 - 합계:', order.total)
     print('STEP 3 - 중첩 구조의 오류 위치')
+    
     raw['items'][0]['quantity'] = 0
     try:
         Order.model_validate(raw)
     except ValidationError as error:
         print('오류 위치:', error.errors()[0]['loc'])
+        print('오류 위치:', error.errors()[0])
     print('05장 성공')
 
 

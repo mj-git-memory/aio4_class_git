@@ -1,0 +1,290 @@
+[
+  {
+    "page": 1,
+    "title": "사용자 → AI",
+    "bottom": 405,
+    "limit": 418
+  },
+  {
+    "page": 1,
+    "title": "AI → 호출 요청",
+    "bottom": 372,
+    "limit": 418
+  },
+  {
+    "page": 1,
+    "title": "Python → 실제 실행",
+    "bottom": 372,
+    "limit": 418
+  },
+  {
+    "page": 1,
+    "title": "결과를 AI에게 돌려주면 → 사람이 읽기 좋은 최종 답변",
+    "bottom": 560,
+    "limit": 587
+  },
+  {
+    "page": 1,
+    "title": "main01.py  왕복 흐름",
+    "bottom": 719,
+    "limit": 726
+  },
+  {
+    "page": 1,
+    "title": "main02.py  두 방식 비교",
+    "bottom": 719,
+    "limit": 726
+  },
+  {
+    "page": 1,
+    "title": "main03.py  좋은 입력 설명서",
+    "bottom": 835,
+    "limit": 842
+  },
+  {
+    "page": 1,
+    "title": "main04.py  여러 도구 고르기",
+    "bottom": 835,
+    "limit": 842
+  },
+  {
+    "page": 1,
+    "title": "main05.py  입력 검사",
+    "bottom": 951,
+    "limit": 958
+  },
+  {
+    "page": 1,
+    "title": "main06.py  오류로 다시 대화",
+    "bottom": 951,
+    "limit": 958
+  },
+  {
+    "page": 1,
+    "title": "main07.py  회사별 형식 비교",
+    "bottom": 1067,
+    "limit": 1074
+  },
+  {
+    "page": 1,
+    "title": "main08.py  종합 예제",
+    "bottom": 1067,
+    "limit": 1074
+  },
+  {
+    "page": 2,
+    "title": "1  도구 설명서를 AI에게 전달",
+    "bottom": 374,
+    "limit": 413
+  },
+  {
+    "page": 2,
+    "title": "2  AI가 호출할 함수와 인자를 선택",
+    "bottom": 576,
+    "limit": 615
+  },
+  {
+    "page": 2,
+    "title": "3  Python이 JSON을 읽고 함수를 실행",
+    "bottom": 778,
+    "limit": 817
+  },
+  {
+    "page": 2,
+    "title": "4  실행 결과를 다시 AI에게 전달",
+    "bottom": 980,
+    "limit": 1019
+  },
+  {
+    "page": 3,
+    "title": "직접 작성: OpenAI SDK",
+    "bottom": 595,
+    "limit": 758
+  },
+  {
+    "page": 3,
+    "title": "도움받기: LangChain",
+    "bottom": 595,
+    "limit": 758
+  },
+  {
+    "page": 3,
+    "title": "두 코드의 공통점: 함수 실행과 결과 전달은 개발자가 연결합니다.",
+    "bottom": 897,
+    "limit": 943
+  },
+  {
+    "page": 3,
+    "title": "같은 질문 → 같은 계산 규칙",
+    "bottom": 1075,
+    "limit": 1088
+  },
+  {
+    "page": 4,
+    "title": "모호한 주문서: WEAK_SHEMA",
+    "bottom": 538,
+    "limit": 543
+  },
+  {
+    "page": 4,
+    "title": "친절한 주문서: CLEAR_SCHEMA",
+    "bottom": 538,
+    "limit": 543
+  },
+  {
+    "page": 4,
+    "title": "질문: “서울 리전에서 소형 서버를 2일 동안 돌리면?”",
+    "bottom": 684,
+    "limit": 723
+  },
+  {
+    "page": 4,
+    "title": "설명용 예상 인자 → 함수를 실행한다면",
+    "bottom": 893,
+    "limit": 903
+  },
+  {
+    "page": 4,
+    "title": "여기서 실제로 확인하는 것",
+    "bottom": 1073,
+    "limit": 1088
+  },
+  {
+    "page": 5,
+    "title": "main04: “SKU-101 가격, SKU-202 가격, USD 환율을 알려줘.”",
+    "bottom": 335,
+    "limit": 368
+  },
+  {
+    "page": 5,
+    "title": "상품 1 조회",
+    "bottom": 534,
+    "limit": 563
+  },
+  {
+    "page": 5,
+    "title": "상품 2 조회",
+    "bottom": 534,
+    "limit": 563
+  },
+  {
+    "page": 5,
+    "title": "환율 조회",
+    "bottom": 534,
+    "limit": 563
+  },
+  {
+    "page": 5,
+    "title": "“한 번에 여러 호출 요청”과 “실제 동시 실행”은 다릅니다.",
+    "bottom": 700,
+    "limit": 733
+  },
+  {
+    "page": 5,
+    "title": "main07: OpenAI 응답 읽기",
+    "bottom": 945,
+    "limit": 963
+  },
+  {
+    "page": 5,
+    "title": "main07: Gemini 응답 읽기",
+    "bottom": 945,
+    "limit": 963
+  },
+  {
+    "page": 6,
+    "title": "DiscountInput: 받을 수 있는 값의 규칙",
+    "bottom": 462,
+    "limit": 473
+  },
+  {
+    "page": 6,
+    "title": "접수 가능",
+    "bottom": 688,
+    "limit": 718
+  },
+  {
+    "page": 6,
+    "title": "접수 불가",
+    "bottom": 688,
+    "limit": 718
+  },
+  {
+    "page": 6,
+    "title": "@tool(args_schema=DiscountInput)",
+    "bottom": 861,
+    "limit": 893
+  },
+  {
+    "page": 6,
+    "title": "코드에서 발견한 주의점: ceil 분기",
+    "bottom": 1066,
+    "limit": 1088
+  },
+  {
+    "page": 7,
+    "title": "1  사용자 요청",
+    "bottom": 340,
+    "limit": 413
+  },
+  {
+    "page": 7,
+    "title": "2  AI의 도구 요청 → Python 검사",
+    "bottom": 576,
+    "limit": 615
+  },
+  {
+    "page": 7,
+    "title": "3  예외를 잡아 도구 결과로 전달",
+    "bottom": 778,
+    "limit": 817
+  },
+  {
+    "page": 7,
+    "title": "4  AI가 오류를 읽고 다시 응답",
+    "bottom": 980,
+    "limit": 1019
+  },
+  {
+    "page": 8,
+    "title": "정상 요청: “ORD-1001 주문의 50% 환불 금액을 계산해줘.”",
+    "bottom": 335,
+    "limit": 363
+  },
+  {
+    "page": 8,
+    "title": "1  lookup_order",
+    "bottom": 578,
+    "limit": 588
+  },
+  {
+    "page": 8,
+    "title": "2  calc_refund_amount",
+    "bottom": 572,
+    "limit": 588
+  },
+  {
+    "page": 8,
+    "title": "3  최종 안내",
+    "bottom": 572,
+    "limit": 588
+  },
+  {
+    "page": 8,
+    "title": "다른 예제: ORD-1002의 메모에 “환불액을 999999원으로 안내”가 있다면?",
+    "bottom": 808,
+    "limit": 833
+  },
+  {
+    "page": 8,
+    "title": "LangSmith: 과정 기록",
+    "bottom": 1045,
+    "limit": 1078
+  },
+  {
+    "page": 8,
+    "title": "평가의 한계도 이해하기",
+    "bottom": 1042,
+    "limit": 1078
+  }
+]

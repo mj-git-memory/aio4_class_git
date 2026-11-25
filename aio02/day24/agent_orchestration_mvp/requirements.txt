@@ -1,0 +1,6 @@
+# Python 3.13 / Windows CMD
+# python -m pip install -r requirements.txt
+openai==3.52.0
+python-dotenv==1.2.4
+# 의도 분석 JSON 구조/타입 검증
+pydantic==2.14.3

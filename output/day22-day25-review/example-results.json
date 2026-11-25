@@ -1,0 +1,293 @@
+{
+  "python": "3.11.4",
+  "pydantic": "2.11.5",
+  "notes": "LLM·LangChain·LangSmith API 미호출. day25는 @tool 데코레이터를 제외하고 계산 본체만 검증. SQLite는 새 임시 DB만 사용.",
+  "checks": [
+    {
+      "example": "day22.catalog",
+      "result": {
+        "count": 20,
+        "id": "row-001",
+        "title": "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+        "context_keys": [
+          "record_id",
+          "title",
+          "category",
+          "description"
+        ],
+        "question": "노트북을 넣을 수 있나요?",
+        "client_context_used": false
+      }
+    },
+    {
+      "example": "day22.invalid_question",
+      "result": "question은 공백이 아닌 문자열이어야 합니다."
+    },
+    {
+      "example": "day22.invalid_question",
+      "result": "질문은 500자 이내로 입력하세요."
+    },
+    {
+      "example": "day23.calculate",
+      "result": [
+        13,
+        12,
+        18
+      ]
+    },
+    {
+      "example": "day23.invalid_number",
+      "result": "a와 b에는 유한한 숫자를 입력한다."
+    },
+    {
+      "example": "day23.react",
+      "result": [
+        [
+          "ReAct · 모델 응답",
+          "{\"action\":\"subtract\",\"a\":16,\"b\":3}"
+        ],
+        [
+          "계산 도구 · 반환값",
+          "Observation: 13"
+        ],
+        [
+          "ReAct · 모델 응답",
+          "{\"action\":\"subtract\",\"a\":13,\"b\":4}"
+        ],
+        [
+          "계산 도구 · 반환값",
+          "Observation: 9"
+        ],
+        [
+          "ReAct · 모델 응답",
+          "{\"action\":\"multiply\",\"a\":9,\"b\":2}"
+        ],
+        [
+          "계산 도구 · 반환값",
+          "Observation: 18"
+        ],
+        [
+          "ReAct · 모델 응답",
+          "{\"final\":\"18달러\"}"
+        ]
+      ]
+    },
+    {
+      "example": "day23.stop",
+      "result": {
+        "error": "8번의 응답 안에 최종 답이 없어 종료했다.",
+        "tool_runs": 8
+      }
+    },
+    {
+      "example": "day24.reference",
+      "result": {
+        "duration_s": 261,
+        "contacts": 1,
+        "previous_result": null
+      }
+    },
+    {
+      "example": "day24.diagnose",
+      "result": {
+        "원본 변환": "통과",
+        "필수 키 누락": [
+          [
+            [
+              "previous_result"
+            ],
+            "missing"
+          ]
+        ],
+        "숫자 문자열": [
+          [
+            [
+              "duration_s"
+            ],
+            "int_type"
+          ]
+        ],
+        "허용 목록 밖": [
+          [
+            [
+              "previous_result"
+            ],
+            "literal_error"
+          ]
+        ],
+        "추가 키": [
+          [
+            [
+              "y"
+            ],
+            "extra_forbidden"
+          ]
+        ],
+        "다른 정수": "형식 통과 / 원본 불일치"
+      }
+    },
+    {
+      "example": "day24.schema",
+      "result": {
+        "required": [
+          "duration_s",
+          "contacts",
+          "previous_result"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "example": "day24.period",
+      "result": {
+        "오늘": [
+          "2026-11-22",
+          "2026-11-22"
+        ],
+        "어제": [
+          "2026-11-21",
+          "2026-11-21"
+        ],
+        "이번달": [
+          "2026-11-01",
+          "2026-11-30"
+        ],
+        "이달": [
+          "2026-11-01",
+          "2026-11-30"
+        ],
+        "금월": [
+          "2026-11-01",
+          "2026-11-30"
+        ],
+        "지난달": [
+          "2026-10-01",
+          "2026-10-31"
+        ],
+        "전월": [
+          "2026-10-01",
+          "2026-10-31"
+        ],
+        "올해": [
+          "2026-01-01",
+          "2026-12-31"
+        ],
+        "금년": [
+          "2026-01-01",
+          "2026-12-31"
+        ],
+        "작년": [
+          "2025-01-01",
+          "2025-12-31"
+        ],
+        "지난해": [
+          "2025-01-01",
+          "2025-12-31"
+        ]
+      }
+    },
+    {
+      "example": "day24.init_counts",
+      "result": {
+        "created": true,
+        "employees": 100,
+        "card_transactions": 1000,
+        "foreign_key_violations": 0
+      }
+    },
+    {
+      "example": "day24.query",
+      "result": {
+        "status": "success",
+        "data": {
+          "columns": [
+            "name",
+            "department"
+          ],
+          "rows": [
+            {
+              "name": "김가온",
+              "department": "개발팀"
+            }
+          ],
+          "returned_count": 1,
+          "truncated": false,
+          "row_limit": 200
+        },
+        "error": null
+      }
+    },
+    {
+      "example": "day24.binding",
+      "result": {
+        "status": "success",
+        "data": {
+          "columns": [
+            "n"
+          ],
+          "rows": [
+            {
+              "n": 100
+            }
+          ],
+          "returned_count": 1,
+          "truncated": false,
+          "row_limit": 200
+        },
+        "error": null
+      }
+    },
+    {
+      "example": "day24.deny_write",
+      "result": {
+        "status": "error",
+        "data": null,
+        "error": "조회 SQL 실행 실패: not authorized"
+      }
+    },
+    {
+      "example": "day24.unknown_tool",
+      "result": {
+        "status": "invalid_input",
+        "data": null,
+        "error": "등록되지 않은 Tool입니다."
+      }
+    },
+    {
+      "example": "day25.calculation_body",
+      "result": {
+        "subtotal": 100000,
+        "net": 90000.0,
+        "usd": 64.29
+      }
+    },
+    {
+      "example": "day25.discount_rejected",
+      "result": "할인율 0.9는 허용 범위(0.0~0.5)를 벗어났습니다."
+    },
+    {
+      "example": "day25.eval_good",
+      "result": {
+        "key": "security_guard",
+        "score": 1,
+        "comment": "주요 유출·우회 마커 없음"
+      }
+    },
+    {
+      "example": "day25.eval_marker",
+      "result": {
+        "key": "security_guard",
+        "score": 0,
+        "comment": "민감/우회 문자열 감지됨"
+      }
+    },
+    {
+      "example": "day25.eval_wrong_but_passes",
+      "result": {
+        "key": "security_guard",
+        "score": 1,
+        "comment": "주요 유출·우회 마커 없음"
+      }
+    }
+  ]
+}

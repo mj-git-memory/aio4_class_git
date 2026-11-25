@@ -1,0 +1,850 @@
+[
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/app/__init__.py",
+    "lines": 1,
+    "functions": []
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/app/catalog.py",
+    "lines": 47,
+    "functions": [
+      {
+        "name": "read_catalog",
+        "line": 8,
+        "end": 30
+      },
+      {
+        "name": "find_product",
+        "line": 32,
+        "end": 36
+      },
+      {
+        "name": "product_context",
+        "line": 38,
+        "end": 41
+      },
+      {
+        "name": "data_info",
+        "line": 43,
+        "end": 47
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/app/cli.py",
+    "lines": 9,
+    "functions": [
+      {
+        "name": "parser",
+        "line": 5,
+        "end": 9
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/app/config.py",
+    "lines": 35,
+    "functions": [
+      {
+        "name": "Settings",
+        "line": 11,
+        "end": 35
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/app/fetch_products.py",
+    "lines": 43,
+    "functions": [
+      {
+        "name": "main",
+        "line": 12,
+        "end": 40
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/app/pipeline.py",
+    "lines": 34,
+    "functions": [
+      {
+        "name": "prepare_input",
+        "line": 7,
+        "end": 21
+      },
+      {
+        "name": "build_chain",
+        "line": 24,
+        "end": 26
+      },
+      {
+        "name": "sample_requests",
+        "line": 29,
+        "end": 34
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/app/prompts.py",
+    "lines": 27,
+    "functions": [
+      {
+        "name": "get_prompt",
+        "line": 24,
+        "end": 27
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/app/providers.py",
+    "lines": 33,
+    "functions": [
+      {
+        "name": "make_model",
+        "line": 5,
+        "end": 20
+      },
+      {
+        "name": "friendly_error",
+        "line": 22,
+        "end": 33
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/app/report.py",
+    "lines": 43,
+    "functions": [
+      {
+        "name": "save_report",
+        "line": 9,
+        "end": 43
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/sessions/__init__.py",
+    "lines": 1,
+    "functions": []
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/sessions/s01.py",
+    "lines": 21,
+    "functions": [
+      {
+        "name": "main",
+        "line": 6,
+        "end": 19
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/sessions/s02.py",
+    "lines": 30,
+    "functions": [
+      {
+        "name": "main",
+        "line": 6,
+        "end": 28
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/sessions/s03.py",
+    "lines": 18,
+    "functions": [
+      {
+        "name": "main",
+        "line": 7,
+        "end": 16
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/sessions/s04.py",
+    "lines": 37,
+    "functions": [
+      {
+        "name": "main",
+        "line": 10,
+        "end": 33
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/sessions/s05.py",
+    "lines": 24,
+    "functions": [
+      {
+        "name": "main",
+        "line": 8,
+        "end": 20
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/sessions/s06.py",
+    "lines": 25,
+    "functions": [
+      {
+        "name": "main",
+        "line": 8,
+        "end": 21
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/sessions/s07.py",
+    "lines": 45,
+    "functions": [
+      {
+        "name": "main",
+        "line": 12,
+        "end": 41
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/sessions/s08.py",
+    "lines": 40,
+    "functions": [
+      {
+        "name": "main",
+        "line": 11,
+        "end": 36
+      }
+    ]
+  },
+  {
+    "path": "aio02/day22/LangChain_20261117_DataEdition/tests/test_project.py",
+    "lines": 96,
+    "functions": [
+      {
+        "name": "test_bundled_data_has_twenty_records",
+        "line": 13,
+        "end": 16
+      },
+      {
+        "name": "test_price_and_unverified_fields_excluded",
+        "line": 18,
+        "end": 21
+      },
+      {
+        "name": "test_invalid_question",
+        "line": 24,
+        "end": 25
+      },
+      {
+        "name": "test_untrusted_context_not_used",
+        "line": 27,
+        "end": 29
+      },
+      {
+        "name": "test_non_dict_rejected",
+        "line": 31,
+        "end": 32
+      },
+      {
+        "name": "test_unknown_id_rejected",
+        "line": 34,
+        "end": 35
+      },
+      {
+        "name": "test_missing_variable",
+        "line": 37,
+        "end": 38
+      },
+      {
+        "name": "test_same_context_all_versions",
+        "line": 40,
+        "end": 43
+      },
+      {
+        "name": "test_parser_does_not_check_facts",
+        "line": 45,
+        "end": 46
+      },
+      {
+        "name": "test_real_lcel_with_mock",
+        "line": 48,
+        "end": 50
+      },
+      {
+        "name": "test_batch_failure_and_stream",
+        "line": 52,
+        "end": 57
+      },
+      {
+        "name": "test_catalog_invalid",
+        "line": 60,
+        "end": 62
+      },
+      {
+        "name": "test_source_mode_and_hash",
+        "line": 64,
+        "end": 66
+      },
+      {
+        "name": "test_api_id_mapping_and_duplicate_rejection",
+        "line": 69,
+        "end": 74
+      },
+      {
+        "name": "test_report_escapes_untrusted_text_and_preserves_modes",
+        "line": 77,
+        "end": 88
+      },
+      {
+        "name": "test_report_without_model_is_labeled",
+        "line": 91,
+        "end": 96
+      }
+    ]
+  },
+  {
+    "path": "aio02/day23/CoT_ReAct_KDT_8Sessions/lesson.py",
+    "lines": 129,
+    "functions": [
+      {
+        "name": "prompt",
+        "line": 28,
+        "end": 35
+      },
+      {
+        "name": "calculate",
+        "line": 38,
+        "end": 54
+      },
+      {
+        "name": "react",
+        "line": 57,
+        "end": 71
+      },
+      {
+        "name": "demo",
+        "line": 74,
+        "end": 86
+      },
+      {
+        "name": "save",
+        "line": 89,
+        "end": 100
+      },
+      {
+        "name": "main",
+        "line": 103,
+        "end": 125
+      }
+    ]
+  },
+  {
+    "path": "aio02/day23/CoT_ReAct_KDT_8Sessions/providers.py",
+    "lines": 78,
+    "functions": [
+      {
+        "name": "CallLimit",
+        "line": 19,
+        "end": 20
+      },
+      {
+        "name": "RemoteChat",
+        "line": 23,
+        "end": 78
+      }
+    ]
+  },
+  {
+    "path": "aio02/day23/CoT_ReAct_KDT_8Sessions/s02.py",
+    "lines": 29,
+    "functions": [
+      {
+        "name": "records",
+        "line": 11,
+        "end": 12
+      },
+      {
+        "name": "variants",
+        "line": 15,
+        "end": 17
+      }
+    ]
+  },
+  {
+    "path": "aio02/day23/CoT_ReAct_KDT_8Sessions/s03.py",
+    "lines": 84,
+    "functions": [
+      {
+        "name": "scripted",
+        "line": 21,
+        "end": 39
+      },
+      {
+        "name": "egg_demo",
+        "line": 42,
+        "end": 57
+      },
+      {
+        "name": "sprint_demo",
+        "line": 60,
+        "end": 67
+      },
+      {
+        "name": "ask",
+        "line": 70,
+        "end": 73
+      }
+    ]
+  },
+  {
+    "path": "aio02/day23/CoT_ReAct_KDT_8Sessions/s04.py",
+    "lines": 22,
+    "functions": [
+      {
+        "name": "execute",
+        "line": 7,
+        "end": 11
+      }
+    ]
+  },
+  {
+    "path": "aio02/day23/CoT_ReAct_KDT_8Sessions/s05.py",
+    "lines": 31,
+    "functions": [
+      {
+        "name": "trace",
+        "line": 8,
+        "end": 13
+      }
+    ]
+  },
+  {
+    "path": "aio02/day23/CoT_ReAct_KDT_8Sessions/s06.py",
+    "lines": 88,
+    "functions": [
+      {
+        "name": "answer_numbers",
+        "line": 16,
+        "end": 21
+      },
+      {
+        "name": "display_number",
+        "line": 24,
+        "end": 27
+      },
+      {
+        "name": "compare",
+        "line": 30,
+        "end": 67
+      }
+    ]
+  },
+  {
+    "path": "aio02/day23/CoT_ReAct_KDT_8Sessions/s07.py",
+    "lines": 28,
+    "functions": [
+      {
+        "name": "replay",
+        "line": 14,
+        "end": 22
+      }
+    ]
+  },
+  {
+    "path": "aio02/day23/CoT_ReAct_KDT_8Sessions/s08.py",
+    "lines": 55,
+    "functions": [
+      {
+        "name": "numeric_values",
+        "line": 10,
+        "end": 17
+      },
+      {
+        "name": "report",
+        "line": 20,
+        "end": 45
+      }
+    ]
+  },
+  {
+    "path": "aio02/day24/U2-03_Structured_Output/main.py",
+    "lines": 235,
+    "functions": [
+      {
+        "name": "Contract",
+        "line": 30,
+        "end": 31
+      },
+      {
+        "name": "Contact",
+        "line": 34,
+        "end": 37
+      },
+      {
+        "name": "Product",
+        "line": 40,
+        "end": 43
+      },
+      {
+        "name": "read_rows",
+        "line": 49,
+        "end": 68
+      },
+      {
+        "name": "project",
+        "line": 71,
+        "end": 73
+      },
+      {
+        "name": "reference",
+        "line": 76,
+        "end": 80
+      },
+      {
+        "name": "diagnose",
+        "line": 83,
+        "end": 98
+      },
+      {
+        "name": "call_api",
+        "line": 101,
+        "end": 153
+      },
+      {
+        "name": "generate",
+        "line": 156,
+        "end": 175
+      },
+      {
+        "name": "write_report",
+        "line": 178,
+        "end": 191
+      },
+      {
+        "name": "main",
+        "line": 194,
+        "end": 231
+      }
+    ]
+  },
+  {
+    "path": "aio02/day24/U2-03_Structured_Output/test.py",
+    "lines": 35,
+    "functions": [
+      {
+        "name": "MyClass",
+        "line": 15,
+        "end": 18
+      }
+    ]
+  },
+  {
+    "path": "aio02/day24/agent_orchestration_mvp/custom_tools.py",
+    "lines": 224,
+    "functions": [
+      {
+        "name": "database_path",
+        "line": 31,
+        "end": 33
+      },
+      {
+        "name": "_result",
+        "line": 36,
+        "end": 37
+      },
+      {
+        "name": "initialize_database",
+        "line": 40,
+        "end": 111
+      },
+      {
+        "name": "_authorize",
+        "line": 114,
+        "end": 122
+      },
+      {
+        "name": "query_database",
+        "line": 125,
+        "end": 157
+      },
+      {
+        "name": "execute_tool",
+        "line": 182,
+        "end": 195
+      },
+      {
+        "name": "main",
+        "line": 198,
+        "end": 220
+      }
+    ]
+  },
+  {
+    "path": "aio02/day24/agent_orchestration_mvp/intent_analysis.py",
+    "lines": 277,
+    "functions": [
+      {
+        "name": "Subject",
+        "line": 22,
+        "end": 26
+      },
+      {
+        "name": "Period",
+        "line": 29,
+        "end": 33
+      },
+      {
+        "name": "IntentAnalysis",
+        "line": 36,
+        "end": 48
+      },
+      {
+        "name": "parse_reference_date",
+        "line": 93,
+        "end": 100
+      },
+      {
+        "name": "relative_period_rules",
+        "line": 103,
+        "end": 119
+      },
+      {
+        "name": "analyze_intent",
+        "line": 122,
+        "end": 209
+      },
+      {
+        "name": "intent_test_cases",
+        "line": 212,
+        "end": 240
+      },
+      {
+        "name": "compare_intent",
+        "line": 243,
+        "end": 256
+      },
+      {
+        "name": "run_intent_suite",
+        "line": 259,
+        "end": 277
+      }
+    ]
+  },
+  {
+    "path": "aio02/day24/agent_orchestration_mvp/main.py",
+    "lines": 473,
+    "functions": [
+      {
+        "name": "Settings",
+        "line": 39,
+        "end": 41
+      },
+      {
+        "name": "ToolExecutionIncomplete",
+        "line": 44,
+        "end": 45
+      },
+      {
+        "name": "AgentClient",
+        "line": 49,
+        "end": 186
+      },
+      {
+        "name": "load_settings",
+        "line": 189,
+        "end": 206
+      },
+      {
+        "name": "create_agents",
+        "line": 209,
+        "end": 268
+      },
+      {
+        "name": "generate_final_answer",
+        "line": 301,
+        "end": 322
+      },
+      {
+        "name": "run_pipeline",
+        "line": 325,
+        "end": 393
+      },
+      {
+        "name": "main",
+        "line": 396,
+        "end": 468
+      }
+    ]
+  },
+  {
+    "path": "aio02/day24/agent_orchestration_mvp/test_custom_tools.py",
+    "lines": 166,
+    "functions": [
+      {
+        "name": "CustomToolTests",
+        "line": 16,
+        "end": 162
+      }
+    ]
+  },
+  {
+    "path": "aio02/day24/agent_orchestration_mvp/test_intent_analysis.py",
+    "lines": 181,
+    "functions": [
+      {
+        "name": "IntentTests",
+        "line": 18,
+        "end": 177
+      }
+    ]
+  },
+  {
+    "path": "aio02/day24/agent_orchestration_mvp/test_pipeline.py",
+    "lines": 260,
+    "functions": [
+      {
+        "name": "PipelineTests",
+        "line": 18,
+        "end": 256
+      }
+    ]
+  },
+  {
+    "path": "aio02/day25/U2-04_Prompt-Injection_LangSmith/langsmith_test.py",
+    "lines": 48,
+    "parser_note": "Python 3.11에서 PEP 701 f-string 파싱 불가; 3.12 이상 문법 확인 필요"
+  },
+  {
+    "path": "aio02/day25/U2-04_Prompt-Injection_LangSmith/langsmith_test2.py",
+    "lines": 65,
+    "functions": [
+      {
+        "name": "multiply",
+        "line": 9,
+        "end": 11
+      },
+      {
+        "name": "apply_discount",
+        "line": 14,
+        "end": 18
+      },
+      {
+        "name": "convert_currency",
+        "line": 21,
+        "end": 23
+      }
+    ]
+  },
+  {
+    "path": "aio02/day25/U2-04_Prompt-Injection_LangSmith/langsmith_test3.py",
+    "lines": 120,
+    "functions": [
+      {
+        "name": "multiply",
+        "line": 22,
+        "end": 24
+      },
+      {
+        "name": "apply_discount",
+        "line": 28,
+        "end": 32
+      },
+      {
+        "name": "convert_currency",
+        "line": 36,
+        "end": 40
+      },
+      {
+        "name": "run_agent",
+        "line": 47,
+        "end": 90
+      }
+    ]
+  },
+  {
+    "path": "aio02/day25/U2-04_Prompt-Injection_LangSmith/langsmith_test4.py",
+    "lines": 134,
+    "functions": [
+      {
+        "name": "fetch_product_policy",
+        "line": 19,
+        "end": 35
+      },
+      {
+        "name": "multiply",
+        "line": 39,
+        "end": 41
+      },
+      {
+        "name": "apply_discount",
+        "line": 45,
+        "end": 49
+      },
+      {
+        "name": "convert_currency",
+        "line": 53,
+        "end": 57
+      },
+      {
+        "name": "run_indirect_agent",
+        "line": 65,
+        "end": 115
+      }
+    ]
+  },
+  {
+    "path": "aio02/day25/U2-04_Prompt-Injection_LangSmith/langsmith_test5.py",
+    "lines": 161,
+    "functions": [
+      {
+        "name": "fetch_product_policy",
+        "line": 19,
+        "end": 29
+      },
+      {
+        "name": "multiply",
+        "line": 33,
+        "end": 35
+      },
+      {
+        "name": "apply_discount",
+        "line": 39,
+        "end": 43
+      },
+      {
+        "name": "convert_currency",
+        "line": 47,
+        "end": 51
+      },
+      {
+        "name": "run_capstone_agent",
+        "line": 59,
+        "end": 95
+      },
+      {
+        "name": "_extract_input_text",
+        "line": 99,
+        "end": 106
+      },
+      {
+        "name": "eval_target",
+        "line": 109,
+        "end": 111
+      },
+      {
+        "name": "score_no_leak_or_bypass",
+        "line": 114,
+        "end": 127
+      },
+      {
+        "name": "run_demo_scenarios",
+        "line": 130,
+        "end": 140
+      },
+      {
+        "name": "run_dataset_evaluation",
+        "line": 143,
+        "end": 155
+      }
+    ]
+  }
+]

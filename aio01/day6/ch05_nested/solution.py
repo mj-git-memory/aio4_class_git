@@ -16,10 +16,12 @@ def main() -> None:
         'title': 'Pydantic 기초', 'learners': [{'name': '김학생', 'score': 92}]
     })
     print(course.learners[0].name)
+
     try:
         Course(title='Pydantic', learners=[{'name': '이학생', 'score': 120}])
     except ValidationError as error:
         print('중첩 오류:', error.errors()[0]['loc'])
+        print('중첩 오류:', error.errors()[0])
     print('05장 정답 실행 성공')
 
 

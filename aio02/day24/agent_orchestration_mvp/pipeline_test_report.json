@@ -1,0 +1,624 @@
+{
+  "mode": "sqlite_pipeline_live_test",
+  "reference_date": "2026-11-19",
+  "cases": [
+    {
+      "question": "E001의 2026년 11월 법인카드 사용 건수와 총 사용액을 알려줘.",
+      "actual": {
+        "status": "success",
+        "answer": "직원 E001의 2026년 11월 법인카드 사용 내역은 다음과 같습니다.\n\n*   **총 사용 건수:** 3건\n*   **총 사용액:** 423,500원",
+        "intent": {
+          "original_question": "E001의 2026년 11월 법인카드 사용 건수와 총 사용액을 알려줘.",
+          "reference_date": "2026-11-19",
+          "analysis": {
+            "intent": "card_usage",
+            "scope": "individual",
+            "execution_tier": "standard",
+            "summary": "직원 E001의 2026년 11월 법인카드 사용 건수 및 총 사용액 조회",
+            "subjects": [
+              {
+                "employee_id": "E001",
+                "employee_name": null,
+                "card_id": null
+              }
+            ],
+            "period": {
+              "original_expression": "2026년 11월",
+              "start_date": "2026-11-01",
+              "end_date": "2026-11-30"
+            },
+            "requested_fields": [
+              "transactions"
+            ],
+            "analysis_tasks": [
+              "사용 건수 계산",
+              "총 사용액 계산"
+            ],
+            "constraints": [],
+            "needs_clarification": false,
+            "clarification_questions": [],
+            "unsupported_reasons": []
+          },
+          "review_status": "ready_for_review",
+          "model_period": {
+            "original_expression": "2026년 11월",
+            "start_date": "2026-11-01",
+            "end_date": "2026-11-30"
+          },
+          "normalization_notes": [],
+          "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+          "candidate_tools": [
+            "get_employee_info",
+            "get_corporate_card_transactions"
+          ],
+          "candidate_tools_are_advisory": true,
+          "tool_execution": false,
+          "openai_called": false
+        },
+        "executor": "gemini",
+        "routing": [
+          {
+            "agent": "gemini",
+            "reason": "사용자 지정"
+          }
+        ],
+        "tool_trace": [
+          {
+            "agent": "gemini",
+            "round": 1,
+            "tool": "get_employee_info",
+            "arguments": "{\"fields\":[\"corporate_card_id\"],\"employee_id\":\"E001\"}",
+            "result": {
+              "status": "success",
+              "data": {
+                "corporate_card_id": "CARD-1001"
+              },
+              "error": null
+            }
+          },
+          {
+            "agent": "gemini",
+            "round": 2,
+            "tool": "get_corporate_card_transactions",
+            "arguments": "{\"start_date\":\"2026-11-01\",\"card_id\":\"CARD-1001\",\"end_date\":\"2026-11-30\"}",
+            "result": {
+              "status": "success",
+              "data": {
+                "corporate_card_id": "CARD-1001",
+                "currency": "KRW",
+                "start_date": "2026-11-01",
+                "end_date": "2026-11-30",
+                "count": 3,
+                "total_amount_krw": 423500,
+                "transactions": [
+                  {
+                    "transaction_id": "TX-000003",
+                    "corporate_card_id": "CARD-1001",
+                    "used_at": "2026-11-12",
+                    "merchant": "가상비즈호텔3호점",
+                    "category": "숙박",
+                    "amount_krw": 46200,
+                    "description": "출장 숙박"
+                  },
+                  {
+                    "transaction_id": "TX-000007",
+                    "corporate_card_id": "CARD-1001",
+                    "used_at": "2026-11-12",
+                    "merchant": "가상비즈교통1호점",
+                    "category": "교통",
+                    "amount_krw": 194800,
+                    "description": "업무 이동"
+                  },
+                  {
+                    "transaction_id": "TX-000001",
+                    "corporate_card_id": "CARD-1001",
+                    "used_at": "2026-11-19",
+                    "merchant": "가상미팅센터5호점",
+                    "category": "회의비",
+                    "amount_krw": 182500,
+                    "description": "외부 회의"
+                  }
+                ],
+                "truncated": false
+              },
+              "error": null
+            }
+          }
+        ],
+        "openai_called": false
+      },
+      "expected_sql": "SELECT COUNT(*) AS count, COALESCE(SUM(t.amount_krw),0) AS total_amount_krw\nFROM employees e JOIN card_transactions t ON e.corporate_card_id=t.corporate_card_id\nWHERE e.employee_id=? AND t.used_at BETWEEN ? AND ?",
+      "expected_parameters": [
+        "E001",
+        "2026-11-01",
+        "2026-11-30"
+      ],
+      "expected_rows": [
+        {
+          "count": 3,
+          "total_amount_krw": 423500
+        }
+      ],
+      "passed": true
+    },
+    {
+      "question": "김가온의 2026년 11월 법인카드 사용 건수와 총 사용액을 알려줘.",
+      "actual": {
+        "status": "success",
+        "answer": "김가온 님의 2026년 11월 법인카드 사용 내역은 다음과 같습니다.\n\n*   **사용 건수**: 3건\n*   **총 사용액**: 423,500원",
+        "intent": {
+          "original_question": "김가온의 2026년 11월 법인카드 사용 건수와 총 사용액을 알려줘.",
+          "reference_date": "2026-11-19",
+          "analysis": {
+            "intent": "card_usage",
+            "scope": "individual",
+            "execution_tier": "standard",
+            "summary": "김가온의 2026년 11월 카드 사용 건수와 총 사용액 조회",
+            "subjects": [
+              {
+                "employee_id": null,
+                "employee_name": "김가온",
+                "card_id": null
+              }
+            ],
+            "period": {
+              "original_expression": "2026년 11월",
+              "start_date": "2026-11-01",
+              "end_date": "2026-11-30"
+            },
+            "requested_fields": [
+              "transactions"
+            ],
+            "analysis_tasks": [
+              "COUNT(transaction_id)",
+              "SUM(amount_krw)"
+            ],
+            "constraints": [],
+            "needs_clarification": false,
+            "clarification_questions": [],
+            "unsupported_reasons": []
+          },
+          "review_status": "ready_for_review",
+          "model_period": {
+            "original_expression": "2026년 11월",
+            "start_date": "2026-11-01",
+            "end_date": "2026-11-30"
+          },
+          "normalization_notes": [],
+          "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+          "candidate_tools": [
+            "search_employees",
+            "get_corporate_card_transactions"
+          ],
+          "candidate_tools_are_advisory": true,
+          "tool_execution": false,
+          "openai_called": false
+        },
+        "executor": "gemini",
+        "intent_analyzer": "gemini",
+        "routing": [
+          {
+            "agent": "gemini",
+            "reason": "사용자 지정"
+          }
+        ],
+        "tool_trace": [
+          {
+            "agent": "gemini",
+            "round": 1,
+            "tool": "search_employees",
+            "arguments": "{\"evaluation\":null,\"name\":\"김가온\",\"department\":null}",
+            "result": {
+              "status": "success",
+              "data": {
+                "columns": [
+                  "employee_id",
+                  "name",
+                  "department",
+                  "corporate_card_id"
+                ],
+                "rows": [
+                  {
+                    "employee_id": "E001",
+                    "name": "김가온",
+                    "department": "개발팀",
+                    "corporate_card_id": "CARD-1001"
+                  }
+                ],
+                "returned_count": 1,
+                "truncated": false,
+                "row_limit": 200
+              },
+              "error": null
+            }
+          },
+          {
+            "agent": "gemini",
+            "round": 2,
+            "tool": "get_corporate_card_transactions",
+            "arguments": "{\"card_id\":\"CARD-1001\",\"start_date\":\"2026-11-01\",\"end_date\":\"2026-11-30\"}",
+            "result": {
+              "status": "success",
+              "data": {
+                "corporate_card_id": "CARD-1001",
+                "currency": "KRW",
+                "start_date": "2026-11-01",
+                "end_date": "2026-11-30",
+                "count": 3,
+                "total_amount_krw": 423500,
+                "transactions": [
+                  {
+                    "transaction_id": "TX-000003",
+                    "corporate_card_id": "CARD-1001",
+                    "used_at": "2026-11-12",
+                    "merchant": "가상비즈호텔3호점",
+                    "category": "숙박",
+                    "amount_krw": 46200,
+                    "description": "출장 숙박"
+                  },
+                  {
+                    "transaction_id": "TX-000007",
+                    "corporate_card_id": "CARD-1001",
+                    "used_at": "2026-11-12",
+                    "merchant": "가상비즈교통1호점",
+                    "category": "교통",
+                    "amount_krw": 194800,
+                    "description": "업무 이동"
+                  },
+                  {
+                    "transaction_id": "TX-000001",
+                    "corporate_card_id": "CARD-1001",
+                    "used_at": "2026-11-19",
+                    "merchant": "가상미팅센터5호점",
+                    "category": "회의비",
+                    "amount_krw": 182500,
+                    "description": "외부 회의"
+                  }
+                ],
+                "truncated": false
+              },
+              "error": null
+            }
+          }
+        ],
+        "tool_execution": true,
+        "openai_called": false
+      },
+      "expected_sql": "SELECT COUNT(*) AS count, COALESCE(SUM(t.amount_krw),0) AS total_amount_krw\nFROM employees e JOIN card_transactions t ON e.corporate_card_id=t.corporate_card_id\nWHERE e.name=? AND t.used_at BETWEEN ? AND ?",
+      "expected_parameters": [
+        "김가온",
+        "2026-11-01",
+        "2026-11-30"
+      ],
+      "expected_rows": [
+        {
+          "count": 3,
+          "total_amount_krw": 423500
+        }
+      ],
+      "passed": true,
+      "previous_attempts": [
+        {
+          "status": "success",
+          "answer": "죄송합니다. 요청하신 '김가온' 직원의 정보를 찾을 수 없어 법인카드 사용 내역을 조회할 수 없습니다. 다시 한번 이름을 확인해주시겠어요?",
+          "intent": {
+            "original_question": "김가온의 2026년 11월 법인카드 사용 건수와 총 사용액을 알려줘.",
+            "reference_date": "2026-11-19",
+            "analysis": {
+              "intent": "card_usage",
+              "scope": "individual",
+              "execution_tier": "standard",
+              "summary": "김가온 직원의 2026년 11월 법인카드 사용 건수 및 총 사용액 조회 요청",
+              "subjects": [
+                {
+                  "employee_id": null,
+                  "employee_name": "김가온",
+                  "card_id": null
+                }
+              ],
+              "period": {
+                "original_expression": "2026년 11월",
+                "start_date": "2026-11-01",
+                "end_date": "2026-11-30"
+              },
+              "requested_fields": [
+                "count",
+                "amount_krw"
+              ],
+              "analysis_tasks": [
+                "사용 건수 계산",
+                "총 사용액 계산"
+              ],
+              "constraints": [],
+              "needs_clarification": false,
+              "clarification_questions": [],
+              "unsupported_reasons": []
+            },
+            "review_status": "ready_for_review",
+            "model_period": {
+              "original_expression": "2026년 11월",
+              "start_date": "2026-11-01",
+              "end_date": "2026-11-30"
+            },
+            "normalization_notes": [],
+            "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+            "candidate_tools": [
+              "search_employees",
+              "get_corporate_card_transactions"
+            ],
+            "candidate_tools_are_advisory": true,
+            "tool_execution": false,
+            "openai_called": false
+          },
+          "executor": "gemini",
+          "intent_analyzer": "gemini",
+          "routing": [
+            {
+              "agent": "gemini",
+              "reason": "사용자 지정"
+            }
+          ],
+          "tool_trace": [
+            {
+              "agent": "gemini",
+              "round": 1,
+              "tool": "search_employees",
+              "arguments": "{\"name\":\"김가온\",\"department\":\"*\",\"evaluation\":\"*\"}",
+              "result": {
+                "status": "success",
+                "data": {
+                  "columns": [
+                    "employee_id",
+                    "name",
+                    "department",
+                    "corporate_card_id"
+                  ],
+                  "rows": [],
+                  "returned_count": 0,
+                  "truncated": false,
+                  "row_limit": 200
+                },
+                "error": null
+              }
+            }
+          ],
+          "tool_execution": true,
+          "openai_called": false
+        }
+      ]
+    },
+    {
+      "question": "개발팀 전체 직원의 2026년 11월 법인카드 사용 건수와 총 사용액을 알려줘.",
+      "actual": {
+        "status": "success",
+        "answer": "개발팀 소속 전체 직원의 2026년 11월 법인카드 사용 내역은 다음과 같습니다.\n\n*   **사용 건수:** 35건\n*   **총 사용액:** 7,962,600원",
+        "intent": {
+          "original_question": "개발팀 전체 직원의 2026년 11월 법인카드 사용 건수와 총 사용액을 알려줘.",
+          "reference_date": "2026-11-19",
+          "analysis": {
+            "intent": "card_usage",
+            "scope": "group",
+            "execution_tier": "standard",
+            "summary": "개발팀 소속 모든 직원의 2026년 11월 법인카드 사용 내역에 대한 건수 및 총 사용액 집계",
+            "subjects": [],
+            "period": {
+              "original_expression": "2026년 11월",
+              "start_date": "2026-11-01",
+              "end_date": "2026-11-30"
+            },
+            "requested_fields": [
+              "transactions"
+            ],
+            "analysis_tasks": [
+              "사용 건수 계산 (COUNT)",
+              "총 사용액 계산 (SUM)"
+            ],
+            "constraints": [
+              "개발팀 소속 직원 대상",
+              "2026-11-01부터 2026-11-30까지의 내역"
+            ],
+            "needs_clarification": false,
+            "clarification_questions": [],
+            "unsupported_reasons": []
+          },
+          "review_status": "ready_for_review",
+          "model_period": {
+            "original_expression": "2026년 11월",
+            "start_date": "2026-11-01",
+            "end_date": "2026-11-30"
+          },
+          "normalization_notes": [],
+          "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+          "candidate_tools": [
+            "query_database"
+          ],
+          "candidate_tools_are_advisory": true,
+          "tool_execution": false,
+          "openai_called": false
+        },
+        "executor": "gemini",
+        "intent_analyzer": "gemini",
+        "routing": [
+          {
+            "agent": "gemini",
+            "reason": "사용자 지정"
+          }
+        ],
+        "tool_trace": [
+          {
+            "agent": "gemini",
+            "round": 1,
+            "tool": "query_database",
+            "arguments": "{\"row_limit\":100,\"parameters\":[\"개발팀\",\"2026-11-01\",\"2026-11-30\"],\"sql\":\"SELECT COUNT(t.transaction_id) AS total_count, SUM(t.amount_krw) AS total_amount FROM card_transactions t JOIN employees e ON t.corporate_card_id = e.corporate_card_id WHERE e.department = ? AND t.used_at BETWEEN ? AND ?\"}",
+            "result": {
+              "status": "success",
+              "data": {
+                "columns": [
+                  "total_count",
+                  "total_amount"
+                ],
+                "rows": [
+                  {
+                    "total_count": 35,
+                    "total_amount": 7962600
+                  }
+                ],
+                "returned_count": 1,
+                "truncated": false,
+                "row_limit": 100
+              },
+              "error": null
+            }
+          }
+        ],
+        "tool_execution": true,
+        "openai_called": false
+      },
+      "expected_sql": "SELECT COUNT(*) AS count, COALESCE(SUM(t.amount_krw),0) AS total_amount_krw\nFROM employees e JOIN card_transactions t ON e.corporate_card_id=t.corporate_card_id\nWHERE e.department=? AND t.used_at BETWEEN ? AND ?",
+      "expected_parameters": [
+        "개발팀",
+        "2026-11-01",
+        "2026-11-30"
+      ],
+      "expected_rows": [
+        {
+          "count": 35,
+          "total_amount_krw": 7962600
+        }
+      ],
+      "passed": true
+    },
+    {
+      "question": "2026년 11월 법인카드 사용액이 가장 많은 부서 상위 3개와 각 부서의 총 사용액을 알려줘.",
+      "actual": {
+        "status": "success",
+        "answer": "2026년 11월 법인카드 사용액이 가장 많은 부서 상위 3개와 각 부서의 총 사용액은 다음과 같습니다.\n\n1. **재무팀**: 10,349,100원\n2. **인사팀**: 9,571,900원\n3. **영업팀**: 9,518,900원",
+        "intent": {
+          "original_question": "2026년 11월 법인카드 사용액이 가장 많은 부서 상위 3개와 각 부서의 총 사용액을 알려줘.",
+          "reference_date": "2026-11-19",
+          "analysis": {
+            "intent": "card_usage",
+            "scope": "group",
+            "execution_tier": "standard",
+            "summary": "2026년 11월 부서별 법인카드 사용액 합계를 계산하여 상위 3개 부서를 조회합니다.",
+            "subjects": [],
+            "period": {
+              "original_expression": "2026년 11월",
+              "start_date": "2026-11-01",
+              "end_date": "2026-11-30"
+            },
+            "requested_fields": [
+              "department",
+              "total_amount"
+            ],
+            "analysis_tasks": [
+              "부서별 사용액 합계 계산",
+              "사용액 기준 내림차순 정렬",
+              "상위 3개 부서 추출"
+            ],
+            "constraints": [
+              "2026년 11월 데이터 한정",
+              "부서별 총 사용액 기준 상위 3개"
+            ],
+            "needs_clarification": false,
+            "clarification_questions": [],
+            "unsupported_reasons": []
+          },
+          "review_status": "ready_for_review",
+          "model_period": {
+            "original_expression": "2026년 11월",
+            "start_date": "2026-11-01",
+            "end_date": "2026-11-30"
+          },
+          "normalization_notes": [],
+          "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+          "candidate_tools": [
+            "query_database"
+          ],
+          "candidate_tools_are_advisory": true,
+          "tool_execution": false,
+          "openai_called": false
+        },
+        "executor": "gemini",
+        "intent_analyzer": "gemini",
+        "routing": [
+          {
+            "agent": "gemini",
+            "reason": "사용자 지정"
+          }
+        ],
+        "tool_trace": [
+          {
+            "agent": "gemini",
+            "round": 1,
+            "tool": "query_database",
+            "arguments": "{\"sql\":\"SELECT e.department, SUM(c.amount_krw) AS total_amount FROM employees e JOIN card_transactions c ON e.corporate_card_id = c.corporate_card_id WHERE c.used_at BETWEEN ? AND ? GROUP BY e.department ORDER BY total_amount DESC LIMIT 3\",\"row_limit\":3,\"parameters\":[\"2026-11-01\",\"2026-11-30\"]}",
+            "result": {
+              "status": "success",
+              "data": {
+                "columns": [
+                  "department",
+                  "total_amount"
+                ],
+                "rows": [
+                  {
+                    "department": "재무팀",
+                    "total_amount": 10349100
+                  },
+                  {
+                    "department": "인사팀",
+                    "total_amount": 9571900
+                  },
+                  {
+                    "department": "영업팀",
+                    "total_amount": 9518900
+                  }
+                ],
+                "returned_count": 3,
+                "truncated": false,
+                "row_limit": 3
+              },
+              "error": null
+            }
+          }
+        ],
+        "tool_execution": true,
+        "openai_called": false
+      },
+      "expected_sql": "SELECT e.department, SUM(t.amount_krw) AS total_amount_krw\nFROM employees e JOIN card_transactions t ON e.corporate_card_id=t.corporate_card_id\nWHERE t.used_at BETWEEN ? AND ? GROUP BY e.department ORDER BY total_amount_krw DESC LIMIT 3",
+      "expected_parameters": [
+        "2026-11-01",
+        "2026-11-30"
+      ],
+      "expected_rows": [
+        {
+          "department": "재무팀",
+          "total_amount_krw": 10349100
+        },
+        {
+          "department": "인사팀",
+          "total_amount_krw": 9571900
+        },
+        {
+          "department": "영업팀",
+          "total_amount_krw": 9518900
+        }
+      ],
+      "passed": true
+    }
+  ],
+  "passed": 4,
+  "total": 4,
+  "database": {
+    "database": "C:\\AI4_02\\agent_orchestration_mvp\\company.sqlite3",
+    "created": false,
+    "employees": 100,
+    "card_transactions": 1000,
+    "transaction_period": [
+      "2026-08-22",
+      "2026-11-19"
+    ],
+    "foreign_key_violations": 0
+  },
+  "validation_scope": "실제 Gemini Tool 실행 및 답변 수치를 별도 SQLite 정답 SQL과 비교. OpenAI 실호출 없음."
+}

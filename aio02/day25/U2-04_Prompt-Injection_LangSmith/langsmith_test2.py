@@ -36,7 +36,7 @@ message = [
         )
     ),
     HumanMessage(
-        content="단가 25,000원짜리 상품을 4개 사고 10%할일을 받은뒤 1달러당 1,400기준 달러금액도 알려줘"
+        content="단가 25,000원짜리 상품을 4개 사고 10%할인을 받은뒤 1달러당 1,400기준 달러금액도 알려줘"
     )
     ,
 ]
@@ -51,10 +51,13 @@ for step in range(max_steps):
         break
     print(f"[Step {step + 1} 요청된 도구의수 : {len(ai_msg.tool_calls)}]")
     for tool_call in ai_msg.tool_calls:
+        
         tool_name = tool_call['name']
         tool_args = tool_call['args']
+
         selected_tool = tools_by_name[tool_name]
         result = selected_tool.invoke(tool_args)
+        
         print(f'    - 실행:{tool_name}({tool_args}) -> {result}')
 
         message.append(

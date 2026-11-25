@@ -9,13 +9,16 @@
 ## 함수: 특정 작업을 수행하는 코드 묶음
 ## 메서드: 클래스 안에 정의한 함수 
 ## 객체:  클래스를 바탕으로 실제로 만든 대상
-## 상속: 존 클래스의 속성과 메서드를 물려받아 새로운 클래스를 만드는 것
+
+## 상속: 기존 클래스의 속성과 메서드를 물려받아 새로운 클래스를 만드는 것
 # class 자식클래스(부모클래스):
 #     # 추가할 내용
+
 # 왜 상속할까요?
 # - 코드를 재사용하려고: 공통 기능을 여러 클래스에 반복해서 작성하지 않아도 됨
 # - 기능을 확장하려고: 기존 기능을 사용하면서 새로운 기능을 추가할 수 있음
 # - 동작을 바꾸려고: 부모 메서드를 자식에서 다시 정의할 수 있음. 이를 오버라이딩이라고 함
+
 ## 초기화: 객체를 처음 만들 때, 그 객체가 사용할 값을 설정하는 것
 ## __init__()은 객체의 초기값을 설정하는 메서드
 # __init__()은 이미 만들어진 객체를 초기화하는 역할 (객체 생성은 __new__()가 담당)
@@ -24,6 +27,7 @@
 # __init__()은 생성된 객체(self)에 name 같은 초기값을 설정
 # 문자열 같은 값을 반환하는 메서드는 아니므로 보통 return을 작성하지 않음 
 # 파이썬이 새 객체를 만든 뒤 __init__()을 자동으로 호출
+
 ## super()는 부모 쪽의 메서드를 호출할 때 사용
 # **“부모 클래스의 기능을 가져와서 실행한다”**
 # super().메서드이름(전달할_값)
@@ -33,6 +37,7 @@
 # self -	방금 생성한 객체
 # name -	"하늘"
 # age - 	23
+
 # 1. __new__() → 새 객체를 만들어 반환 : 생성 메서드
 # 2. __init__() → 그 객체를 self로 받아 이름과 나이를 저장 : 초기화 메서드 
 # 3. user → 초기화까지 끝난 객체를 가리켜요.
@@ -42,9 +47,11 @@
 # __init__() : 만들어진 객체에 초기값 설정
 #      ↓
 # user가 객체를 가리킴
+
 ## __str__() : 객체를 사람이 읽기 좋은 문자열로 표현하는 메서드. 객체를 설명하는 문자열 반환
 # __str__() 안에서는 print()가 아니라 문자열을 return해야 함 
 # __str__()를 작성하지 않은 일반 클래스의 객체는 보통 다음처럼 표시 : <__main__.Student object at 0x...>
+
 ## 오류 처리 
 # try:
 #     오류가 발생할 수 있는 코드
@@ -53,8 +60,7 @@
 
 #-------------------------------------------------------------
 ## Ex) 
-# student.py ← 이 파일이 모듈
-
+# ------ student.py ← 이 파일이 모듈 ------
 def say_hello(name):             # 함수
     return f"안녕하세요, {name}님!"
 
@@ -65,7 +71,6 @@ class Student:                  # 클래스
         return f"저는 {self.name}입니다."
 
 # import student  # 모듈 가져오기
-
 # # 모듈 안의 함수 호출
 # message = student.say_hello("하늘")
 # print(message)
@@ -88,7 +93,6 @@ class Student:                  # 클래스
 class Person:
     def __init__(self, name):
         self.name = name
-
     def introduce(self):
         print(f"저는 {self.name}입니다.")
 
@@ -106,6 +110,7 @@ student.study()       # 하늘이 공부합니다.
 # 부모인 Person에서 물려받았기 때문에 사용할 수 있음
 # -> study()는 자식 클래스에 새로 추가한 메서드
 #-------------------------------------------------------------
+
 #-------------------------------------------------------------
 ### pydantic : 데이터 검증과 변환 기능을 제공
 # -> 데이터의 유효성 및 타입을 체크
@@ -141,7 +146,6 @@ student = NormalStudent(name="하늘", age="스물셋")
 class Person:
     def __init__(self, name):
         self.name = name
-
     def introduce(self):
         print(f"저는 {self.name}입니다.")
 
@@ -157,7 +161,7 @@ student.introduce()   # 저는 하늘입니다.
 student.study()       # 하늘이 공부합니다.
 # -> Student에는 __init__()이나 introduce()를 직접 작성하지 않았지만, 
 # 부모인 Person에서 물려받았기 때문에 사용할 수 있음 
-#-------------------------------------------------------------
+#-----------------------
 class Student(Person):
     def introduce(self):
         print(f"저는 학생 {self.name}입니다.")
@@ -166,7 +170,7 @@ class Student(Person):
 student = Student("하늘")
 student.introduce()
 # 저는 학생 하늘입니다.
-#-------------------------------------------------------------
+#-----------------------
 # 자식에서 초기화할 값을 추가하려면 super()를 사용
 # 부모의 초기화 작업을 유지하면서 값을 추가
 class Student(Person):
@@ -193,16 +197,10 @@ class Member(BaseModel):
 member = Member(username="하늘", age=23)
 print(member.model_dump()) # model_dump(): 검증·변환을 마친 모델의 데이터를 딕셔너리로 반환
 # {'username': '하늘', 'age': 23}
+print(type(member.model_dump()))
+# <class 'dict'>
 #-------------------------------------------------------------
-class Person:
-    def __init__(self, name):
-        self.name = name
 
-person = Person("하늘")
-# person = Person("하늘") -> 이 코드를 실행하면, 
-# 파이썬이 새 객체를 만든 뒤 __init__()을 자동으로 호출
-# 새 객체의 name 속성에 "하늘"을 저장
-print(person.name)  # 하늘
 #-------------------------------------------------------------
 # 사람의 이름에 더해 학생 번호도 저장
 class Person:
@@ -210,20 +208,16 @@ class Person:
         self.name = name
 
 class Student(Person):
-    # def __init__(self, ...):	이 클래스의 초기화 방법을 정의
-    def __init__(self, name, student_id):
-        # super().__init__(...)	부모 쪽의 초기화 메서드를 호출
-        super().__init__(name)        # 부모 코드로 이름 저장
+    def __init__(self, name, student_id):     # def __init__(self, ...): 이 클래스의 초기화 방법을 정의
+        super().__init__(name)        # 부모 코드로 이름 저장   # super().__init__(...)	부모 쪽의 초기화 메서드를 호출
         self.student_id = student_id  # 학생 번호 추가 저장
 # *** 자식이 __init__()을 새로 정의하면 부모의 __init__()은 자동으로 실행되지 않음 
 # 따라서 부모의 초기화 작업도 필요하다면 super().__init__(...)을 호출 ***
 # 반대로 자식에서 __init__()을 정의하지 않으면 부모의 것을 물려받아 사용
 
 student = Student("하늘", "2024001")
-
 print(student.name)        # 하늘
 print(student.student_id)  # 2024001
-
 # # 실행 흐름 
 # Student("하늘", "2024001")
 # → Student의 __init__ 실행
@@ -232,8 +226,6 @@ print(student.student_id)  # 2024001
 # → Student의 코드로 돌아와 student_id 저장
 # 부모 객체를 별도로 만드는 것이 아니라, 같은 학생 객체를 초기화하는 과정
 #-------------------------------------------------------------
-
-
 
 
 
@@ -265,15 +257,14 @@ print('---------------------')
 user1 = NormalClass("홍길동", 20)
 print('일반클래스', user1.age)
 print('데이터 타입', type(user1.age))
-print('---------------------')
+print('1---------------------')
 
 user2 = NormalClass(20, '홍길동')
 print('일반클래스', user2.age)
 print('데이터 타입', type(user2.age))
-print('---------------------')
-print('---------------------')
+print('2---------------------')
 
-
+print('---------------------')
 # pydanctic 클래스 생성
 class PydanticUser(BaseModel):
     name: str
@@ -289,13 +280,14 @@ try :
 except ValidationError as e : # except가 오류를 받아 출력
     print('에러 :', e)
     # 에러 : 1 validation error for PydanticUser → PydanticUser 객체를 만드는 과정에서 데이터 검증 오류가 1개 발생
-# try:
+
+# try: 
 #     오류가 발생할 수 있는 코드
 # except 오류종류:
 #     해당 오류가 발생했을 때 실행할 코드
 print('---------------------')
 
-# user3 = PydanticUser(name = "홍길동", age ='스무살') # ValidationError 발생
-# # pydantic_core._pydantic_core.ValidationError: 1 validation error for PydanticUser 
-# # age
-# # Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='스무살', input_type=str]
+user3 = PydanticUser(name = "홍길동", age ='스무살') # ValidationError 발생
+# pydantic_core._pydantic_core.ValidationError: 1 validation error for PydanticUser 
+# age
+# Input should be a valid integer, unable to parse string as an integer [type=int_parsing, input_value='스무살', input_type=str]

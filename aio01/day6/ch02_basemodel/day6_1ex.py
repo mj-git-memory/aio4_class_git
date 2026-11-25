@@ -18,12 +18,18 @@ def main() -> None:
     # 아래 데이터를 문자열 age = '123'으로 바꿔 실행한 뒤 결과 타입 확인
     student = Student(name="하늘", age=23, interests=["AI", "python"])
     student = Student(name="하늘", age=23, interests=["AI", "python"], nickname="Sky", student_id="2024001")
+    # student = Student(name="하늘", age='스물셋', interests=["AI", "python"])
     print('학생 - ', student)
-    print('age 타입', type(student.age))
+    print('age 타입: ', type(student.age))
     print('dictionary 변환', student.model_dump())
+    print('dictionary 변환', type(student.model_dump()))
     # age에 스물셋을 전달하고, ValidationError를 처리하는 코드 작성
 
 ## 함수를 실행하는 코드 
-if __name__ == "__main__": # .
-    main()
+if __name__ == "__main__": 
+    try :
+        main()
+    except ValidationError as e :
+        print('에러: ', e) 
+
 

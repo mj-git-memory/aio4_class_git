@@ -15,11 +15,14 @@ llm = ChatOpenAI(model='gpt-4o-mini', temperature=0)
 llm_with_tools = llm.bind_tools([multiply])
 
 message = [HumanMessage(content='7과 8을 곱한 결과를 알려줘')]
-
+# print(message)
+# print('-'*80)
 response = llm_with_tools.invoke(message)
-message.append(response)
 print(response)
 print('-'*80)
+message.append(response) 
+# print(message)
+# print('-'*80)
 print(response.tool_calls)
 print('-'*80)
 
@@ -41,4 +44,5 @@ for tool_call in response.tool_calls:
     )
 # 최종 답변
 final_msg = llm_with_tools.invoke(message)
+print(final_msg)
 print(f'최종답변: {final_msg.content}')

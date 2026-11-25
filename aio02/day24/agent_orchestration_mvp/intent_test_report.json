@@ -1,0 +1,456 @@
+{
+  "mode": "gemini_intent_test",
+  "passed": 8,
+  "total": 8,
+  "attempted": 8,
+  "skipped": 0,
+  "cases": [
+    {
+      "expected": {
+        "intent": "employee_info",
+        "employee_ids": [
+          "E001"
+        ],
+        "review_status": "ready_for_review",
+        "candidate_tools": [
+          "get_employee_info"
+        ],
+        "requested_fields": [
+          "department",
+          "annual_salary_krw"
+        ]
+      },
+      "actual": {
+        "original_question": "E001의 부서와 연봉을 알려줘",
+        "reference_date": "2026-11-19",
+        "analysis": {
+          "intent": "employee_info",
+          "summary": "직원 ID E001의 부서와 연봉 정보를 조회하려고 합니다.",
+          "subjects": [
+            {
+              "employee_id": "E001",
+              "employee_name": null,
+              "card_id": null
+            }
+          ],
+          "period": {
+            "original_expression": null,
+            "start_date": null,
+            "end_date": null
+          },
+          "requested_fields": [
+            "department",
+            "annual_salary_krw"
+          ],
+          "analysis_tasks": [],
+          "constraints": [],
+          "needs_clarification": false,
+          "clarification_questions": [],
+          "unsupported_reasons": []
+        },
+        "review_status": "ready_for_review",
+        "model_period": {
+          "original_expression": null,
+          "start_date": null,
+          "end_date": null
+        },
+        "normalization_notes": [],
+        "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+        "candidate_tools": [
+          "get_employee_info"
+        ],
+        "candidate_tools_are_advisory": true,
+        "tool_execution": false,
+        "openai_called": false
+      },
+      "passed": true,
+      "mismatched_fields": []
+    },
+    {
+      "expected": {
+        "intent": "card_usage",
+        "employee_ids": [
+          "E001"
+        ],
+        "review_status": "ready_for_review",
+        "candidate_tools": [
+          "get_employee_info",
+          "get_corporate_card_transactions"
+        ],
+        "start_date": "2026-11-01",
+        "end_date": "2026-11-30"
+      },
+      "actual": {
+        "original_question": "E001의 이번 달 법인카드 사용액 합계를 알려줘",
+        "reference_date": "2026-11-19",
+        "analysis": {
+          "intent": "card_usage",
+          "summary": "직원 E001의 이번 달(2026-11-01 ~ 2026-11-30) 법인카드 사용액 합계 조회",
+          "subjects": [
+            {
+              "employee_id": "E001",
+              "employee_name": null,
+              "card_id": null
+            }
+          ],
+          "period": {
+            "original_expression": "이번 달",
+            "start_date": "2026-11-01",
+            "end_date": "2026-11-30"
+          },
+          "requested_fields": [
+            "transactions"
+          ],
+          "analysis_tasks": [
+            "사용액 합계 계산"
+          ],
+          "constraints": [],
+          "needs_clarification": false,
+          "clarification_questions": [],
+          "unsupported_reasons": []
+        },
+        "review_status": "ready_for_review",
+        "model_period": {
+          "original_expression": "이번 달",
+          "start_date": "2026-11-01",
+          "end_date": "2026-11-30"
+        },
+        "normalization_notes": [],
+        "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+        "candidate_tools": [
+          "get_employee_info",
+          "get_corporate_card_transactions"
+        ],
+        "candidate_tools_are_advisory": true,
+        "tool_execution": false,
+        "openai_called": false
+      },
+      "passed": true,
+      "mismatched_fields": []
+    },
+    {
+      "expected": {
+        "intent": "card_usage",
+        "employee_ids": [],
+        "employee_names": [
+          "김민준"
+        ],
+        "review_status": "needs_clarification"
+      },
+      "actual": {
+        "original_question": "김민준의 법인카드 사용내역을 알려줘",
+        "reference_date": "2026-11-19",
+        "analysis": {
+          "intent": "card_usage",
+          "summary": "김민준 직원의 법인카드 사용내역 조회를 위해 직원 정보를 확인하고 카드 내역을 조회합니다.",
+          "subjects": [
+            {
+              "employee_id": null,
+              "employee_name": "김민준",
+              "card_id": null
+            }
+          ],
+          "period": {
+            "original_expression": null,
+            "start_date": null,
+            "end_date": null
+          },
+          "requested_fields": [
+            "transactions"
+          ],
+          "analysis_tasks": [],
+          "constraints": [],
+          "needs_clarification": true,
+          "clarification_questions": [
+            "김민준 님의 직원 ID를 알고 계신가요? 직원 ID를 확인해야 카드 사용내역 조회가 가능합니다.",
+            "카드 조회를 위해 직원 ID 또는 법인카드 ID를 알려주세요."
+          ],
+          "unsupported_reasons": []
+        },
+        "review_status": "needs_clarification",
+        "model_period": {
+          "original_expression": null,
+          "start_date": null,
+          "end_date": null
+        },
+        "normalization_notes": [],
+        "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+        "candidate_tools": [
+          "get_employee_info",
+          "get_corporate_card_transactions"
+        ],
+        "candidate_tools_are_advisory": true,
+        "tool_execution": false,
+        "openai_called": false
+      },
+      "passed": true,
+      "mismatched_fields": []
+    },
+    {
+      "expected": {
+        "intent": "card_usage",
+        "card_ids": [
+          "CARD-1002"
+        ],
+        "employee_ids": [],
+        "review_status": "ready_for_review",
+        "candidate_tools": [
+          "get_corporate_card_transactions"
+        ],
+        "start_date": "2026-11-01",
+        "end_date": "2026-11-30"
+      },
+      "actual": {
+        "original_question": "CARD-1002의 2026년 11월 1일부터 11월 30일까지 사용내역을 보여줘",
+        "reference_date": "2026-11-19",
+        "analysis": {
+          "intent": "card_usage",
+          "summary": "법인카드 CARD-1002의 2026년 11월 1일부터 11월 30일까지 사용내역 조회 요청",
+          "subjects": [
+            {
+              "employee_id": null,
+              "employee_name": null,
+              "card_id": "CARD-1002"
+            }
+          ],
+          "period": {
+            "original_expression": "2026년 11월 1일부터 11월 30일까지",
+            "start_date": "2026-11-01",
+            "end_date": "2026-11-30"
+          },
+          "requested_fields": [
+            "transactions"
+          ],
+          "analysis_tasks": [],
+          "constraints": [],
+          "needs_clarification": false,
+          "clarification_questions": [],
+          "unsupported_reasons": []
+        },
+        "review_status": "ready_for_review",
+        "model_period": {
+          "original_expression": "2026년 11월 1일부터 11월 30일까지",
+          "start_date": "2026-11-01",
+          "end_date": "2026-11-30"
+        },
+        "normalization_notes": [],
+        "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+        "candidate_tools": [
+          "get_corporate_card_transactions"
+        ],
+        "candidate_tools_are_advisory": true,
+        "tool_execution": false,
+        "openai_called": false
+      },
+      "passed": true,
+      "mismatched_fields": []
+    },
+    {
+      "expected": {
+        "intent": "employee_info",
+        "candidate_tools": [
+          "get_employee_info"
+        ],
+        "requested_fields": [
+          "department"
+        ],
+        "has_constraints": true
+      },
+      "actual": {
+        "original_question": "E002의 부서만 알려줘. 연봉과 카드 사용내역은 조회하지 마",
+        "reference_date": "2026-11-19",
+        "analysis": {
+          "intent": "employee_info",
+          "summary": "직원 E002의 부서 정보 조회",
+          "subjects": [
+            {
+              "employee_id": "E002",
+              "employee_name": null,
+              "card_id": null
+            }
+          ],
+          "period": {
+            "original_expression": null,
+            "start_date": null,
+            "end_date": null
+          },
+          "requested_fields": [
+            "department"
+          ],
+          "analysis_tasks": [],
+          "constraints": [
+            "연봉은 조회하지 않음",
+            "카드 사용내역은 조회하지 않음"
+          ],
+          "needs_clarification": false,
+          "clarification_questions": [],
+          "unsupported_reasons": []
+        },
+        "review_status": "ready_for_review",
+        "model_period": {
+          "original_expression": null,
+          "start_date": null,
+          "end_date": null
+        },
+        "normalization_notes": [],
+        "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+        "candidate_tools": [
+          "get_employee_info"
+        ],
+        "candidate_tools_are_advisory": true,
+        "tool_execution": false,
+        "openai_called": false
+      },
+      "passed": true,
+      "mismatched_fields": []
+    },
+    {
+      "expected": {
+        "intent": "general",
+        "candidate_tools": [],
+        "review_status": "ready_for_review"
+      },
+      "actual": {
+        "original_question": "법인카드가 무엇인지 설명해줘",
+        "reference_date": "2026-11-19",
+        "analysis": {
+          "intent": "general",
+          "summary": "법인카드 개념에 대한 일반적인 설명을 요청함",
+          "subjects": [],
+          "period": {
+            "original_expression": null,
+            "start_date": null,
+            "end_date": null
+          },
+          "requested_fields": [],
+          "analysis_tasks": [],
+          "constraints": [],
+          "needs_clarification": false,
+          "clarification_questions": [],
+          "unsupported_reasons": []
+        },
+        "review_status": "ready_for_review",
+        "model_period": {
+          "original_expression": null,
+          "start_date": null,
+          "end_date": null
+        },
+        "normalization_notes": [],
+        "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+        "candidate_tools": [],
+        "candidate_tools_are_advisory": true,
+        "tool_execution": false,
+        "openai_called": false
+      },
+      "passed": true,
+      "mismatched_fields": []
+    },
+    {
+      "expected": {
+        "intent": "unsupported",
+        "candidate_tools": [],
+        "review_status": "unsupported"
+      },
+      "actual": {
+        "original_question": "E001의 연봉을 1억원으로 수정해줘",
+        "reference_date": "2026-11-19",
+        "analysis": {
+          "intent": "unsupported",
+          "summary": "직원 연봉 정보 수정을 요청하셨으나, 해당 기능은 지원하지 않습니다.",
+          "subjects": [
+            {
+              "employee_id": "E001",
+              "employee_name": null,
+              "card_id": null
+            }
+          ],
+          "period": {
+            "original_expression": null,
+            "start_date": null,
+            "end_date": null
+          },
+          "requested_fields": [],
+          "analysis_tasks": [],
+          "constraints": [
+            "연봉을 1억원으로 수정"
+          ],
+          "needs_clarification": false,
+          "clarification_questions": [],
+          "unsupported_reasons": [
+            "직원 정보 수정 기능은 제공하지 않습니다."
+          ]
+        },
+        "review_status": "unsupported",
+        "model_period": {
+          "original_expression": null,
+          "start_date": null,
+          "end_date": null
+        },
+        "normalization_notes": [],
+        "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+        "candidate_tools": [],
+        "candidate_tools_are_advisory": true,
+        "tool_execution": false,
+        "openai_called": false
+      },
+      "passed": true,
+      "mismatched_fields": []
+    },
+    {
+      "expected": {
+        "intent": "card_usage",
+        "review_status": "needs_clarification",
+        "start_date": null,
+        "end_date": null
+      },
+      "actual": {
+        "original_question": "E001의 최근 법인카드 사용내역을 알려줘",
+        "reference_date": "2026-11-19",
+        "analysis": {
+          "intent": "card_usage",
+          "summary": "직원 E001의 최근 법인카드 사용내역 조회 요청",
+          "subjects": [
+            {
+              "employee_id": "E001",
+              "employee_name": null,
+              "card_id": null
+            }
+          ],
+          "period": {
+            "original_expression": "최근",
+            "start_date": null,
+            "end_date": null
+          },
+          "requested_fields": [
+            "transactions"
+          ],
+          "analysis_tasks": [],
+          "constraints": [],
+          "needs_clarification": true,
+          "clarification_questions": [
+            "최근 법인카드 사용내역 조회 기간을 언제부터 언제까지로 할지 알려주세요."
+          ],
+          "unsupported_reasons": []
+        },
+        "review_status": "needs_clarification",
+        "model_period": {
+          "original_expression": "최근",
+          "start_date": null,
+          "end_date": null
+        },
+        "normalization_notes": [],
+        "period_policy": "상대 월/연도는 달력 전체 범위. 오늘까지/현재까지/지금까지 명시 시 기준일까지.",
+        "candidate_tools": [
+          "get_employee_info",
+          "get_corporate_card_transactions"
+        ],
+        "candidate_tools_are_advisory": true,
+        "tool_execution": false,
+        "openai_called": false
+      },
+      "passed": true,
+      "mismatched_fields": []
+    }
+  ],
+  "validation_scope": "준비한 예제의 지정 필드 비교이며, 일반적인 의미 정확도 보장은 아닙니다."
+}

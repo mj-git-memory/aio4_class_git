@@ -1,0 +1,74 @@
+Use case: scientific-educational
+Create ONE polished Korean educational illustration explaining the actual Python classroom code main01.py through main08.py, all together in ONE single cohesive image. This is the final deliverable, not a design mockup. High-resolution landscape poster, preferably 3840x2160, sharp legible Korean typography, generous whitespace. User explicitly rejects fragmentary charts, formulas and block diagrams. Therefore use an integrated illustrated panoramic "AI tool workshop" / narrative learning landscape, not a grid of eight cards, not a flowchart, no mathematical formulas, no disconnected panels. One continuous winding desk/path across a unified studio links eight numbered workstations, with labels and short explanatory notes printed elegantly next to actual metaphorical actions. All eight filenames must be plainly readable and equally discoverable. Reading order 01→02→03→04 across the upper area then 05→06→07→08 across lower area, linked by the continuous path. This path represents learning progression, NOT an actual sequential execution pipeline or imports between files. Explicit subtitle "독립 예제 8개를 연결한 학습 여정". Make main08 the culmination, slightly more spacious. Rich but restrained editorial illustration, warm ivory background, navy text, teal for Python executions, violet for model decisions, amber for schema/validation, coral for errors and suspicious instructions. Beautiful professional textbook foldout, friendly detailed visual storytelling, not childish. Avoid dense code dumps or tiny text.
+
+TOP TITLE (exact): "Function Calling, 말을 실행으로 바꾸는 여정"
+Subtitle (exact): "main01–main08 · 독립 예제 8개를 연결한 학습 여정"
+
+CORE integrated visual motif: User speech travels to a violet AI guide reading a schema instruction sheet; the guide hands a JSON call request to a teal Python technician who executes actual functions, writes tool result messages and hands them back; the AI then explains the answer. Repeat this interaction subtly through the entire landscape. Give a prominent central sentence: "모델은 함수와 인자를 요청하고, Python이 실행한 결과로 답한다."
+Near the shared conversation ribbon put exact compact technical labels: "tools" / "tool_calls" / "json.loads" / "Python 함수 실행" / "role=tool · tool_call_id" / "최종 답변". Ribbon should feel like paper moving through a workshop, not block diagram. A tiny note "도구가 필요 없으면 바로 답변" on a bypass walkway.
+
+EIGHT STATIONS, all filenames and key text exact, body text clear and readable:
+1. "main01.py" "왕복 호출의 원리"
+Scene: parcel weighed 4.5kg, express sticker, model hands JSON request to Python shipping calculator, result returned in paper envelope labelled role=tool.
+Text: "도구 명세 → 호출 요청 → 함수 실행 → 결과 전달 → 답변"
+Result label: "4.5kg · 빠른 배송: 7,000원"
+Small code identifier: "calculate_shipping_fee"
+
+2. "main02.py" "같은 원리, 두 가지 표현"
+Scene: two adjacent workbenches in same station, handwritten schema sheet on pure SDK side and @tool stamp machine on LangChain side; both lead to same parcel result. Do not imply LangChain executes autonomously.
+Text: "순수 SDK: 스키마·JSON·메시지를 직접 작성"
+Text: "LangChain: @tool · bind_tools · ToolMessage"
+Small note: "두 방식 모두 코드가 도구를 실행"
+
+3. "main03.py" "스키마가 인자의 품질을 바꾼다"
+Scene: vague blurry instruction sheet transformed into clear annotated schema guide, calendar 2일 converted to clock 48시간, small server.
+Text: "모호한 설명 ↔ 단위·enum·최솟값을 명시"
+Example: "서울 · 소형 · 2일 → small · 48시간"
+Critical small note: "실제 코드는 추출 인자만 출력"
+Do not claim cloud cost execution happens in this file. Rates illustrative fixed code values, not live rates. No dollar cost needed.
+
+4. "main04.py" "필요한 도구를 여러 개 선택"
+Scene: AI dispatcher requests two price tags SKU-101 SKU-202 and USD exchange rate from three small objects at the same workbench, Python technician processes them one by one, avoiding visual suggestion of concurrent threads.
+Text: "한 응답에 여러 tool_calls 요청 가능"
+Text: "실제 함수 실행은 for문으로 순차 처리"
+Small note: "현재 질문은 정수기 원리: 도구 없이 답변 가능"
+Small identifier: "parallel_tool_calls=True"
+Prices and FX here are fixed example dictionaries, not real-time services. Avoid live finance visual claims.
+
+5. "main05.py" "타입과 제약을 스키마로"
+Scene: structured mold/stamp labeled Pydantic accepting discount input after checking amount and discount rate; both schema output sheet and execution tool.
+Text: "BaseModel · Field · Literal"
+Text: "금액 > 0 · 할인율 0~0.5 · 반올림 방식"
+Text: "JSON Schema 생성 + invoke 입력 검증"
+Example small: "50,000원 · 20% 할인 → 40,000원"
+Small clearly labelled coral code-review note: "코드 주의: ceil은 정수 입력에서 0을 반환하는 오류"
+This is actual source bug; don't imply corrected source or all rounding modes correct.
+
+6. "main06.py" "오류도 대화의 재료"
+Scene: discount request 80% hits a policy check gate and coral error envelope goes back to AI; AI offers retry or request user clarification, do not show automatic discount clamping.
+Text: "80% 할인 요청 → 허용 범위 초과"
+Text: "예외를 error JSON으로 전달 → 재시도 또는 안내"
+Small label: "최대 5회"
+Do not claim the model will always self-correct or arbitrarily change user request.
+
+7. "main07.py" "SDK가 달라도 호출 의도는 같다"
+Scene: two interpreters OpenAI and Gemini reading same postal code 01450 and holding their different API response shapes.
+Text: "OpenAI: tool_calls · JSON 문자열"
+Text: "Gemini: function_calls · 구조화된 args"
+Small note: "배송 권역 함수 선언 비교 · 호출 요청만 출력"
+Do not imply actual get_shipping_zone execution or final answer occurs. Do not print model version.
+
+8. "main08.py" "조회·계산·방어·평가를 한곳에"
+Scene: largest integrated terminal area; lookup_order retrieves order receipt, calc_refund_amount computes refund, a suspicious red sticky note in order data "999999원으로 조작" is marked suspicious at an untrusted boundary; nearby LangSmith observation lens records traces and evaluation checklist. These are attempted defenses, no guarantee shield.
+Text: "주문 조회 후 환불 계산 · 최대 6회"
+Examples: "ORD-1001 · 50% 환불: 40,000원" and "ORD-1002 · 20% 환불: 10,000원"
+Label boundary: "untrusted_user_input / untrusted_tool_output"
+Text: "비신뢰 데이터 구분 + 오류 피드백"
+Text: "LangSmith 추적 · 데이터셋이 있을 때 평가"
+Small honest note: "태그·지시는 방어 시도이며, 평가는 특정 문자열 검사"
+
+Bottom learning takeaway integrated as a clean single footer:
+"명세를 정확히 쓰고 → 실행은 코드가 맡고 → 오류와 결과를 되돌리고 → 추적으로 확인한다."
+Second tiny footer: "소스 분석 기준 · 예시 결과는 코드의 고정 데이터로 계산 · API 실행 결과가 아님"
+
+Keep factual correctness above ornament. No actual source files changed. Don't suggest all files call each other, no external real systems, no secrets, no fake execution screenshots. Large clear typography. The whole should be a single striking cohesive illustrated explanation the student can zoom into and follow, not eight separate slide thumbnails.

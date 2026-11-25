@@ -15,8 +15,9 @@ class Registration(BaseModel) :
 
 def main() -> None : 
     user1 = Registration(name = 'lee', age= '50', email='lee@abc.com', code='STU-0001', agreed=True)
-    print('검증 성공 여부 :', user1.model_dump()) # user1.model_dump() : user1의 값을 딕셔너리 형태로 반환
-    # 증 성공 여부 : {'name': 'lee', 'age': 50, 'email': 'lee@abc.com', 'level': 'basic', 'code': 'STU-0001', 'agreed': True}
+    print('검증 성공 여부 : ', user1.model_dump()) # user1.model_dump() : user1의 값을 딕셔너리 형태로 반환
+    # 검증 성공 여부 : {'name': 'lee', 'age': 50, 'email': 'lee@abc.com', 'level': 'basic', 'code': 'STU-0001', 'agreed': True}
+    
     print('오류 확인')
     try : 
         user2 = Registration(name = 'lee', age= '500', email='lee@abccom', code='STU-001')
